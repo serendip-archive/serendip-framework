@@ -1,0 +1,1 @@
+exports.serendip = require('./dist');
