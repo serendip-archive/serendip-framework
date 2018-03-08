@@ -6,74 +6,74 @@ import { DbService, DbCollectionNames } from ".";
 
 export class AuthService {
 
-    private userCollection: Collection<UserModel>;
+    // private userCollection: DbService<UserModel>;
 
-    private createRandomToken(length: number): string {
+    // private createRandomToken(length: number): string {
 
-        return Math.random().toString().split('.')[1].substring(0, length);
+    //     return Math.random().toString().split('.')[1].substring(0, length);
 
-    }
+    // }
 
-    constructor() {
+    // constructor() {
 
-        this.userCollection = DbService.collection<UserModel>(DbCollectionNames.Users);
+    //     this.userCollection = new DbService<UserModel>(DbCollectionNames.Users);
 
-    }
+    // }
 
-    public findUserById(userId: string): Promise<UserModel> {
+    // public findUserById(userId: string): Promise<UserModel> {
 
-        var objectId = new ObjectID(userId);
+    //     var objectId = new ObjectID(userId);
 
-        return this.userCollection.findOne({ _id: objectId });
+    //     return this.userCollection.findOne({ _id: objectId });
 
-    }
+    // }
 
-    public findUserByMobile(mobile: string): Promise<UserModel> {
+    // public findUserByMobile(mobile: string): Promise<UserModel> {
 
-        return this.userCollection.findOne({ mobile: mobile });
+    //     return this.userCollection.findOne({ mobile: mobile });
 
-    }
-
-
-
-    public findUserByEmail(email: string): Promise<UserModel> {
-
-        return this.userCollection.findOne({ email: email });
-
-    }
+    // }
 
 
-    public async createPasswordResetToken(userId: string): Promise<string> {
+
+    // public findUserByEmail(email: string): Promise<UserModel> {
+
+    //     return this.userCollection.findOne({ email: email });
+
+    // }
 
 
-        var token = this.createRandomToken(6);
-        var objectId = new ObjectID(userId);
+    // public async createPasswordResetToken(userId: string): Promise<string> {
 
 
-        await this.userCollection.findOneAndUpdate({ _id: objectId }, { "passwordResetToken": token });
+    //     var token = this.createRandomToken(6);
+    //     var objectId = new ObjectID(userId);
 
-        return token;
+
+    //     await this.userCollection.findOneAndUpdate({ _id: objectId }, { "passwordResetToken": token });
+
+    //     return token;
 
 
-    }
+    // }
 
-    public static sendPasswordResetTokenWith(sendEmail: boolean, sendSms: boolean) {
+    // public static sendPasswordResetTokenWith(sendEmail: boolean, sendSms: boolean) {
 
         
 
-    }
+    // }
 
 
-    public static changePassword(newPassword: string) {
+    // public static changePassword(newPassword: string) {
 
 
-    }
+    // }
 
-    public static lockAccount() {
+    // public static lockAccount() {
 
-    }
+    // }
 
-    public static unlockAccount() {
+    // public static unlockAccount() {
 
-    }
+    // }
 }
