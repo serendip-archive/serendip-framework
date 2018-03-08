@@ -6,13 +6,11 @@ import * as models from './models';
 
 export var requestAnswered = 0;
 
-function start() {
-
+export function start() {
 
     dotenv.config();
 
     var cpuCount = 1 ||  cpus().length;
-
 
     // if this is process
     if (cluster.isMaster) {
@@ -42,4 +40,3 @@ function start() {
 
 }
 
-start();
