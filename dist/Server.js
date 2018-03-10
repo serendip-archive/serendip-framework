@@ -4,10 +4,12 @@ const async = require("async");
 const express = require("express");
 const bodyParser = require("body-parser");
 const useragent = require("useragent");
-const routes = require("./routes");
+const controllers = require("./controllers");
 const mongodb_1 = require("mongodb");
 const services_1 = require("./services");
-// Will contain everything that we need from server
+/**
+ *  Will contain everything that we need from server
+ */
 class Server {
     // usage : starting server from ./Start.js
     static bootstrap(worker) {
@@ -18,26 +20,31 @@ class Server {
         var port = parseInt(process.env.port);
         Server.worker = worker;
         Server.app = express();
-        Server.Routes = this.getServerRoutes();
+        Server.routes = [];
         // Running configs as series
-        async.series([this.dbConfig, this.middlewareConfig, this.routeConfig], () => {
-            console.log(Server.Routes);
+        async.series([this.dbConfig, this.middlewareConfig, this.controllerConfig], () => {
+            this.setServerRoutes();
+            // console.log(Server.controllers);
             // Listen to port after configs done
             Server.app.listen(port, function () {
                 console.log(`worker ${worker.id} running http server at port ${port}`);
             });
         });
     }
+    /**
+     * configuring middlewares in express
+     */
     async middlewareConfig() {
         Server.app.use((req, res, next) => {
             var ua = useragent.parse(req.headers["user-agent"].toString()).toString();
-            req.ipv4 = req.ip.split(':').reverse()[0];
-            console.log(`${req.method} [${req.path}] from "${req.ipv4}" ${ua}`);
+            console.log(`${req.method} [${req.path}] from "${req.ip}" ${ua}`);
             next();
         });
         Server.app.use(bodyParser.json());
     }
-    // filing Server.db that will use in entire system
+    /**
+     *  filing Server.db that will use in entire system
+     */
     async dbConfig() {
         // Reading these two from .env file
         var mongoUrl = process.env.mongoUrl;
@@ -48,43 +55,80 @@ class Server {
         // Checking any collection that not exist in db and then creating them
         services_1.DbService.createCollectionsIfNotExists();
     }
-    // configuring express routes from ./routes folder
-    // Notice : all routes should end with 'Route'
-    // Notice : route methods should start with 'get' or 'post'
-    getServerRoutes() {
-        var _serverRoutes = [];
-        // Getting name of route classes in ./routes folder
-        var routeClassToRegister = Object.getOwnPropertyNames(routes).filter(val => {
-            // We just use classes that ends with 'Route'
-            if (val.endsWith('Route'))
+    /**
+    * Add controllers to express router
+    * Notice : all controllers should end with 'Controller'
+    * Notice : controller methods should start with requested method ex : get,post,put,delete
+    */
+    setServerRoutes(controllersToRegister) {
+        if (!controllersToRegister)
+            controllersToRegister = controllers;
+        var _serverControllers = [];
+        // Getting name of controller classes in ./controllers folder
+        var controllerClassToRegister = Object.getOwnPropertyNames(controllersToRegister).filter(val => {
+            // We just use classes that ends with 'Controller'
+            if (val.endsWith('Controller'))
                 return val;
         });
-        // iterating trough route classes
-        routeClassToRegister.forEach(function (routeClassName) {
-            // iterating trough route methods in class
-            Object.getOwnPropertyNames(routes[routeClassName].prototype).forEach(function (routeFunction) {
-                if (routeFunction == "constructor")
+        // iterating trough controller classes
+        controllerClassToRegister.forEach(function (controllerClassName) {
+            //  console.log(new controllersToRegister[controllerClassName]);
+            // iterating trough controller methods in class
+            var objToRegister = new controllersToRegister[controllerClassName];
+            Object.getOwnPropertyNames(objToRegister).forEach(function (controllerEndpointName) {
+                var endpoint = objToRegister[controllerEndpointName];
+                if (!endpoint.method || !endpoint.actions)
                     return;
-                // Defining routeUrl for this routeMethod
-                var routeUrl = `/api/${routeClassName.replace('Route', '')}/${routeFunction.replace("get", "").replace("post", "")}`;
-                _serverRoutes.push({ path: routeUrl, function: routeFunction, class: routeClassName });
+                // Defining controllerUrl for this controllerMethod
+                var controllerUrl = `/api/${controllerClassName.replace('Controller', '')}/${controllerEndpointName}`;
+                if (endpoint.customRoute)
+                    if (!endpoint.customRoute.startsWith('/'))
+                        endpoint.customRoute = '/' + endpoint.customRoute;
+                var serverRoute = {
+                    route: endpoint.customRoute || controllerUrl,
+                    method: endpoint.method,
+                    endpoint: controllerEndpointName,
+                    controller: controllerClassName
+                };
+                console.log(serverRoute);
+                _serverControllers.push(serverRoute);
+                Server.routes.push(serverRoute);
             });
         });
-        return _serverRoutes;
+        return _serverControllers;
     }
-    async routeConfig() {
+    /**
+     * registering our Server.routes to express
+    */
+    async controllerConfig() {
         Server.app.use(function (req, res) {
-            // finding route by path
-            var route = Server.Routes.find((value) => {
-                return value.path.toLowerCase() == req.path.toLowerCase();
+            var requestReceived = Date.now();
+            // finding controller by path
+            var srvRoute = Server.routes.find((value) => {
+                return value.route.toLowerCase() == req.path.toLowerCase();
             });
-            // Check if route exist and requested method matches 
-            if (!route || !route.function.startsWith(req.method.toLowerCase()))
-                return res.status(404).send('route not found');
-            // creating object from routeClass 
+            // Check if controller exist and requested method matches 
+            if (!srvRoute || srvRoute.method.trim().toLowerCase() != req.method.trim().toLowerCase())
+                return res.status(404).send('controller not found');
+            // creating object from controllerClass 
             // Reason : basically because we need to run constructor
-            var routeObject = new routes[route.class];
-            routeObject[route.function](req, res);
+            var controllerObject = new controllers[srvRoute.controller];
+            //controllerObject[srvRoute.function](req, res);
+            var actions = (controllerObject[srvRoute.endpoint].actions);
+            // starting from first action
+            var actionIndex = 0;
+            var executeAction = function (passedModel) {
+                actions[actionIndex](req, res, function next(model) {
+                    // Execute next
+                    actionIndex++;
+                    executeAction(model);
+                }, function done() {
+                    res.end();
+                    console.log(`request answered in ${Date.now() - requestReceived}ms`);
+                }, passedModel);
+            };
+            // Execute first one
+            executeAction(null);
         });
     }
 }

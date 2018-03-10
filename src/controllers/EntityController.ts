@@ -4,7 +4,7 @@ import { UserModel, EntityModel } from '../models';
 import { Collection, ObjectID } from 'mongodb';
 
 
-export class EntityRoute {
+export class EntityController {
 
     private entityService: EntityService;
 
@@ -15,19 +15,7 @@ export class EntityRoute {
     }
 
 
-    public getCreate(req: ServerRequest, res: ServerResponse) {
-
-        var model : EntityModel = { modelName: req.query.modelName };
-
-        this.entityService.createEntity(model).then(function (doc) {
-
-
-            res.json(doc);
-
-        });
-
-
-    }
+    
 
 
 

@@ -6,19 +6,25 @@ import { DbService, DbCollectionNames } from ".";
 
 export class AuthService {
 
-    // private userCollection: DbService<UserModel>;
+    private userDb: DbService<UserModel>;
 
-    // private createRandomToken(length: number): string {
+    private createRandomToken(length: number): string {
 
-    //     return Math.random().toString().split('.')[1].substring(0, length);
+        return Math.random().toString().split('.')[1].substring(0, length);
 
-    // }
+    }
 
-    // constructor() {
+    constructor() {
 
-    //     this.userCollection = new DbService<UserModel>(DbCollectionNames.Users);
+        this.userDb = new DbService<UserModel>(DbCollectionNames.Users);
 
-    // }
+    }
+
+    public allUsers() {
+
+        return this.userDb.find({});
+
+    }
 
     // public findUserById(userId: string): Promise<UserModel> {
 
@@ -59,7 +65,7 @@ export class AuthService {
 
     // public static sendPasswordResetTokenWith(sendEmail: boolean, sendSms: boolean) {
 
-        
+
 
     // }
 

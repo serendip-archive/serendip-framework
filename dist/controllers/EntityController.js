@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const services_1 = require("../services");
-class EntityRoute {
+class EntityController {
     constructor() {
         this.entityService = new services_1.EntityService();
     }
@@ -12,4 +12,4 @@ class EntityRoute {
         });
     }
 }
-exports.EntityRoute = EntityRoute;
+exports.EntityController = EntityController;

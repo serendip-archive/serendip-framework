@@ -81,7 +81,29 @@ export class DbService<T> {
     }
 
 
-    public insertOne(model : T) : Promise<T>{
+
+    public find(query): Promise<T[]> {
+
+
+        return new Promise((resolve, reject) => {
+            var objectId: ObjectID = new ObjectID();
+
+            var doc = this._collection.find<T>(query).toArray( (err, results) => {
+
+                    if(err)
+                   return reject(err);
+
+                   return resolve(results);
+
+
+            });
+
+        });
+
+    }
+
+    public insertOne(model: T): Promise<T> {
+
 
         return new Promise((resolve, reject) => {
             var objectId: ObjectID = new ObjectID();
