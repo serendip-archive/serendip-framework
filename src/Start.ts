@@ -9,7 +9,7 @@ export interface startOptions {
 
     controllersToRegister?: any;
     port? : number;
-    cpuCores : number;
+    cpuCores? : number;
 
 
 }
