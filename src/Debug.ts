@@ -1,3 +1,3 @@
 import { start } from './Start'
 
-start({});
+start({ cpuCores : 1 });

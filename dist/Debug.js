@@ -1,4 +1,4 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Start_1 = require("./Start");
-Start_1.start({});
+Start_1.start({ cpuCores: 1 });

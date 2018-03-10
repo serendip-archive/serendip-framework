@@ -47,7 +47,13 @@ class fooController {
 
 }
 
-serendip.start({ controllersToRegister: { fooController } });
+serendip.start({
+
+    controllers: { fooController },
+    cpuCores: 1,
+    port: 3000
+
+});
 
 ```
 

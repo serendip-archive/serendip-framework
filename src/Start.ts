@@ -7,7 +7,7 @@ import * as models from './models';
 
 export interface startOptions {
 
-    controllersToRegister?: any;
+    controllers?: any;
     port? : number;
     cpuCores? : number;
 

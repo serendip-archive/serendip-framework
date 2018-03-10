@@ -17,7 +17,7 @@ class Server {
     }
     // passing worker from Start.js 
     constructor(opts, worker) {
-        var port = parseInt(process.env.port);
+        var port = opts.port || parseInt(process.env.port);
         Server.worker = worker;
         Server.app = express();
         Server.routes = [];
@@ -25,11 +25,11 @@ class Server {
         async.series([this.dbConfig, this.middlewareConfig, this.controllerConfig], () => {
             Server.setServerRoutes(controllers);
             // Set controllers from Start
-            if (opts.controllersToRegister)
-                Server.setServerRoutes(opts.controllersToRegister);
+            if (opts.controllers)
+                Server.setServerRoutes(opts.controllers);
             // console.log(Server.controllers);
             // Listen to port after configs done
-            Server.app.listen(opts.port || port, () => {
+            Server.app.listen(port, () => {
                 console.log(`worker ${Server.worker.id} running http server at port ${port}`);
             });
         });
