@@ -17,6 +17,20 @@
 |VoIP call| WebRTC TURN and STUN server | planned |
 |View engine | ejs - pug | planned |
 
+---
+
+## Installing
+using npm : 
+```
+npm install m-esm/serendip
+```
+
+
+---
+
+## Examples
+### TypeScript Example :
+#### 1. Hello world :
 ```javascript
 import * as serendip from 'serendip'
 
@@ -53,6 +67,49 @@ serendip.start({
     cpuCores: 1,
     port: 3000
 
+});
+
+```
+### Javascript Example :
+#### 1. Hello world :
+```javascript
+var serendip = require('serendip');
+
+// GET /api/foo/(endpoint)
+class fooController {
+
+    constructor() {
+
+        //  GET /api/foo/hi
+        this.hi = {
+            method: 'get',
+            // action to be executed in series
+            actions: [
+                (req, res, next, done) => {
+
+                    // send model with next callback
+                    next({ message: 'hello world !' })
+
+                },
+                (req, res, next, done, model) => {
+
+                    res.json(model);
+                    done();
+                }
+            ]
+        }
+    }
+
+}
+
+// starting application
+serendip.start({
+    // controllers who are responsible to api requests
+    controllers: { fooController },
+    // Specify or by default all cores will be used
+    cpuCores: 1,
+    // port to listen on
+    port: 3000
 });
 
 ```
