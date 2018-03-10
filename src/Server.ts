@@ -137,7 +137,7 @@ export class Server {
     // Running configs as series
     async.series([this.dbConfig, this.middlewareConfig, this.controllerConfig], () => {
 
-      this.setServerRoutes();
+      Server.setServerRoutes();
 
       // console.log(Server.controllers);
       // Listen to port after configs done
@@ -202,7 +202,7 @@ export class Server {
   * Notice : all controllers should end with 'Controller'
   * Notice : controller methods should start with requested method ex : get,post,put,delete
   */
-  public setServerRoutes(controllersToRegister?: any): serverRouteInterface[] {
+  public static setServerRoutes(controllersToRegister?: any): serverRouteInterface[] {
 
     if (!controllersToRegister)
       controllersToRegister = controllers;
