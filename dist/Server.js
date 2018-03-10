@@ -29,7 +29,7 @@ class Server {
                 Server.setServerRoutes(opts.controllersToRegister);
             // console.log(Server.controllers);
             // Listen to port after configs done
-            Server.app.listen(port, () => {
+            Server.app.listen(opts.port || port, () => {
                 console.log(`worker ${Server.worker.id} running http server at port ${port}`);
             });
         });
@@ -91,7 +91,7 @@ class Server {
                     endpoint: controllerEndpointName,
                     controller: controllersToRegister[controllerClassName]
                 };
-                console.log(serverRoute);
+                console.log(`route registered => [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controller.name} > ${serverRoute.endpoint}`);
                 _serverControllers.push(serverRoute);
                 Server.routes.push(serverRoute);
             });

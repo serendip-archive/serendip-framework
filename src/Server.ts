@@ -148,7 +148,7 @@ export class Server {
 
       // console.log(Server.controllers);
       // Listen to port after configs done
-      Server.app.listen(port,  () => {
+      Server.app.listen(opts.port || port,  () => {
 
         console.log(`worker ${Server.worker.id} running http server at port ${port}`);
 
@@ -257,7 +257,7 @@ export class Server {
           controller: controllersToRegister[controllerClassName]
         };
 
-        console.log(serverRoute);
+        console.log(`route registered => [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controller.name} > ${serverRoute.endpoint}`);
 
         _serverControllers.push(serverRoute);
 
@@ -318,7 +318,7 @@ export class Server {
         }, function done() {
 
           res.end();
-          console.log(`request answered in ${Date.now() - requestReceived}ms`)
+            console.log(`request answered in ${Date.now() - requestReceived}ms`)
 
         },
           passedModel);

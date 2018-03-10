@@ -6,7 +6,7 @@ const cluster = require("cluster");
 const os_1 = require("os");
 function start(opts) {
     dotenv.config();
-    var cpuCount = 1 || os_1.cpus().length;
+    var cpuCount = opts.cpuCores || os_1.cpus().length;
     // if this is process
     if (cluster.isMaster) {
         console.log('Forking workers ...');

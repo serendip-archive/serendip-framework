@@ -17,5 +17,41 @@
 |VoIP call| WebRTC TURN and STUN server | planned |
 |View engine | ejs - pug | planned |
 
+```javascript
+import * as serendip from 'serendip'
+
+class fooController {
+    constructor() {
+
+    }
+
+    /**
+     * GET /api/foo/hi
+     */
+    hi: serendip.ControllerEndpoint = {
+        method: 'get',
+        actions: [
+            (req, res, next, done) => {
+                res.write('<h1>Hello</h1>');
+                next();
+
+            },
+            (req, res, next, done) => {
+
+                res.write('<h2>World</h2>');
+                done();
+
+            }
+        ]
+    }
+
+}
+
+serendip.start({ controllersToRegister: { fooController } });
+
+```
+
+
+
 * collaboration, issue reporting kindly accepted
 * Contact m-esm@hotmail.com 

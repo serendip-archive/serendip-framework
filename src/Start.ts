@@ -7,7 +7,9 @@ import * as models from './models';
 
 export interface startOptions {
 
-    controllersToRegister?: any,
+    controllersToRegister?: any;
+    port? : number;
+    cpuCores : number;
 
 
 }
@@ -15,7 +17,7 @@ export function start(opts: startOptions) {
 
     dotenv.config();
 
-    var cpuCount = 1 || cpus().length;
+    var cpuCount = opts.cpuCores || cpus().length;
 
     // if this is process
     if (cluster.isMaster) {
