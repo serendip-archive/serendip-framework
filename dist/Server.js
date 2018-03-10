@@ -12,22 +12,25 @@ const services_1 = require("./services");
  */
 class Server {
     // usage : starting server from ./Start.js
-    static bootstrap(worker) {
-        return new Server(worker);
+    static bootstrap(opts, worker) {
+        return new Server(opts, worker);
     }
     // passing worker from Start.js 
-    constructor(worker) {
+    constructor(opts, worker) {
         var port = parseInt(process.env.port);
         Server.worker = worker;
         Server.app = express();
         Server.routes = [];
         // Running configs as series
         async.series([this.dbConfig, this.middlewareConfig, this.controllerConfig], () => {
-            Server.setServerRoutes();
+            Server.setServerRoutes(controllers);
+            // Set controllers from Start
+            if (opts.controllersToRegister)
+                Server.setServerRoutes(opts.controllersToRegister);
             // console.log(Server.controllers);
             // Listen to port after configs done
-            Server.app.listen(port, function () {
-                console.log(`worker ${worker.id} running http server at port ${port}`);
+            Server.app.listen(port, () => {
+                console.log(`worker ${Server.worker.id} running http server at port ${port}`);
             });
         });
     }
@@ -61,8 +64,6 @@ class Server {
     * Notice : controller methods should start with requested method ex : get,post,put,delete
     */
     static setServerRoutes(controllersToRegister) {
-        if (!controllersToRegister)
-            controllersToRegister = controllers;
         var _serverControllers = [];
         // Getting name of controller classes in ./controllers folder
         var controllerClassToRegister = Object.getOwnPropertyNames(controllersToRegister).filter(val => {
@@ -88,7 +89,7 @@ class Server {
                     route: endpoint.customRoute || controllerUrl,
                     method: endpoint.method,
                     endpoint: controllerEndpointName,
-                    controller: controllerClassName
+                    controller: controllersToRegister[controllerClassName]
                 };
                 console.log(serverRoute);
                 _serverControllers.push(serverRoute);
@@ -112,7 +113,7 @@ class Server {
                 return res.status(404).send('controller not found');
             // creating object from controllerClass 
             // Reason : basically because we need to run constructor
-            var controllerObject = new controllers[srvRoute.controller];
+            var controllerObject = new srvRoute.controller();
             //controllerObject[srvRoute.function](req, res);
             var actions = (controllerObject[srvRoute.endpoint].actions);
             // starting from first action

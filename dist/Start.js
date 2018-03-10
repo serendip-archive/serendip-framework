@@ -4,8 +4,7 @@ const Server_1 = require("./Server");
 const dotenv = require("dotenv");
 const cluster = require("cluster");
 const os_1 = require("os");
-exports.requestAnswered = 0;
-function start() {
+function start(opts) {
     dotenv.config();
     var cpuCount = 1 || os_1.cpus().length;
     // if this is process
@@ -21,7 +20,7 @@ function start() {
         });
     }
     else {
-        Server_1.Server.bootstrap(cluster.worker);
+        Server_1.Server.bootstrap(opts, cluster.worker);
     }
 }
 exports.start = start;

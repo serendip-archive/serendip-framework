@@ -11,6 +11,7 @@ import * as controllers from './controllers'
 import { MongoClient, Db, ObjectID } from 'mongodb'
 import { DbService, DbCollectionNames } from './services'
 import * as http from 'http';
+import { startOptions } from './Start';
 
 
 /**
@@ -82,7 +83,7 @@ export interface serverRouteInterface {
 
   method: string;
   route: string;
-  controller: string;
+  controller: any;
   endpoint: string;
 
 }
@@ -117,13 +118,13 @@ export class Server {
 
 
   // usage : starting server from ./Start.js
-  public static bootstrap(worker: cluster.Worker) {
-    return new Server(worker);
+  public static bootstrap(opts: startOptions, worker: cluster.Worker) {
+    return new Server(opts, worker);
   }
 
 
   // passing worker from Start.js 
-  constructor(worker: cluster.Worker) {
+  constructor(opts: startOptions, worker: cluster.Worker) {
 
     var port: number = parseInt(process.env.port);
 
@@ -137,13 +138,19 @@ export class Server {
     // Running configs as series
     async.series([this.dbConfig, this.middlewareConfig, this.controllerConfig], () => {
 
-      Server.setServerRoutes();
+
+      Server.setServerRoutes(controllers);
+
+      // Set controllers from Start
+      if (opts.controllersToRegister)
+        Server.setServerRoutes(opts.controllersToRegister)
+
 
       // console.log(Server.controllers);
       // Listen to port after configs done
-      Server.app.listen(port, function () {
+      Server.app.listen(port,  () => {
 
-        console.log(`worker ${worker.id} running http server at port ${port}`);
+        console.log(`worker ${Server.worker.id} running http server at port ${port}`);
 
       });
 
@@ -202,10 +209,9 @@ export class Server {
   * Notice : all controllers should end with 'Controller'
   * Notice : controller methods should start with requested method ex : get,post,put,delete
   */
-  public static setServerRoutes(controllersToRegister?: any): serverRouteInterface[] {
+  public static setServerRoutes(controllersToRegister: any): serverRouteInterface[] {
 
-    if (!controllersToRegister)
-      controllersToRegister = controllers;
+
 
     var _serverControllers: serverRouteInterface[] = [];
 
@@ -248,7 +254,7 @@ export class Server {
           route: endpoint.customRoute || controllerUrl,
           method: endpoint.method,
           endpoint: controllerEndpointName,
-          controller: controllerClassName
+          controller: controllersToRegister[controllerClassName]
         };
 
         console.log(serverRoute);
@@ -278,7 +284,7 @@ export class Server {
       var requestReceived = Date.now();
 
       // finding controller by path
-      var srvRoute = Server.routes.find((value) => {
+      var srvRoute : serverRouteInterface = Server.routes.find((value) => {
 
         return value.route.toLowerCase() == req.path.toLowerCase();
 
@@ -291,7 +297,7 @@ export class Server {
 
       // creating object from controllerClass 
       // Reason : basically because we need to run constructor
-      var controllerObject = new controllers[srvRoute.controller];
+      var controllerObject = new srvRoute.controller();
 
       //controllerObject[srvRoute.function](req, res);
       var actions: ControllerEndpointAction[] = (controllerObject[srvRoute.endpoint].actions);

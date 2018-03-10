@@ -4,13 +4,18 @@ import * as cluster from 'cluster';
 import { cpus } from 'os';
 import * as models from './models';
 
-export var requestAnswered = 0;
 
-export function start() {
+export interface startOptions {
+
+    controllersToRegister?: any,
+
+
+}
+export function start(opts: startOptions) {
 
     dotenv.config();
 
-    var cpuCount = 1 ||  cpus().length;
+    var cpuCount = 1 || cpus().length;
 
     // if this is process
     if (cluster.isMaster) {
@@ -28,8 +33,7 @@ export function start() {
         });
 
     } else {
-
-        Server.bootstrap(cluster.worker);
+        Server.bootstrap(opts, cluster.worker);
 
     }
 
