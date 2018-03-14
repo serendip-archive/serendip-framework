@@ -12,6 +12,12 @@ export class AuthService implements ServiceInterface {
     async start() {
 
     }
+
+
+    public test(){
+
+        return 'test';
+    }
     // private userDb: DbService<UserModel>;
 
     // private createRandomToken(length: number): string {

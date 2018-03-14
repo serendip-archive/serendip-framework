@@ -11,7 +11,7 @@ class AuthController {
             customRoute: '/token',
             actions: [
                 (req, res, next, done) => {
-                    res.send('hello');
+                    res.send(this.authService.test());
                     done();
                     // this.authService.allUsers().then((result) => {
                     //     next(result);

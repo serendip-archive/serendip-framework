@@ -139,15 +139,17 @@ export class Server {
     Server.services = {};
 
 
-    this.middlewareConfig();
 
-    this.routerConfig();
-
-
-    Server.addRoutes(controllers, opts.controllers);
 
 
     Server.addServices(services, opts.services).then(() => {
+
+
+      this.middlewareConfig();
+
+      this.routerConfig();
+
+      Server.addRoutes(controllers, opts.controllers);
 
       // Listen to port after configs done
       Server.app.listen(port, () => {
@@ -361,7 +363,7 @@ export class Server {
         return value.route.toLowerCase() == req.path.toLowerCase() && value.method.trim().toLowerCase() == req.method.trim().toLowerCase();
 
       });
-      
+
 
 
       // Check if controller exist and requested method matches 

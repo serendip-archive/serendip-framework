@@ -5,4 +5,4 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./AuthController"));
 __export(require("./EntityController"));
-__export(require("./SystemController"));
+__export(require("./ServerController"));

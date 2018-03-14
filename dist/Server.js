@@ -21,10 +21,10 @@ class Server {
         Server.app = express();
         Server.routes = [];
         Server.services = {};
-        this.middlewareConfig();
-        this.routerConfig();
-        Server.addRoutes(controllers, opts.controllers);
         Server.addServices(services, opts.services).then(() => {
+            this.middlewareConfig();
+            this.routerConfig();
+            Server.addRoutes(controllers, opts.controllers);
             // Listen to port after configs done
             Server.app.listen(port, () => {
                 console.log(`worker ${Server.worker.id} running http server at port ${port}`);

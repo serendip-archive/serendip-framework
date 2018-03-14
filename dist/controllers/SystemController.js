@@ -6,7 +6,7 @@ class SystemController {
         this.ServerServices = {
             method: 'get',
             actions: [(req, res, next, done) => {
-                    res.json(Server_1.Server.services);
+                    res.json(Object.getOwnPropertyNames(Server_1.Server.services));
                     done();
                 }]
         };
