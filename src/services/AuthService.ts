@@ -1,30 +1,36 @@
 import { UserModel } from "../models";
 import { Collection, ObjectID } from "mongodb";
-import { DbService, DbCollectionNames } from ".";
+import { DbService, ServiceInterface } from ".";
 
 
 
-export class AuthService {
+export class AuthService implements ServiceInterface {
 
-    private userDb: DbService<UserModel>;
 
-    private createRandomToken(length: number): string {
+    static dependencies = ["DbService", "EmailService", "SmsService"];
 
-        return Math.random().toString().split('.')[1].substring(0, length);
-
-    }
-
-    constructor() {
-
-        this.userDb = new DbService<UserModel>(DbCollectionNames.Users);
+    async start() {
 
     }
+    // private userDb: DbService<UserModel>;
 
-    public allUsers() {
+    // private createRandomToken(length: number): string {
 
-        return this.userDb.find({});
+    //     return Math.random().toString().split('.')[1].substring(0, length);
 
-    }
+    // }
+
+    // constructor() {
+
+    //     this.userDb = new DbService<UserModel>(DbCollectionNames.Users);
+
+    // }
+
+    // public allUsers() {
+
+    //     return this.userDb.find({});
+
+    // }
 
     // public findUserById(userId: string): Promise<UserModel> {
 

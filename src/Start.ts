@@ -10,8 +10,7 @@ export interface startOptions {
     controllers?: any;
     port? : number;
     cpuCores? : number;
-
-
+    services? : any;
 }
 export function start(opts: startOptions) {
 

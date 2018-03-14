@@ -1,4 +1,3 @@
-import * as async from 'async'
 import * as cluster from 'cluster'
 
 
@@ -7,12 +6,15 @@ import * as bodyParser from 'body-parser'
 import * as useragent from 'useragent'
 
 import * as controllers from './controllers'
+import * as services from './services'
 
-import { MongoClient, Db, ObjectID } from 'mongodb'
-import { DbService, DbCollectionNames } from './services'
 import * as http from 'http';
-import { startOptions } from './Start';
 
+import { startOptions, start } from './Start';
+import { ServiceInterface } from './services';
+import { PromiseUtil } from './utils';
+
+import * as topoSort from 'toposort'
 
 /**
  * ServerRequest 
@@ -79,14 +81,17 @@ export interface ControllerEndpoint {
 /**
  * routes to introduce to express :) 
  */
-export interface serverRouteInterface {
+export interface serverRoute {
 
   method: string;
   route: string;
-  controller: any;
+  controllerObject: object;
+  controllerName: string;
   endpoint: string;
 
 }
+
+
 
 /**
  *  Will contain everything that we need from server
@@ -101,10 +106,7 @@ export class Server {
    */
   public static app: express.Application;
 
-  /**
-   * Instance of mongodb database
-   */
-  public static db: Db;
+
   /**
    * instance of process worker
    */
@@ -114,7 +116,10 @@ export class Server {
    * routes which server router will respond to
    * and feel free to add your routes to it 
    */
-  public static routes: serverRouteInterface[];
+  public static routes: serverRoute[];
+
+  public static services: object;
+
 
 
   // usage : starting server from ./Start.js
@@ -131,30 +136,34 @@ export class Server {
     Server.worker = worker;
     Server.app = express();
     Server.routes = [];
+    Server.services = {};
 
 
+    this.middlewareConfig();
+
+    this.routerConfig();
 
 
-    // Running configs as series
-    async.series([this.dbConfig, this.middlewareConfig, this.controllerConfig], () => {
+    Server.addRoutes(controllers, opts.controllers);
 
 
-      Server.setServerRoutes(controllers);
+    Server.addServices(services, opts.services).then(() => {
 
-      // Set controllers from Start
-      if (opts.controllers)
-        Server.setServerRoutes(opts.controllers)
-
-
-      // console.log(Server.controllers);
       // Listen to port after configs done
-      Server.app.listen(port,  () => {
+      Server.app.listen(port, () => {
 
         console.log(`worker ${Server.worker.id} running http server at port ${port}`);
 
       });
 
+    }).catch((err) => {
+
+      console.log(err);
+
     });
+
+
+
 
 
 
@@ -180,103 +189,166 @@ export class Server {
 
   }
 
-  /**
-   *  filing Server.db that will use in entire system
-   */
-  private async dbConfig() {
+
+  public static async addServices(...serviceContainer) {
 
 
-    // Reading these two from .env file
-    var mongoUrl: string = process.env.mongoUrl;
-    var dbName: string = process.env.mongoDb;
+    var servicesToStart = [];
+    var dependenciesToSort = [];
+    serviceContainer.forEach((servicesToRegister) => {
 
-    // Creating mongoDB client from mongoUrl
-    var mongoClient = await MongoClient.connect(mongoUrl);
+      if (!servicesToRegister)
+        return;
 
-    Server.db = mongoClient.db(dbName);
+      // Getting name of controller classes in ./controllers folder
+      var serviceNames = Object.getOwnPropertyNames(servicesToRegister).filter(val => {
 
-    // Checking any collection that not exist in db and then creating them
-    DbService.createCollectionsIfNotExists();
 
+        // We just use classes that ends with 'Controller'
+        if (val.endsWith('Service'))
+          return val;
+
+      });
+
+      // iterating trough controller classes
+      serviceNames.forEach(function (serviceName) {
+
+
+        if (servicesToRegister[serviceName].dependencies)
+          servicesToRegister[serviceName].dependencies.forEach((val) => {
+
+            dependenciesToSort.push([serviceName, val]);
+
+          });
+
+        servicesToStart[serviceName] = servicesToRegister[serviceName];
+
+      });
+    });
+
+
+    var sortedDependencies: string[] = topoSort(dependenciesToSort).reverse();
+    return new Promise((resolve, reject) => {
+
+
+      function startService(index) {
+
+        var serviceName = sortedDependencies[index];
+
+        var serviceObject: ServiceInterface = new servicesToStart[serviceName];
+
+        Server.services[serviceName] = serviceObject;
+
+        serviceObject.start().then(() => {
+
+          console.log(`${serviceName} started .`);
+
+
+
+          if (sortedDependencies.length > index + 1)
+            startService(index + 1);
+          else
+            resolve();
+
+
+
+        }).catch((err) => {
+
+          reject(err);
+
+
+        });
+
+
+
+      }
+
+      startService(0);
+
+
+    });
 
 
   }
-
-
 
   /**
   * Add controllers to express router
   * Notice : all controllers should end with 'Controller'
   * Notice : controller methods should start with requested method ex : get,post,put,delete
   */
-  public static setServerRoutes(controllersToRegister: any): serverRouteInterface[] {
+  public static addRoutes(...controllerContainer) {
+
+
+    controllerContainer.forEach((controllersToRegister) => {
+      if (!controllersToRegister)
+        return;
+
+      // Getting name of controller classes in ./controllers folder
+      var controllerClassToRegister = Object.getOwnPropertyNames(controllersToRegister).filter(val => {
+
+
+        // We just use classes that ends with 'Controller'
+        if (val.endsWith('Controller'))
+          return val;
+
+      });
+
+      // iterating trough controller classes
+      controllerClassToRegister.forEach(function (controllerClassName) {
+
+        console.log(controllerClassName);
+
+        var objToRegister = new controllersToRegister[controllerClassName];
+
+        // iterating trough controller endpoint in class
+        Object.getOwnPropertyNames(objToRegister).forEach(function (controllerEndpointName) {
+
+
+          var endpoint: ControllerEndpoint = objToRegister[controllerEndpointName];
+
+
+          if (!endpoint)
+            return;
+
+          if (!endpoint.method || !endpoint.actions)
+            return;
+
+
+          // Defining controllerUrl for this controllerMethod
+          var controllerUrl = `/api/${controllerClassName.replace('Controller', '')}/${controllerEndpointName}`;
+
+          if (endpoint.customRoute)
+            if (!endpoint.customRoute.startsWith('/'))
+              endpoint.customRoute = '/' + endpoint.customRoute;
+
+
+          var serverRoute: serverRoute = {
+            route: endpoint.customRoute || controllerUrl,
+            method: endpoint.method,
+            endpoint: controllerEndpointName,
+            controllerName: controllerClassName,
+            controllerObject: objToRegister,
+          };
 
 
 
-    var _serverControllers: serverRouteInterface[] = [];
+          console.log(`route registered => [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
 
 
+          Server.routes.push(serverRoute);
 
-    // Getting name of controller classes in ./controllers folder
-    var controllerClassToRegister = Object.getOwnPropertyNames(controllersToRegister).filter(val => {
-
-
-      // We just use classes that ends with 'Controller'
-      if (val.endsWith('Controller'))
-        return val;
-
-    });
-
-    // iterating trough controller classes
-    controllerClassToRegister.forEach(function (controllerClassName) {
-
-      //  console.log(new controllersToRegister[controllerClassName]);
-      // iterating trough controller methods in class
-      var objToRegister = new controllersToRegister[controllerClassName];
-
-      Object.getOwnPropertyNames(objToRegister).forEach(function (controllerEndpointName) {
-
-        var endpoint: ControllerEndpoint = objToRegister[controllerEndpointName];
-
-        if (!endpoint.method || !endpoint.actions)
-          return;
-
-
-        // Defining controllerUrl for this controllerMethod
-        var controllerUrl = `/api/${controllerClassName.replace('Controller', '')}/${controllerEndpointName}`;
-
-        if (endpoint.customRoute)
-          if (!endpoint.customRoute.startsWith('/'))
-            endpoint.customRoute = '/' + endpoint.customRoute;
-
-
-        var serverRoute: serverRouteInterface = {
-          route: endpoint.customRoute || controllerUrl,
-          method: endpoint.method,
-          endpoint: controllerEndpointName,
-          controller: controllersToRegister[controllerClassName]
-        };
-
-        console.log(`route registered => [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controller.name} > ${serverRoute.endpoint}`);
-
-        _serverControllers.push(serverRoute);
-
-        Server.routes.push(serverRoute);
+        });
 
       });
 
     });
-
-
-
-    return _serverControllers;
 
   }
 
   /** 
    * registering our Server.routes to express
   */
-  private async controllerConfig() {
+  private async routerConfig() {
 
 
     Server.app.use(function (req, res) {
@@ -284,20 +356,21 @@ export class Server {
       var requestReceived = Date.now();
 
       // finding controller by path
-      var srvRoute : serverRouteInterface = Server.routes.find((value) => {
+      var srvRoute: serverRoute = Server.routes.find((value) => {
 
-        return value.route.toLowerCase() == req.path.toLowerCase();
+        return value.route.toLowerCase() == req.path.toLowerCase() && value.method.trim().toLowerCase() == req.method.trim().toLowerCase();
 
       });
+      
 
 
       // Check if controller exist and requested method matches 
-      if (!srvRoute || srvRoute.method.trim().toLowerCase() != req.method.trim().toLowerCase())
+      if (!srvRoute)
         return res.status(404).send('controller not found');
 
       // creating object from controllerClass 
       // Reason : basically because we need to run constructor
-      var controllerObject = new srvRoute.controller();
+      var controllerObject = srvRoute.controllerObject;
 
       //controllerObject[srvRoute.function](req, res);
       var actions: ControllerEndpointAction[] = (controllerObject[srvRoute.endpoint].actions);
@@ -318,7 +391,7 @@ export class Server {
         }, function done() {
 
           res.end();
-            console.log(`request answered in ${Date.now() - requestReceived}ms`)
+          console.log(`request answered in ${Date.now() - requestReceived}ms`)
 
         },
           passedModel);

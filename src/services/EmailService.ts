@@ -1,15 +1,22 @@
 import { EmailModel } from '../models/EmailModel'
+import { ServiceInterface } from '.';
 
 
-export class EmailService {
+export class EmailService implements ServiceInterface {
 
-    public static sendEmail(email: EmailModel) {
+    static dependencies = ['DbService'];
+
+    async start() {
+
+    }
+
+    public sendEmail(email: EmailModel) {
 
 
 
     }
 
-    public static syncFolders() {
+    public syncFolders() {
 
 
 

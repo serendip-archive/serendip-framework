@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const services_1 = require("../services");
+const Server_1 = require("../Server");
 /**
  * /api/auth/(endpoint)
 */
@@ -11,9 +11,11 @@ class AuthController {
             customRoute: '/token',
             actions: [
                 (req, res, next, done) => {
-                    this.authService.allUsers().then((result) => {
-                        next(result);
-                    });
+                    res.send('hello');
+                    done();
+                    // this.authService.allUsers().then((result) => {
+                    //     next(result);
+                    // });
                 },
                 (req, res, next, done, model) => {
                     res.json(model);
@@ -21,7 +23,7 @@ class AuthController {
                 }
             ]
         };
-        this.authService = new services_1.AuthService();
+        this.authService = Server_1.Server.services["AuthService"];
     }
 }
 exports.AuthController = AuthController;

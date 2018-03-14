@@ -1,5 +1,5 @@
 import { Server, ServerRequest, ServerResponse, ControllerEndpoint } from '../Server'
-import { DbCollectionNames, DbService, AuthService } from '../services';
+import {  DbService, AuthService } from '../services';
 import { UserModel } from '../models';
 import { Collection } from 'mongodb';
 
@@ -9,22 +9,28 @@ import { Collection } from 'mongodb';
 export class AuthController {
 
     public authService: AuthService;
+
     constructor() {
 
-        this.authService = new AuthService();
-
+        this.authService = Server.services["AuthService"];
+        
     }
+
+    
 
     public foo: ControllerEndpoint = {
         method: 'get',
         customRoute: '/token',
         actions: [
             (req, res, next, done) => {
-                this.authService.allUsers().then((result) => {
 
-                    next(result);
+                res.send('hello');
+                done();
+                // this.authService.allUsers().then((result) => {
 
-                });
+                //     next(result);
+
+                // });
             },
             (req, res, next, done, model) => {
 

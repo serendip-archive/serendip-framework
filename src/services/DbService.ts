@@ -1,86 +1,20 @@
+import { MongoClient, Db, ObjectID, Collection } from 'mongodb'
 
-import { Collection, ObjectID } from "mongodb";
-import { Server } from "../Server";
+import { Server } from "../Server"
+import { PromiseUtil } from '../utils'
 
+import { ServiceInterface } from './'
 
-/** 
- * All collection names should accessed trough this enum
-*/
-export enum DbCollectionNames {
-
-    "Users",
-    "Entities",
-    "EntityCache",
-    "EntityChanges",
-
-}
-
-/** 
- * Every functionality thats use database should use it trough this service
-*/
-export class DbService<T> {
+export class DbCollection<T>{
 
     private _collection: Collection<T>;
 
-    /**
-     * set mongo collection with specified type
-     * @param collectionName Collection name in MongoDB
-     */
-    constructor(collectionName: DbCollectionNames) {
 
+    constructor(collection: Collection<T>) {
 
-        this._collection = Server.db.collection<T>(DbCollectionNames[collectionName]);
-
-
+        this._collection = collection;
 
     }
-
-
-    /** 
-     * usage : db config in server startup ../Server.js
-     *  creates empty collections from DbCollectionNames
-     */
-    public static createCollectionsIfNotExists() {
-
-        // getting collections from database
-        Server.db.collections(function (err, collections) {
-
-            var currentCollections = collections.map(function (item: Collection) {
-
-                return item.collectionName;
-
-            });
-
-
-            for (let cName in DbCollectionNames) {
-
-                if (parseInt(cName).toString() != cName) {
-
-                    if (currentCollections.indexOf(cName) == -1) {
-
-                        Server.db.createCollection(cName).then(function (collection) {
-
-                            console.log(`collection ${collection.collectionName} created !`);
-
-                        }).catch(function (err) {
-
-                            console.log(`${cName} collection creation faced error`);
-
-                        });
-
-                    }
-
-                }
-
-            }
-
-        });
-
-
-
-    }
-
-
 
     public find(query): Promise<T[]> {
 
@@ -88,17 +22,50 @@ export class DbService<T> {
         return new Promise((resolve, reject) => {
             var objectId: ObjectID = new ObjectID();
 
-            var doc = this._collection.find<T>(query).toArray( (err, results) => {
+            var doc = this._collection.find<T>(query).toArray((err, results) => {
 
-                    if(err)
-                   return reject(err);
+                if (err)
+                    return reject(err);
 
-                   return resolve(results);
+                return resolve(results);
 
 
             });
 
         });
+
+    }
+
+    public updateOne(model: T): Promise<T> {
+
+
+        return new Promise((resolve, reject) => {
+
+            model["_id"] = new ObjectID(model["_id"]);
+
+
+            var doc = this._collection.findOneAndUpdate(
+                { _id: model["_id"] },
+                { $set: model },
+                {
+                    upsert: false,
+                    returnOriginal: false
+                }, function (err, result) {
+
+                    if (err)
+                        return reject(err);
+
+                    resolve(result.value);
+
+                });
+
+        });
+
+    }
+
+    public deleteOne(_id: string | ObjectID) {
+
+
 
     }
 
@@ -128,6 +95,73 @@ export class DbService<T> {
         });
 
     }
+
+
+}
+
+/** 
+ * Every functionality thats use database should use it trough this service
+*/
+export class DbService implements ServiceInterface {
+
+
+    static dependencies = [];
+    
+    private mongoCollections: string[] = [];
+    /**
+     * Instance of mongodb database
+     */
+    private db: Db;
+
+    /**
+     * set mongo collection with specified type
+     * @param collectionName Collection name in MongoDB
+     *
+     *  filing Server.db that will use in entire system
+     */
+    public async connect() {
+
+
+        // Reading these two from .env file
+        var mongoUrl: string = process.env.mongoUrl;
+        var dbName: string = process.env.mongoDb;
+
+        // Creating mongoDB client from mongoUrl
+        var mongoClient = await MongoClient.connect(mongoUrl);
+
+        this.db = mongoClient.db(dbName);
+
+
+        console.log('DbService started successfully .');
+    }
+
+    async start() {
+
+        await this.connect();
+
+    }
+
+    constructor() {
+
+
+
+    }
+
+
+    public async collection<T>(collectionName: string): Promise<DbCollection<T>> {
+
+        collectionName = collectionName.toLowerCase().trim();
+
+        if (this.mongoCollections.indexOf(collectionName) === -1) {
+            await this.db.createCollection(collectionName);
+            this.mongoCollections.push(collectionName);
+            console.log(`collection ${collectionName} created .`);
+        }
+
+        return new DbCollection<T>(this.db.collection<T>(collectionName));
+
+    }
+
 
 
 }
