@@ -1,4 +1,4 @@
-import { ServerRequestInterface, ServerResponseInterface } from ".";
+import { ServerRequest, ServerResponse } from ".";
 
 export interface ServerEndpointActionInterface extends Function {
 
@@ -9,6 +9,6 @@ export interface ServerEndpointActionInterface extends Function {
      * @param next Execute next action in array
      * @param done 
      */
-    (req: ServerRequestInterface, res: ServerResponseInterface, next: Function, done: Function, model?: object)
+    (req: ServerRequest, res: ServerResponse, next: Function, done: Function, model?: object)
 
 }

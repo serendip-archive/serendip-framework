@@ -1,23 +1,32 @@
 import * as cluster from 'cluster'
-
-
-import * as express from 'express'
 import * as bodyParser from 'body-parser'
-import * as useragent from 'useragent'
 
 
-import * as http from 'http';
-
+import * as http from 'http'
 
 
 import * as controllers from '../Controllers'
 import * as services from '../Services'
 
-import { start } from '../Start';
-import { ServerServiceInterface, ServerRouteInterface, ServerOptionsInterface, ServerEndpointInterface, ServerEndpointActionInterface, ServerRequestInterface, ServerResponseInterface } from '.';
-import { PromiseUtil } from '../Utils';
+
+import * as Async from 'async'
+
+import {
+  ServerServiceInterface,
+  ServerRouteInterface,
+  ServerOptionsInterface,
+  ServerEndpointInterface,
+  ServerEndpointActionInterface,
+  ServerRequest,
+  ServerResponse,
+  ServerRequestHelpers,
+  ServerResponseHelpers
+} from '.';
+
 
 import * as topoSort from 'toposort'
+import { ServerMiddlewareInterface } from './ServerMiddlewareInterface';
+import { ServerRouter } from './ServerRouter';
 
 
 /**
@@ -25,13 +34,6 @@ import * as topoSort from 'toposort'
  */
 
 export class Server {
-
-
-
-  /**
-   *  these will be available within the system
-   */
-  public static app: express.Application;
 
 
   /**
@@ -47,6 +49,10 @@ export class Server {
 
   public static services: object;
 
+  public static httpServer: http.Server;
+
+  public static middlewares: ServerMiddlewareInterface[];
+
 
 
   // usage : starting server from ./Start.js
@@ -55,68 +61,53 @@ export class Server {
   }
 
 
+
   // passing worker from Start.js 
   constructor(opts: ServerOptionsInterface, worker: cluster.Worker) {
 
     var port: number = opts.port || parseInt(process.env.port);
 
     Server.worker = worker;
-    Server.app = express();
-    Server.routes = [];
+
     Server.services = {};
 
+    Server.routes = [];
+    Server.middlewares = opts.middlewares || [];
 
-    Server.addServices(services, opts.services).then(() => {
+    
+
+    Async.series([
+      (cb) => this.addServices(services, opts.services).then(() => cb(null, null)),
+      (cb) => this.addRoutes(controllers, opts.controllers).then(() => cb(null, null))
+    ], () => {
 
 
-      this.middlewareConfig();
+      Server.httpServer = http.createServer(function(req: any, res: any)  {
 
-      this.routerConfig();
+        req = ServerRequestHelpers(req);
+        res = ServerResponseHelpers(res);
 
-      Server.addRoutes(controllers, opts.controllers);
-
-      // Listen to port after configs done
-      Server.app.listen(port, () => {
-
-        console.log(`worker ${Server.worker.id} running http server at port ${port}`);
+        ServerRouter.routeIt(req, res);
 
       });
 
-    }).catch((err) => {
 
-      console.log(err);
+      Server.httpServer.listen(port, function () {
+
+        console.log(`worker ${worker.id} running http server at port ${port}`);
+
+      });
+      // Listen to port after configs done
+
+
 
     });
-
-
-
-
-
 
   }
 
 
-  /**
-   * configuring middlewares in express
-   */
-  private async middlewareConfig() {
-
-    Server.app.use((req: ServerRequestInterface, res: ServerResponseInterface, next) => {
-
-      var ua = useragent.parse(req.headers["user-agent"].toString()).toString();
-
-      console.log(`${req.method} [${req.path}] from "${req.ip}" ${ua}`);
-
-      next();
-
-    });
-
-    Server.app.use(bodyParser.json());
-
-  }
-
-
-  public static async addServices(...serviceContainer) {
+  
+  private async addServices(...serviceContainer) {
 
 
     var servicesToStart = [];
@@ -202,7 +193,7 @@ export class Server {
   * Notice : all controllers should end with 'Controller'
   * Notice : controller methods should start with requested method ex : get,post,put,delete
   */
-  public static addRoutes(...controllerContainer) {
+  private async addRoutes(...controllerContainer) {
 
 
     controllerContainer.forEach((controllersToRegister) => {
@@ -222,8 +213,8 @@ export class Server {
       // iterating trough controller classes
       controllerClassToRegister.forEach(function (controllerClassName) {
 
-     
-        
+
+
         var objToRegister = new controllersToRegister[controllerClassName];
 
         // iterating trough controller endpoint in class
@@ -271,72 +262,7 @@ export class Server {
 
   }
 
-  /** 
-   * registering our Server.routes to express
-  */
-  private async routerConfig() {
 
-
-    Server.app.use(function (req, res) {
-
-      var requestReceived = Date.now();
-
-      // finding controller by path
-      var srvRoute: ServerRouteInterface = Server.routes.find((value) => {
-
-        return value.route.toLowerCase() == req.path.toLowerCase() && value.method.trim().toLowerCase() == req.method.trim().toLowerCase();
-
-      });
-
-
-
-      // Check if controller exist and requested method matches 
-      if (!srvRoute)
-        return res.status(404).send('controller not found');
-
-      // creating object from controllerClass 
-      // Reason : basically because we need to run constructor
-      var controllerObject = srvRoute.controllerObject;
-
-      //controllerObject[srvRoute.function](req, res);
-      var actions: ServerEndpointActionInterface[] = (controllerObject[srvRoute.endpoint].actions);
-
-      // starting from first action
-      var actionIndex = 0;
-
-
-      var executeAction = function (passedModel) {
-        actions[actionIndex](req, res, function next(model) {
-
-
-          // Execute next
-          actionIndex++;
-          executeAction(model);
-
-
-        }, function done() {
-
-          res.end();
-          console.log(`request answered in ${Date.now() - requestReceived}ms`)
-
-        },
-          passedModel);
-      }
-
-      // Execute first one
-      executeAction(null);
-
-
-
-
-
-
-
-
-    });
-
-
-  }
 
 }
 

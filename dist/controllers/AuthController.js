@@ -23,6 +23,19 @@ class AuthController {
                 }
             ]
         };
+        this.hi = {
+            method: 'get',
+            customRoute: '/hi/:id/(.*)?/(.*)?',
+            actions: [
+                (req, res, next, done) => {
+                    res.json(req.params);
+                    done();
+                    // this.authService.allUsers().then((result) => {
+                    //     next(result);
+                    // });
+                }
+            ]
+        };
         this.authService = core_1.Server.services["AuthService"];
     }
 }

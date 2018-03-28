@@ -1,7 +1,10 @@
+import { ServerMiddlewareInterface } from "./ServerMiddlewareInterface";
+
 export interface ServerOptionsInterface {
 
+    services?: any;
     controllers?: any;
-    port? : number;
-    cpuCores? : number;
-    services? : any;
+    middlewares?: [ServerMiddlewareInterface]
+    port?: number;
+    cpuCores?: number;
 }

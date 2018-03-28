@@ -1,5 +1,5 @@
 export interface ServerServiceInterface {
 
-    start(): Promise<void>;
+   start(): Promise<void>;
     dependencies?: string[];
 }

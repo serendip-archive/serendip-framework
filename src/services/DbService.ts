@@ -134,9 +134,19 @@ export class DbService implements ServerServiceInterface {
 
         await this.connect();
 
+        var mongoCollectionObjects = await this.db.collections();
+
+        mongoCollectionObjects.map((obj) => {
+
+            this.mongoCollections.push(obj.collectionName);
+
+        });
+
+
     }
 
     constructor() {
+
 
 
 
@@ -145,7 +155,8 @@ export class DbService implements ServerServiceInterface {
 
     public async collection<T>(collectionName: string): Promise<DbCollection<T>> {
 
-        collectionName = collectionName.toLowerCase().trim();
+        collectionName = collectionName.trim();
+
 
         if (this.mongoCollections.indexOf(collectionName) === -1) {
             await this.db.createCollection(collectionName);

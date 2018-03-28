@@ -68,9 +68,13 @@ class DbService {
     }
     async start() {
         await this.connect();
+        var mongoCollectionObjects = await this.db.collections();
+        mongoCollectionObjects.map((obj) => {
+            this.mongoCollections.push(obj.collectionName);
+        });
     }
     async collection(collectionName) {
-        collectionName = collectionName.toLowerCase().trim();
+        collectionName = collectionName.trim();
         if (this.mongoCollections.indexOf(collectionName) === -1) {
             await this.db.createCollection(collectionName);
             this.mongoCollections.push(collectionName);

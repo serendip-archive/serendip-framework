@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const express = require("express");
-const bodyParser = require("body-parser");
-const useragent = require("useragent");
+const http = require("http");
 const controllers = require("../Controllers");
 const services = require("../Services");
+const Async = require("async");
+const _1 = require(".");
 const topoSort = require("toposort");
+const ServerRouter_1 = require("./ServerRouter");
 /**
  *  Will contain everything that we need from server
  */
@@ -18,33 +19,25 @@ class Server {
     constructor(opts, worker) {
         var port = opts.port || parseInt(process.env.port);
         Server.worker = worker;
-        Server.app = express();
-        Server.routes = [];
         Server.services = {};
-        Server.addServices(services, opts.services).then(() => {
-            this.middlewareConfig();
-            this.routerConfig();
-            Server.addRoutes(controllers, opts.controllers);
-            // Listen to port after configs done
-            Server.app.listen(port, () => {
-                console.log(`worker ${Server.worker.id} running http server at port ${port}`);
+        Server.routes = [];
+        Server.middlewares = opts.middlewares || [];
+        Async.series([
+            (cb) => this.addServices(services, opts.services).then(() => cb(null, null)),
+            (cb) => this.addRoutes(controllers, opts.controllers).then(() => cb(null, null))
+        ], () => {
+            Server.httpServer = http.createServer(function (req, res) {
+                req = _1.ServerRequestHelpers(req);
+                res = _1.ServerResponseHelpers(res);
+                ServerRouter_1.ServerRouter.routeIt(req, res);
             });
-        }).catch((err) => {
-            console.log(err);
+            Server.httpServer.listen(port, function () {
+                console.log(`worker ${worker.id} running http server at port ${port}`);
+            });
+            // Listen to port after configs done
         });
     }
-    /**
-     * configuring middlewares in express
-     */
-    async middlewareConfig() {
-        Server.app.use((req, res, next) => {
-            var ua = useragent.parse(req.headers["user-agent"].toString()).toString();
-            console.log(`${req.method} [${req.path}] from "${req.ip}" ${ua}`);
-            next();
-        });
-        Server.app.use(bodyParser.json());
-    }
-    static async addServices(...serviceContainer) {
+    async addServices(...serviceContainer) {
         var servicesToStart = [];
         var dependenciesToSort = [];
         serviceContainer.forEach((servicesToRegister) => {
@@ -89,7 +82,7 @@ class Server {
     * Notice : all controllers should end with 'Controller'
     * Notice : controller methods should start with requested method ex : get,post,put,delete
     */
-    static addRoutes(...controllerContainer) {
+    async addRoutes(...controllerContainer) {
         controllerContainer.forEach((controllersToRegister) => {
             if (!controllersToRegister)
                 return;
@@ -125,40 +118,6 @@ class Server {
                     Server.routes.push(serverRoute);
                 });
             });
-        });
-    }
-    /**
-     * registering our Server.routes to express
-    */
-    async routerConfig() {
-        Server.app.use(function (req, res) {
-            var requestReceived = Date.now();
-            // finding controller by path
-            var srvRoute = Server.routes.find((value) => {
-                return value.route.toLowerCase() == req.path.toLowerCase() && value.method.trim().toLowerCase() == req.method.trim().toLowerCase();
-            });
-            // Check if controller exist and requested method matches 
-            if (!srvRoute)
-                return res.status(404).send('controller not found');
-            // creating object from controllerClass 
-            // Reason : basically because we need to run constructor
-            var controllerObject = srvRoute.controllerObject;
-            //controllerObject[srvRoute.function](req, res);
-            var actions = (controllerObject[srvRoute.endpoint].actions);
-            // starting from first action
-            var actionIndex = 0;
-            var executeAction = function (passedModel) {
-                actions[actionIndex](req, res, function next(model) {
-                    // Execute next
-                    actionIndex++;
-                    executeAction(model);
-                }, function done() {
-                    res.end();
-                    console.log(`request answered in ${Date.now() - requestReceived}ms`);
-                }, passedModel);
-            };
-            // Execute first one
-            executeAction(null);
         });
     }
 }

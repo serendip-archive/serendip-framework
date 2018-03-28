@@ -16,16 +16,14 @@ export class AuthController {
 
     }
 
-
-
     public foo: ServerEndpointInterface = {
         method: 'get',
         customRoute: '/token',
         actions: [
             (req, res, next, done) => {
 
-                res.send(this.authService.test());
-                done();
+              res.send(this.authService.test());
+              done();
                 // this.authService.allUsers().then((result) => {
 
                 //     next(result);
@@ -37,6 +35,23 @@ export class AuthController {
                 res.json(model);
                 done();
 
+            }
+        ]
+    };
+
+    public hi: ServerEndpointInterface = {
+        method: 'get',
+        customRoute: '/hi/:id/(.*)?/(.*)?',
+        actions: [
+            (req, res, next, done) => {
+
+              res.json(req.params);
+              done();
+                // this.authService.allUsers().then((result) => {
+
+                //     next(result);
+
+                // });
             }
         ]
     };

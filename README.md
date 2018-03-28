@@ -42,7 +42,7 @@ class fooController {
     /**
      * GET /api/foo/hi
      */
-    hi: serendip.ControllerEndpoint = {
+    hi: serendip.ServerEndpointInterface = {
         method: 'get',
         actions: [
             (req, res, next, done) => {

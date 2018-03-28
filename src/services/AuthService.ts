@@ -1,7 +1,7 @@
 import { UserModel } from "../models";
 import { Collection, ObjectID } from "mongodb";
 import { DbService  } from ".";
-import { ServerServiceInterface } from "../core";
+import { ServerServiceInterface, Server } from "../core";
 
 
 
@@ -10,8 +10,13 @@ export class AuthService implements ServerServiceInterface {
 
     static dependencies = ["DbService", "EmailService", "SmsService"];
 
+    private _dbService : DbService;
+
     async start() {
 
+       this._dbService = Server.services["DbService"];
+
+       this._dbService.collection("Users");
     }
 
 
