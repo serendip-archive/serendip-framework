@@ -1,7 +1,9 @@
 import { EntityModel, EntityChangeModel, EntityCacheModel } from "../models";
-import { ServiceInterface } from ".";
+import { ServerServiceInterface } from "../core";
 
-export class EntityService implements ServiceInterface {
+
+
+export class EntityService implements ServerServiceInterface {
 
     static dependencies = ['DbService','AuthService'];
 

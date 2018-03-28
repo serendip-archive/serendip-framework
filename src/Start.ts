@@ -1,18 +1,11 @@
-import { Server } from "./Server";
+import { Server, ServerOptionsInterface } from "./core";
 import * as dotenv from 'dotenv';
 import * as cluster from 'cluster';
 import { cpus } from 'os';
 import * as models from './models';
 
 
-export interface startOptions {
-
-    controllers?: any;
-    port? : number;
-    cpuCores? : number;
-    services? : any;
-}
-export function start(opts: startOptions) {
+export function start(opts?: ServerOptionsInterface) {
 
     dotenv.config();
 

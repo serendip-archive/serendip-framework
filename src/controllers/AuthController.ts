@@ -1,6 +1,6 @@
-import { Server, ServerRequest, ServerResponse, ControllerEndpoint } from '../Server'
-import {  DbService, AuthService } from '../services';
+import { DbService, AuthService } from '../services';
 import { UserModel } from '../models';
+import { Server, ServerEndpointInterface } from '../core';
 import { Collection } from 'mongodb';
 
 /** 
@@ -13,12 +13,12 @@ export class AuthController {
     constructor() {
 
         this.authService = Server.services["AuthService"];
-        
+
     }
 
-    
 
-    public foo: ControllerEndpoint = {
+
+    public foo: ServerEndpointInterface = {
         method: 'get',
         customRoute: '/token',
         actions: [

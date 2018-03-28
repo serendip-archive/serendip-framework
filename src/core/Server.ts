@@ -5,92 +5,19 @@ import * as express from 'express'
 import * as bodyParser from 'body-parser'
 import * as useragent from 'useragent'
 
-import * as controllers from './controllers'
-import * as services from './services'
 
 import * as http from 'http';
 
-import { startOptions, start } from './Start';
-import { ServiceInterface } from './services';
-import { PromiseUtil } from './utils';
+
+
+import * as controllers from '../Controllers'
+import * as services from '../Services'
+
+import { start } from '../Start';
+import { ServerServiceInterface, ServerRouteInterface, ServerOptionsInterface, ServerEndpointInterface, ServerEndpointActionInterface, ServerRequestInterface, ServerResponseInterface } from '.';
+import { PromiseUtil } from '../Utils';
 
 import * as topoSort from 'toposort'
-
-/**
- * ServerRequest 
- */
-export interface ServerRequest extends express.Request {
-
-}
-
-
-/**
- * ServerRequest 
- */
-export interface ServerResponse extends express.Response {
-
-
-}
-
-export interface ControllerEndpointError {
-
-  error: string;
-  error_description: string;
-  error_uri?: string;
-
-}
-
-export interface ControllerEndpointAction extends Function {
-
-  /**
-   * 
-   * @param req ServerRequest
-   * @param res ServerResponse
-   * @param next Execute next action in array
-   * @param done 
-   */
-  (req: ServerRequest, res: ServerResponse, next: Function, done: Function, model?: object)
-
-}
-
-export interface ControllerEndpoint {
-
-  /**
-   * Http Method put,post,get,delete
-   */
-  method: string;
-
-  /**
-   * framework router will use this instead of default route
-   */
-  customRoute?: string;
-
-  /**
-   *  Action Description
-   */
-  description?: string;
-
-  /**
-   * Series of actions to respond any request to this endpoint route
-   */
-  actions: ControllerEndpointAction[]
-
-}
-
-
-/**
- * routes to introduce to express :) 
- */
-export interface serverRoute {
-
-  method: string;
-  route: string;
-  controllerObject: object;
-  controllerName: string;
-  endpoint: string;
-
-}
-
 
 
 /**
@@ -116,20 +43,20 @@ export class Server {
    * routes which server router will respond to
    * and feel free to add your routes to it 
    */
-  public static routes: serverRoute[];
+  public static routes: ServerRouteInterface[];
 
   public static services: object;
 
 
 
   // usage : starting server from ./Start.js
-  public static bootstrap(opts: startOptions, worker: cluster.Worker) {
+  public static bootstrap(opts: ServerOptionsInterface, worker: cluster.Worker) {
     return new Server(opts, worker);
   }
 
 
   // passing worker from Start.js 
-  constructor(opts: startOptions, worker: cluster.Worker) {
+  constructor(opts: ServerOptionsInterface, worker: cluster.Worker) {
 
     var port: number = opts.port || parseInt(process.env.port);
 
@@ -137,9 +64,6 @@ export class Server {
     Server.app = express();
     Server.routes = [];
     Server.services = {};
-
-
-
 
 
     Server.addServices(services, opts.services).then(() => {
@@ -177,7 +101,7 @@ export class Server {
    */
   private async middlewareConfig() {
 
-    Server.app.use((req: ServerRequest, res: ServerResponse, next) => {
+    Server.app.use((req: ServerRequestInterface, res: ServerResponseInterface, next) => {
 
       var ua = useragent.parse(req.headers["user-agent"].toString()).toString();
 
@@ -237,13 +161,13 @@ export class Server {
 
         var serviceName = sortedDependencies[index];
 
-        var serviceObject: ServiceInterface = new servicesToStart[serviceName];
+        var serviceObject: ServerServiceInterface = new servicesToStart[serviceName];
 
         Server.services[serviceName] = serviceObject;
 
         serviceObject.start().then(() => {
 
-          console.log(`${serviceName} started .`);
+          console.log(`☑ ${serviceName}`);
 
 
 
@@ -298,15 +222,15 @@ export class Server {
       // iterating trough controller classes
       controllerClassToRegister.forEach(function (controllerClassName) {
 
-        console.log(controllerClassName);
-
+     
+        
         var objToRegister = new controllersToRegister[controllerClassName];
 
         // iterating trough controller endpoint in class
         Object.getOwnPropertyNames(objToRegister).forEach(function (controllerEndpointName) {
 
 
-          var endpoint: ControllerEndpoint = objToRegister[controllerEndpointName];
+          var endpoint: ServerEndpointInterface = objToRegister[controllerEndpointName];
 
 
           if (!endpoint)
@@ -324,7 +248,7 @@ export class Server {
               endpoint.customRoute = '/' + endpoint.customRoute;
 
 
-          var serverRoute: serverRoute = {
+          var serverRoute: ServerRouteInterface = {
             route: endpoint.customRoute || controllerUrl,
             method: endpoint.method,
             endpoint: controllerEndpointName,
@@ -334,7 +258,7 @@ export class Server {
 
 
 
-          console.log(`route registered => [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
+          console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
 
 
           Server.routes.push(serverRoute);
@@ -358,7 +282,7 @@ export class Server {
       var requestReceived = Date.now();
 
       // finding controller by path
-      var srvRoute: serverRoute = Server.routes.find((value) => {
+      var srvRoute: ServerRouteInterface = Server.routes.find((value) => {
 
         return value.route.toLowerCase() == req.path.toLowerCase() && value.method.trim().toLowerCase() == req.method.trim().toLowerCase();
 
@@ -375,7 +299,7 @@ export class Server {
       var controllerObject = srvRoute.controllerObject;
 
       //controllerObject[srvRoute.function](req, res);
-      var actions: ControllerEndpointAction[] = (controllerObject[srvRoute.endpoint].actions);
+      var actions: ServerEndpointActionInterface[] = (controllerObject[srvRoute.endpoint].actions);
 
       // starting from first action
       var actionIndex = 0;

@@ -1,6 +1,7 @@
 import { ServerServiceInterface } from "../core";
 
-export class FaxService implements ServerServiceInterface {
+
+export class SmsService implements ServerServiceInterface {
 
     static dependencies = [];
 

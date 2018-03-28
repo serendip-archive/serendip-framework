@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const bodyParser = require("body-parser");
 const useragent = require("useragent");
-const controllers = require("./controllers");
-const services = require("./services");
+const controllers = require("../Controllers");
+const services = require("../Services");
 const topoSort = require("toposort");
 /**
  *  Will contain everything that we need from server
@@ -72,7 +72,7 @@ class Server {
                 var serviceObject = new servicesToStart[serviceName];
                 Server.services[serviceName] = serviceObject;
                 serviceObject.start().then(() => {
-                    console.log(`${serviceName} started .`);
+                    console.log(`☑ ${serviceName}`);
                     if (sortedDependencies.length > index + 1)
                         startService(index + 1);
                     else
@@ -101,7 +101,6 @@ class Server {
             });
             // iterating trough controller classes
             controllerClassToRegister.forEach(function (controllerClassName) {
-                console.log(controllerClassName);
                 var objToRegister = new controllersToRegister[controllerClassName];
                 // iterating trough controller endpoint in class
                 Object.getOwnPropertyNames(objToRegister).forEach(function (controllerEndpointName) {
@@ -122,7 +121,7 @@ class Server {
                         controllerName: controllerClassName,
                         controllerObject: objToRegister,
                     };
-                    console.log(`route registered => [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
+                    console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
                     Server.routes.push(serverRoute);
                 });
             });

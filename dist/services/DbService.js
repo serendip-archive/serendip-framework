@@ -65,7 +65,6 @@ class DbService {
         // Creating mongoDB client from mongoUrl
         var mongoClient = await mongodb_1.MongoClient.connect(mongoUrl);
         this.db = mongoClient.db(dbName);
-        console.log('DbService started successfully .');
     }
     async start() {
         await this.connect();
@@ -75,7 +74,7 @@ class DbService {
         if (this.mongoCollections.indexOf(collectionName) === -1) {
             await this.db.createCollection(collectionName);
             this.mongoCollections.push(collectionName);
-            console.log(`collection ${collectionName} created .`);
+            console.log(`☑ collection ${collectionName} created .`);
         }
         return new DbCollection(this.db.collection(collectionName));
     }

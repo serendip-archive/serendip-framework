@@ -1,10 +1,11 @@
 import { UserModel } from "../models";
 import { Collection, ObjectID } from "mongodb";
-import { DbService, ServiceInterface } from ".";
+import { DbService  } from ".";
+import { ServerServiceInterface } from "../core";
 
 
 
-export class AuthService implements ServiceInterface {
+export class AuthService implements ServerServiceInterface {
 
 
     static dependencies = ["DbService", "EmailService", "SmsService"];

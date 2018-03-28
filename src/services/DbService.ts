@@ -1,9 +1,6 @@
 import { MongoClient, Db, ObjectID, Collection } from 'mongodb'
+import { ServerServiceInterface } from '../core';
 
-import { Server } from "../Server"
-import { PromiseUtil } from '../utils'
-
-import { ServiceInterface } from './'
 
 export class DbCollection<T>{
 
@@ -102,11 +99,11 @@ export class DbCollection<T>{
 /** 
  * Every functionality thats use database should use it trough this service
 */
-export class DbService implements ServiceInterface {
+export class DbService implements ServerServiceInterface {
 
 
     static dependencies = [];
-    
+
     private mongoCollections: string[] = [];
     /**
      * Instance of mongodb database
@@ -131,8 +128,6 @@ export class DbService implements ServiceInterface {
 
         this.db = mongoClient.db(dbName);
 
-
-        console.log('DbService started successfully .');
     }
 
     async start() {
@@ -155,7 +150,7 @@ export class DbService implements ServiceInterface {
         if (this.mongoCollections.indexOf(collectionName) === -1) {
             await this.db.createCollection(collectionName);
             this.mongoCollections.push(collectionName);
-            console.log(`collection ${collectionName} created .`);
+            console.log(`☑ collection ${collectionName} created .`);
         }
 
         return new DbCollection<T>(this.db.collection<T>(collectionName));

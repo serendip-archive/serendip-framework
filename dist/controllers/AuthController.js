@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Server_1 = require("../Server");
+const core_1 = require("../core");
 /**
  * /api/auth/(endpoint)
 */
@@ -23,7 +23,7 @@ class AuthController {
                 }
             ]
         };
-        this.authService = Server_1.Server.services["AuthService"];
+        this.authService = core_1.Server.services["AuthService"];
     }
 }
 exports.AuthController = AuthController;

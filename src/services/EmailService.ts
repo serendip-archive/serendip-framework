@@ -1,8 +1,8 @@
 import { EmailModel } from '../models/EmailModel'
-import { ServiceInterface } from '.';
+import { ServerServiceInterface } from '../core';
 
 
-export class EmailService implements ServiceInterface {
+export class EmailService implements ServerServiceInterface {
 
     static dependencies = ['DbService'];
 

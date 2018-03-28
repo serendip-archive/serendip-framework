@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Server_1 = require("./Server");
+const core_1 = require("./core");
 const dotenv = require("dotenv");
 const cluster = require("cluster");
 const os_1 = require("os");
@@ -20,7 +20,7 @@ function start(opts) {
         });
     }
     else {
-        Server_1.Server.bootstrap(opts, cluster.worker);
+        core_1.Server.bootstrap(opts, cluster.worker);
     }
 }
 exports.start = start;
