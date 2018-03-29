@@ -10,7 +10,7 @@ export interface ServerEndpointInterface {
     /**
      * framework router will use this instead of default route
      */
-    customRoute?: string;
+    route?: string;
   
     /**
      *  Action Description

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const bodyParser = require("body-parser");
 const http = require("http");
 const controllers = require("../Controllers");
 const services = require("../Services");
@@ -22,6 +23,8 @@ class Server {
         Server.services = {};
         Server.routes = [];
         Server.middlewares = opts.middlewares || [];
+        Server.middlewares.push(bodyParser.json());
+        Server.middlewares.push(bodyParser.urlencoded({ extended: false }));
         Async.series([
             (cb) => this.addServices(services, opts.services).then(() => cb(null, null)),
             (cb) => this.addRoutes(controllers, opts.controllers).then(() => cb(null, null))
@@ -104,11 +107,11 @@ class Server {
                         return;
                     // Defining controllerUrl for this controllerMethod
                     var controllerUrl = `/api/${controllerClassName.replace('Controller', '')}/${controllerEndpointName}`;
-                    if (endpoint.customRoute)
-                        if (!endpoint.customRoute.startsWith('/'))
-                            endpoint.customRoute = '/' + endpoint.customRoute;
+                    if (endpoint.route)
+                        if (!endpoint.route.startsWith('/'))
+                            endpoint.route = '/' + endpoint.route;
                     var serverRoute = {
-                        route: endpoint.customRoute || controllerUrl,
+                        route: endpoint.route || controllerUrl,
                         method: endpoint.method,
                         endpoint: controllerEndpointName,
                         controllerName: controllerClassName,

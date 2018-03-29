@@ -51,7 +51,7 @@ export class Server {
 
   public static httpServer: http.Server;
 
-  public static middlewares: ServerMiddlewareInterface[];
+  public static middlewares:  any[];
 
 
 
@@ -74,6 +74,9 @@ export class Server {
     Server.routes = [];
     Server.middlewares = opts.middlewares || [];
 
+    Server.middlewares.push(bodyParser.json());
+    Server.middlewares.push(bodyParser.urlencoded({extended : false}));
+    
     
 
     Async.series([
@@ -234,13 +237,13 @@ export class Server {
           // Defining controllerUrl for this controllerMethod
           var controllerUrl = `/api/${controllerClassName.replace('Controller', '')}/${controllerEndpointName}`;
 
-          if (endpoint.customRoute)
-            if (!endpoint.customRoute.startsWith('/'))
-              endpoint.customRoute = '/' + endpoint.customRoute;
+          if (endpoint.route)
+            if (!endpoint.route.startsWith('/'))
+              endpoint.route = '/' + endpoint.route;
 
 
           var serverRoute: ServerRouteInterface = {
-            route: endpoint.customRoute || controllerUrl,
+            route: endpoint.route || controllerUrl,
             method: endpoint.method,
             endpoint: controllerEndpointName,
             controllerName: controllerClassName,

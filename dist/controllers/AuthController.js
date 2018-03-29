@@ -8,7 +8,7 @@ class AuthController {
     constructor() {
         this.foo = {
             method: 'get',
-            customRoute: '/token',
+            route: '/token',
             actions: [
                 (req, res, next, done) => {
                     res.send(this.authService.test());
@@ -25,10 +25,10 @@ class AuthController {
         };
         this.hi = {
             method: 'get',
-            customRoute: '/hi/:id/(.*)?/(.*)?',
+            route: '/hi/:id',
             actions: [
                 (req, res, next, done) => {
-                    res.json(req.params);
+                    res.json([req.params, req.query, req.body]);
                     done();
                     // this.authService.allUsers().then((result) => {
                     //     next(result);

@@ -6,6 +6,8 @@ import * as useragent from 'useragent'
  */
 export interface ServerRequest extends http.IncomingMessage {
 
+    query : object;
+    body : object;
     params : object;
     useragent();
 

@@ -1,6 +1,7 @@
 import { ServerRequest, ServerResponse, ServerRouteInterface, Server, ServerEndpointActionInterface } from ".";
 import * as pathMatch from 'path-match'
 import * as url from 'url';
+import * as qs from 'qs';
 
 export class ServerRouter {
 
@@ -20,17 +21,18 @@ export class ServerRouter {
     static routeIt(req: ServerRequest, res: ServerResponse) {
 
         var requestReceived = Date.now();
-        var path = url.parse(req.url).path;
+        var parsedUrl = url.parse(req.url);
+        var path = parsedUrl.pathname;
+
         // finding controller by path
         var srvRoute: ServerRouteInterface = Server.routes.find((value) => {
 
             var matcher = ServerRouter.routerPathMatcher(value.route);
 
-            // console.log(matcher(url.parse(req.url).path));
-            // return value.route.toLowerCase() == req.path.toLowerCase() && value.method.trim().toLowerCase() == req.method.trim().toLowerCase();
             var params = matcher(path);
             if (params !== false) {
 
+                req.query = qs.parse(parsedUrl.query);
                 req.params = params;
                 return true;
             }
@@ -52,7 +54,6 @@ export class ServerRouter {
         // Reason : basically because we need to run constructor
         var controllerObject = srvRoute.controllerObject;
 
-        //controllerObject[srvRoute.function](req, res);
         var actions: ServerEndpointActionInterface[] = (controllerObject[srvRoute.endpoint].actions);
 
 
@@ -94,7 +95,7 @@ export class ServerRouter {
                 middleIndex++;
 
                 if (Server.middlewares.length == middleIndex) {
-                    // begin executing actions
+                    //if all middlewares successfully executed, its time to begin executing actions
                     executeActions(null);
                     return;
                 }
@@ -106,8 +107,10 @@ export class ServerRouter {
             });
         };
 
-        // Execute first one
+
+        // if there is no middleware registered we go straightly to endpoint actions
         if (Server.middlewares.length > 0)
+            // begin executing middlewares
             executeMiddles();
         else
             executeActions(null);
