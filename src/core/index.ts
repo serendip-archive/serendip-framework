@@ -8,5 +8,6 @@ export * from './ServerRequest'
 export * from './ServerResponse'
 export * from './ServerRouteInterface'
 export * from './ServerServiceInterface'
+export * from './ServerError'
 
 

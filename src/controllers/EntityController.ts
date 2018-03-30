@@ -1,5 +1,5 @@
 import { EntityService, DbService } from '../services';
-import { UserModel, EntityModel } from '../models';
+
 import { Collection, ObjectID } from 'mongodb';
 
 

@@ -12,19 +12,15 @@ const ServerRouter_1 = require("./ServerRouter");
  *  Will contain everything that we need from server
  */
 class Server {
-    // usage : starting server from ./Start.js
-    static bootstrap(opts, worker) {
-        return new Server(opts, worker);
-    }
     // passing worker from Start.js 
     constructor(opts, worker) {
         var port = opts.port || parseInt(process.env.port);
+        // Cluster worker
         Server.worker = worker;
-        Server.services = {};
-        Server.routes = [];
         Server.middlewares = opts.middlewares || [];
-        Server.middlewares.push(bodyParser.json());
-        Server.middlewares.push(bodyParser.urlencoded({ extended: false }));
+        // adding basic middlewares to begging of middlewares array
+        Server.middlewares.unshift(bodyParser.json());
+        Server.middlewares.unshift(bodyParser.urlencoded({ extended: false }));
         Async.series([
             (cb) => this.addServices(services, opts.services).then(() => cb(null, null)),
             (cb) => this.addRoutes(controllers, opts.controllers).then(() => cb(null, null))
@@ -39,6 +35,10 @@ class Server {
             });
             // Listen to port after configs done
         });
+    }
+    // usage : starting server from ./Start.js
+    static bootstrap(opts, worker) {
+        return new Server(opts, worker);
     }
     async addServices(...serviceContainer) {
         var servicesToStart = [];
@@ -124,4 +124,10 @@ class Server {
         });
     }
 }
+/**
+ * routes which server router will respond to
+ * and feel free to add your routes to it
+ */
+Server.routes = [];
+Server.services = {};
 exports.Server = Server;

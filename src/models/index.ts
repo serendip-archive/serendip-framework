@@ -1,6 +1,4 @@
 
-// AuthService
-export * from "./UserModel";
 
 // EmailService
 export * from "./EmailModel";

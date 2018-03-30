@@ -1,4 +1,4 @@
-import { MongoClient, Db, ObjectID, Collection } from 'mongodb'
+import { MongoClient, Db, ObjectID, Collection, IndexOptions } from 'mongodb'
 import { ServerServiceInterface } from '../core';
 
 
@@ -12,6 +12,12 @@ export class DbCollection<T>{
         this._collection = collection;
 
     }
+
+    public async createIndex(fieldOrSpec: any, options: IndexOptions) {
+
+        return this._collection.createIndex(fieldOrSpec, options);
+        
+    };
 
     public find(query): Promise<T[]> {
 

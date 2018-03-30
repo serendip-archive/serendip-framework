@@ -1,4 +1,4 @@
-import { UserModel } from ".";
+import { UserModel } from "./auth";
 
 export enum entityChangeType {
 

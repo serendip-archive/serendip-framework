@@ -5,6 +5,10 @@ class DbCollection {
     constructor(collection) {
         this._collection = collection;
     }
+    async createIndex(fieldOrSpec, options) {
+        return this._collection.createIndex(fieldOrSpec, options);
+    }
+    ;
     find(query) {
         return new Promise((resolve, reject) => {
             var objectId = new mongodb_1.ObjectID();

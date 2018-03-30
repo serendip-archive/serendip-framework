@@ -6,11 +6,11 @@ import * as useragent from 'useragent'
  */
 export interface ServerRequest extends http.IncomingMessage {
 
-    query : object;
-    body : object;
-    params : object;
+    query: any;
+    body: any;
+    params: any;
     useragent();
-
+    ip();
 }
 
 export function ServerRequestHelpers(req: http.IncomingMessage | any) {
@@ -18,7 +18,13 @@ export function ServerRequestHelpers(req: http.IncomingMessage | any) {
 
     req.useragent = () => {
 
-        return useragent.parse(req.headers["user-agent"].toString());
+        return req.headers["user-agent"].toString();
+
+    };
+
+    req.ip = () => {
+
+        return req.connection.remoteAddress;
 
     };
 

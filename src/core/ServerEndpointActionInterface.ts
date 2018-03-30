@@ -9,6 +9,6 @@ export interface ServerEndpointActionInterface extends Function {
      * @param next Execute next action in array
      * @param done 
      */
-    (req: ServerRequest, res: ServerResponse, next: Function, done: Function, model?: object)
+    (req: ServerRequest, res: ServerResponse, next?: Function, done?: Function, model?: any)
 
 }

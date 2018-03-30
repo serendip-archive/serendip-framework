@@ -1,4 +1,4 @@
-import { ServerRequest, ServerResponse, ServerRouteInterface, Server, ServerEndpointActionInterface } from ".";
+import { ServerRequest, ServerResponse, ServerRouteInterface, Server, ServerEndpointActionInterface, ServerError } from ".";
 import * as pathMatch from 'path-match'
 import * as url from 'url';
 import * as qs from 'qs';
@@ -61,8 +61,18 @@ export class ServerRouter {
         var actionIndex = 0;
 
         var executeActions = function (passedModel) {
+
             actions[actionIndex](req, res, function _next(model) {
 
+
+                if (model)
+                    if (model.constructor)
+                        if (model.constructor.name == "ServerError") {
+
+                            res.json(model);
+                            return;
+
+                        }
 
                 // Execute next
                 actionIndex++;
@@ -83,6 +93,8 @@ export class ServerRouter {
 
             },
                 passedModel);
+
+
         };
 
         // starting from first action

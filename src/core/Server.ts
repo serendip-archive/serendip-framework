@@ -45,13 +45,13 @@ export class Server {
    * routes which server router will respond to
    * and feel free to add your routes to it 
    */
-  public static routes: ServerRouteInterface[];
+  public static routes: ServerRouteInterface[] = [];
 
-  public static services: object;
+  public static services: object = {};
 
   public static httpServer: http.Server;
 
-  public static middlewares:  any[];
+  public static middlewares: any[];
 
 
 
@@ -67,17 +67,17 @@ export class Server {
 
     var port: number = opts.port || parseInt(process.env.port);
 
+
+    // Cluster worker
     Server.worker = worker;
 
-    Server.services = {};
 
-    Server.routes = [];
     Server.middlewares = opts.middlewares || [];
 
-    Server.middlewares.push(bodyParser.json());
-    Server.middlewares.push(bodyParser.urlencoded({extended : false}));
-    
-    
+    // adding basic middlewares to begging of middlewares array
+    Server.middlewares.unshift(bodyParser.json());
+    Server.middlewares.unshift(bodyParser.urlencoded({ extended: false }));
+
 
     Async.series([
       (cb) => this.addServices(services, opts.services).then(() => cb(null, null)),
@@ -85,7 +85,7 @@ export class Server {
     ], () => {
 
 
-      Server.httpServer = http.createServer(function(req: any, res: any)  {
+      Server.httpServer = http.createServer(function (req: any, res: any) {
 
         req = ServerRequestHelpers(req);
         res = ServerResponseHelpers(res);
@@ -109,7 +109,7 @@ export class Server {
   }
 
 
-  
+
   private async addServices(...serviceContainer) {
 
 

@@ -36,6 +36,12 @@ class ServerRouter {
         var actionIndex = 0;
         var executeActions = function (passedModel) {
             actions[actionIndex](req, res, function _next(model) {
+                if (model)
+                    if (model.constructor)
+                        if (model.constructor.name == "ServerError") {
+                            res.json(model);
+                            return;
+                        }
                 // Execute next
                 actionIndex++;
                 if (actions.length == actionIndex) {
