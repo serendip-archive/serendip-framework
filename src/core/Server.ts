@@ -104,40 +104,27 @@ export class Server {
 
 
 
-  private async addServices(...serviceContainer) {
+  private async addServices(servicesToRegister) {
 
 
     var servicesToStart = [];
     var dependenciesToSort = [];
-    serviceContainer.forEach((servicesToRegister) => {
+    servicesToRegister.forEach((sv) => {
 
-      if (!servicesToRegister)
+      if (!sv)
         return;
 
-      // Getting name of controller classes in ./controllers folder
-      var serviceNames = Object.getOwnPropertyNames(servicesToRegister).filter(val => {
+      console.log(sv.name, sv.dependencies);
 
+      if (sv.dependencies)
+        sv.dependencies.forEach((val) => {
 
-        // We just use classes that ends with 'Controller'
-        if (val.endsWith('Service'))
-          return val;
+          dependenciesToSort.push([sv.name, val]);
 
-      });
+        });
 
-      // iterating trough controller classes
-      serviceNames.forEach(function (serviceName) {
+      servicesToStart[sv.name] = sv;
 
-
-        if (servicesToRegister[serviceName].dependencies)
-          servicesToRegister[serviceName].dependencies.forEach((val) => {
-
-            dependenciesToSort.push([serviceName, val]);
-
-          });
-
-        servicesToStart[serviceName] = servicesToRegister[serviceName];
-
-      });
     });
 
 
@@ -163,18 +150,21 @@ export class Server {
 
         Server.services[serviceName] = serviceObject;
 
-        serviceObject.start().then(() => {
+        if (!serviceObject.start)
+          startService(index + 1);
+        else
+          serviceObject.start().then(() => {
 
-          console.log(`☑ ${serviceName}`);
+            console.log(`☑ ${serviceName}`);
 
-          if (sortedDependencies.length > index + 1)
-            startService(index + 1);
-          else
-            resolve();
+            if (sortedDependencies.length > index + 1)
+              startService(index + 1);
+            else
+              resolve();
 
-        }).catch((err) => {
-          reject(err);
-        });
+          }).catch((err) => {
+            reject(err);
+          });
       }
 
       if (sortedDependencies.length > 0)
@@ -191,68 +181,49 @@ export class Server {
   * Notice : all controllers should end with 'Controller'
   * Notice : controller methods should start with requested method ex : get,post,put,delete
   */
-  private async addRoutes(...controllerContainer) {
+  private async addRoutes(controllersToRegister) {
+
+    // iterating trough controller classes
+    controllersToRegister.forEach(function (controller) {
 
 
-    controllerContainer.forEach((controllersToRegister) => {
-      if (!controllersToRegister)
-        return;
+      var objToRegister = new controller;
 
-      // Getting name of controller classes in ./controllers folder
-      var controllerClassToRegister = Object.getOwnPropertyNames(controllersToRegister).filter(val => {
+      // iterating trough controller endpoint in class
+      Object.getOwnPropertyNames(objToRegister).forEach(function (controllerEndpointName) {
 
 
-        // We just use classes that ends with 'Controller'
-        if (val.endsWith('Controller'))
-          return val;
-
-      });
-
-      // iterating trough controller classes
-      controllerClassToRegister.forEach(function (controllerClassName) {
+        var endpoint: ServerEndpointInterface = objToRegister[controllerEndpointName];
 
 
+        if (!endpoint)
+          return;
 
-        var objToRegister = new controllersToRegister[controllerClassName];
-
-        // iterating trough controller endpoint in class
-        Object.getOwnPropertyNames(objToRegister).forEach(function (controllerEndpointName) {
-
-
-          var endpoint: ServerEndpointInterface = objToRegister[controllerEndpointName];
+        if (!endpoint.method || !endpoint.actions)
+          return;
 
 
-          if (!endpoint)
-            return;
+        // Defining controllerUrl for this controllerMethod
+        var controllerUrl = `/api/${controller.name.replace('Controller', '')}/${controllerEndpointName}`;
 
-          if (!endpoint.method || !endpoint.actions)
-            return;
-
-
-          // Defining controllerUrl for this controllerMethod
-          var controllerUrl = `/api/${controllerClassName.replace('Controller', '')}/${controllerEndpointName}`;
-
-          if (endpoint.route)
-            if (!endpoint.route.startsWith('/'))
-              endpoint.route = '/' + endpoint.route;
+        if (endpoint.route)
+          if (!endpoint.route.startsWith('/'))
+            endpoint.route = '/' + endpoint.route;
 
 
-          var serverRoute: ServerRouteInterface = {
-            route: endpoint.route || controllerUrl,
-            method: endpoint.method,
-            endpoint: controllerEndpointName,
-            controllerName: controllerClassName,
-            controllerObject: objToRegister,
-          };
+        var serverRoute: ServerRouteInterface = {
+          route: endpoint.route || controllerUrl,
+          method: endpoint.method,
+          endpoint: controllerEndpointName,
+          controllerName: controller.name,
+          controllerObject: objToRegister,
+        };
 
 
+        console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
 
-          console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
 
-
-          Server.routes.push(serverRoute);
-
-        });
+        Server.routes.push(serverRoute);
 
       });
 

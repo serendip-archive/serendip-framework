@@ -63,7 +63,7 @@ class fooController {
 
 serendip.start({
 
-    controllers: { fooController },
+    controllers: [ fooController ],
     cpuCores: 1,
     port: 3000
 
@@ -105,7 +105,7 @@ class fooController {
 // starting application
 serendip.start({
     // controllers who are responsible to api requests
-    controllers: { fooController },
+    controllers: [ fooController ],
     // Specify or by default all cores will be used
     cpuCores: 1,
     // port to listen on

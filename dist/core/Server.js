@@ -38,26 +38,18 @@ class Server {
     static bootstrap(opts, worker) {
         return new Server(opts, worker);
     }
-    async addServices(...serviceContainer) {
+    async addServices(servicesToRegister) {
         var servicesToStart = [];
         var dependenciesToSort = [];
-        serviceContainer.forEach((servicesToRegister) => {
-            if (!servicesToRegister)
+        servicesToRegister.forEach((sv) => {
+            if (!sv)
                 return;
-            // Getting name of controller classes in ./controllers folder
-            var serviceNames = Object.getOwnPropertyNames(servicesToRegister).filter(val => {
-                // We just use classes that ends with 'Controller'
-                if (val.endsWith('Service'))
-                    return val;
-            });
-            // iterating trough controller classes
-            serviceNames.forEach(function (serviceName) {
-                if (servicesToRegister[serviceName].dependencies)
-                    servicesToRegister[serviceName].dependencies.forEach((val) => {
-                        dependenciesToSort.push([serviceName, val]);
-                    });
-                servicesToStart[serviceName] = servicesToRegister[serviceName];
-            });
+            console.log(sv.name, sv.dependencies);
+            if (sv.dependencies)
+                sv.dependencies.forEach((val) => {
+                    dependenciesToSort.push([sv.name, val]);
+                });
+            servicesToStart[sv.name] = sv;
         });
         var sortedDependencies = topoSort(dependenciesToSort).reverse();
         return new Promise((resolve, reject) => {
@@ -71,15 +63,18 @@ class Server {
                     reject(`${serviceName} not imported in server start.`);
                 }
                 Server.services[serviceName] = serviceObject;
-                serviceObject.start().then(() => {
-                    console.log(`☑ ${serviceName}`);
-                    if (sortedDependencies.length > index + 1)
-                        startService(index + 1);
-                    else
-                        resolve();
-                }).catch((err) => {
-                    reject(err);
-                });
+                if (!serviceObject.start)
+                    startService(index + 1);
+                else
+                    serviceObject.start().then(() => {
+                        console.log(`☑ ${serviceName}`);
+                        if (sortedDependencies.length > index + 1)
+                            startService(index + 1);
+                        else
+                            resolve();
+                    }).catch((err) => {
+                        reject(err);
+                    });
             }
             if (sortedDependencies.length > 0)
                 startService(0);
@@ -90,41 +85,31 @@ class Server {
     * Notice : all controllers should end with 'Controller'
     * Notice : controller methods should start with requested method ex : get,post,put,delete
     */
-    async addRoutes(...controllerContainer) {
-        controllerContainer.forEach((controllersToRegister) => {
-            if (!controllersToRegister)
-                return;
-            // Getting name of controller classes in ./controllers folder
-            var controllerClassToRegister = Object.getOwnPropertyNames(controllersToRegister).filter(val => {
-                // We just use classes that ends with 'Controller'
-                if (val.endsWith('Controller'))
-                    return val;
-            });
-            // iterating trough controller classes
-            controllerClassToRegister.forEach(function (controllerClassName) {
-                var objToRegister = new controllersToRegister[controllerClassName];
-                // iterating trough controller endpoint in class
-                Object.getOwnPropertyNames(objToRegister).forEach(function (controllerEndpointName) {
-                    var endpoint = objToRegister[controllerEndpointName];
-                    if (!endpoint)
-                        return;
-                    if (!endpoint.method || !endpoint.actions)
-                        return;
-                    // Defining controllerUrl for this controllerMethod
-                    var controllerUrl = `/api/${controllerClassName.replace('Controller', '')}/${controllerEndpointName}`;
-                    if (endpoint.route)
-                        if (!endpoint.route.startsWith('/'))
-                            endpoint.route = '/' + endpoint.route;
-                    var serverRoute = {
-                        route: endpoint.route || controllerUrl,
-                        method: endpoint.method,
-                        endpoint: controllerEndpointName,
-                        controllerName: controllerClassName,
-                        controllerObject: objToRegister,
-                    };
-                    console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
-                    Server.routes.push(serverRoute);
-                });
+    async addRoutes(controllersToRegister) {
+        // iterating trough controller classes
+        controllersToRegister.forEach(function (controller) {
+            var objToRegister = new controller;
+            // iterating trough controller endpoint in class
+            Object.getOwnPropertyNames(objToRegister).forEach(function (controllerEndpointName) {
+                var endpoint = objToRegister[controllerEndpointName];
+                if (!endpoint)
+                    return;
+                if (!endpoint.method || !endpoint.actions)
+                    return;
+                // Defining controllerUrl for this controllerMethod
+                var controllerUrl = `/api/${controller.name.replace('Controller', '')}/${controllerEndpointName}`;
+                if (endpoint.route)
+                    if (!endpoint.route.startsWith('/'))
+                        endpoint.route = '/' + endpoint.route;
+                var serverRoute = {
+                    route: endpoint.route || controllerUrl,
+                    method: endpoint.method,
+                    endpoint: controllerEndpointName,
+                    controllerName: controller.name,
+                    controllerObject: objToRegister,
+                };
+                console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
+                Server.routes.push(serverRoute);
             });
         });
     }

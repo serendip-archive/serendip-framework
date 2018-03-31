@@ -4,6 +4,6 @@ const Start_1 = require("./Start");
 const _1 = require(".");
 Start_1.start({
     cpuCores: 1,
-    controllers: { AuthController: _1.AuthController },
-    services: { SmsService: _1.SmsService, EmailService: _1.EmailService, FaxService: _1.FaxService, DbService: _1.DbService, AuthService: _1.AuthService }
+    controllers: [_1.AuthController, _1.EntityController],
+    services: [_1.SmsService, _1.EmailService, _1.FaxService, _1.DbService, _1.AuthService]
 });
