@@ -5,10 +5,6 @@ import * as bodyParser from 'body-parser'
 import * as http from 'http'
 
 
-import * as controllers from '../Controllers'
-import * as services from '../Services'
-
-
 import * as Async from 'async'
 
 import {
@@ -17,15 +13,13 @@ import {
   ServerOptionsInterface,
   ServerEndpointInterface,
   ServerEndpointActionInterface,
-  ServerRequest,
-  ServerResponse,
   ServerRequestHelpers,
-  ServerResponseHelpers
+  ServerResponseHelpers,
+  ServerMiddlewareInterface
 } from '.';
 
 
 import * as topoSort from 'toposort'
-import { ServerMiddlewareInterface } from './ServerMiddlewareInterface';
 import { ServerRouter } from './ServerRouter';
 
 
@@ -80,8 +74,8 @@ export class Server {
 
 
     Async.series([
-      (cb) => this.addServices(services, opts.services).then(() => cb(null, null)),
-      (cb) => this.addRoutes(controllers, opts.controllers).then(() => cb(null, null))
+      (cb) => this.addServices(opts.services).then(() => cb(null, null)).catch((e) => console.error(e)),
+      (cb) => this.addRoutes(opts.controllers).then(() => cb(null, null)).catch((e) => console.error(e))
     ], () => {
 
 
@@ -147,7 +141,10 @@ export class Server {
     });
 
 
+
     var sortedDependencies: string[] = topoSort(dependenciesToSort).reverse();
+
+
     return new Promise((resolve, reject) => {
 
 
@@ -155,7 +152,14 @@ export class Server {
 
         var serviceName = sortedDependencies[index];
 
-        var serviceObject: ServerServiceInterface = new servicesToStart[serviceName];
+        var serviceObject: ServerServiceInterface;
+
+        try {
+          serviceObject = new servicesToStart[serviceName];
+
+        } catch{
+          reject(`${serviceName} not imported in server start.`);
+        }
 
         Server.services[serviceName] = serviceObject;
 
@@ -163,27 +167,18 @@ export class Server {
 
           console.log(`☑ ${serviceName}`);
 
-
-
           if (sortedDependencies.length > index + 1)
             startService(index + 1);
           else
             resolve();
 
-
-
         }).catch((err) => {
-
           reject(err);
-
-
         });
-
-
-
       }
 
-      startService(0);
+      if (sortedDependencies.length > 0)
+        startService(0);
 
 
     });

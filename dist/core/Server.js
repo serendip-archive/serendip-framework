@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const bodyParser = require("body-parser");
 const http = require("http");
-const controllers = require("../Controllers");
-const services = require("../Services");
 const Async = require("async");
 const _1 = require(".");
 const topoSort = require("toposort");
@@ -22,8 +20,8 @@ class Server {
         Server.middlewares.unshift(bodyParser.json());
         Server.middlewares.unshift(bodyParser.urlencoded({ extended: false }));
         Async.series([
-            (cb) => this.addServices(services, opts.services).then(() => cb(null, null)),
-            (cb) => this.addRoutes(controllers, opts.controllers).then(() => cb(null, null))
+            (cb) => this.addServices(opts.services).then(() => cb(null, null)).catch((e) => console.error(e)),
+            (cb) => this.addRoutes(opts.controllers).then(() => cb(null, null)).catch((e) => console.error(e))
         ], () => {
             Server.httpServer = http.createServer(function (req, res) {
                 req = _1.ServerRequestHelpers(req);
@@ -65,7 +63,13 @@ class Server {
         return new Promise((resolve, reject) => {
             function startService(index) {
                 var serviceName = sortedDependencies[index];
-                var serviceObject = new servicesToStart[serviceName];
+                var serviceObject;
+                try {
+                    serviceObject = new servicesToStart[serviceName];
+                }
+                catch (_a) {
+                    reject(`${serviceName} not imported in server start.`);
+                }
                 Server.services[serviceName] = serviceObject;
                 serviceObject.start().then(() => {
                     console.log(`☑ ${serviceName}`);
@@ -77,7 +81,8 @@ class Server {
                     reject(err);
                 });
             }
-            startService(0);
+            if (sortedDependencies.length > 0)
+                startService(0);
         });
     }
     /**

@@ -2,7 +2,6 @@ import { Server, ServerOptionsInterface } from "./core";
 import * as dotenv from 'dotenv';
 import * as cluster from 'cluster';
 import { cpus } from 'os';
-import * as models from './models';
 
 
 export function start(opts?: ServerOptionsInterface) {

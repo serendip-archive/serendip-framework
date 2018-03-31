@@ -1,4 +1,4 @@
-import { ServerRequest, ServerResponse, ServerRouteInterface, Server, ServerEndpointActionInterface, ServerError } from ".";
+import { ServerRequestInterface, ServerResponseInterface, ServerRouteInterface, Server, ServerEndpointActionInterface, ServerError } from ".";
 import * as pathMatch from 'path-match'
 import * as url from 'url';
 import * as qs from 'qs';
@@ -18,7 +18,7 @@ export class ServerRouter {
     });
 
 
-    static routeIt(req: ServerRequest, res: ServerResponse) {
+    static routeIt(req: ServerRequestInterface, res: ServerResponseInterface) {
 
         var requestReceived = Date.now();
         var parsedUrl = url.parse(req.url);
