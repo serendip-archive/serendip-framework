@@ -5,5 +5,5 @@ export class RestrictionModel {
     allowAll: boolean;
     groups: string[];
     users: string[];
-
+    public : boolean;
 }

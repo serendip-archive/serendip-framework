@@ -1,6 +1,6 @@
 import { MongoClient, Db, ObjectID, Collection, IndexOptions } from 'mongodb'
 import { ServerServiceInterface } from '../core';
-import { DbCollection } from '.';
+import { DbCollection, EntityChangeModel } from '.';
 
 
 
@@ -12,6 +12,7 @@ export class DbService implements ServerServiceInterface {
 
     static dependencies = [];
 
+    public entityCollection: DbCollection<EntityChangeModel>;
     private mongoCollections: string[] = [];
     /**
      * Instance of mongodb database
@@ -50,6 +51,8 @@ export class DbService implements ServerServiceInterface {
 
         });
 
+        this.entityCollection = await this.collection<EntityChangeModel>('EntityChanges', false);
+
 
     }
 
@@ -61,7 +64,7 @@ export class DbService implements ServerServiceInterface {
     }
 
 
-    public async collection<T>(collectionName: string): Promise<DbCollection<T>> {
+    public async collection<T>(collectionName: string, track?: boolean): Promise<DbCollection<T>> {
 
         collectionName = collectionName.trim();
 
@@ -72,7 +75,7 @@ export class DbService implements ServerServiceInterface {
             console.log(`☑ collection ${collectionName} created .`);
         }
 
-        return new DbCollection<T>(this.db.collection<T>(collectionName));
+        return new DbCollection<T>(this.db.collection<T>(collectionName), track);
 
     }
 

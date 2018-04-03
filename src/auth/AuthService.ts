@@ -6,17 +6,40 @@ import { UserModel, UserTokenModel, RestrictionModel } from "./models";
 import { UserRegisterRequestInterface, AccessTokenRequestInterface } from "./interfaces";
 import * as _ from 'underscore';
 
+export interface AuthServiceOptionsInterface {
+
+    /**
+     * in milliseconds
+     */
+    tokenExpireIn?: number;
+
+
+}
 
 export class AuthService implements ServerServiceInterface {
 
 
+
+    static configure(options: AuthServiceOptionsInterface): void {
+        AuthService.options = _.extend(AuthService.options, options);
+    }
+
+
     static dependencies = ["DbService", "EmailService", "SmsService"];
+
+    static options: AuthServiceOptionsInterface = {
+        tokenExpireIn: 1000 * 60 * 60 * 2
+
+    };
+
 
     private _dbService: DbService;
     private usersCollection: DbCollection<UserModel>;
     private restrictionCollection: DbCollection<RestrictionModel>;
 
     private restrictions: RestrictionModel[];
+
+
 
     async start() {
 
@@ -30,9 +53,11 @@ export class AuthService implements ServerServiceInterface {
         this.usersCollection.createIndex({ "tokens.access_token": 1 }, {});
 
 
+
         this.restrictionCollection = await this._dbService.collection<RestrictionModel>("Restrictions");
 
         await this.refreshRestrictions();
+
 
     }
 
@@ -58,8 +83,6 @@ export class AuthService implements ServerServiceInterface {
         if (req.body.access_token)
             access_token = req.body.access_token;
         else {
-            // var encoded = req.headers.authorization.toString().split(' ')[1];
-            // access_token = new Buffer(encoded, 'base64').toString('utf8');
             access_token = req.headers.authorization.toString().split(' ')[1];
         }
 
@@ -83,26 +106,33 @@ export class AuthService implements ServerServiceInterface {
             throw new Error("user needs to get confirmed");
 
 
-        var globalRule = _.findWhere(this.restrictions, { controllerName: '', endpoint: '' });
-        if (globalRule) {
+        var rules = [
+            // global
+            _.findWhere(this.restrictions, { controllerName: '', endpoint: '' }),
+            // controller
+            _.findWhere(this.restrictions, { controllerName: controllerName, endpoint: '' }),
+            // endpoint
+            _.findWhere(this.restrictions, { controllerName: controllerName, endpoint: endpoint })
 
-            // if (globalRule.allowAll && globalRule.users.indexOf(user._id) != -1)
-            //     throw new Error("user access is denied");
-            // else
-            //     if (globalRule.users.indexOf(user._id) == -1)
-            //         throw new Error("user access is denied");
+        ];
+
+        rules.forEach(rule => {
+
+            if (rule) {
+
+                if (rule.allowAll && rule.groups.length != _.difference(rule.groups, user.groups).length)
+                    if (rule.users.indexOf(user._id) == -1)
+                        throw new Error("user group access is denied");
 
 
-            if (globalRule.allowAll && globalRule.groups.length != _.difference(globalRule.groups, user.groups).length)
-                if (globalRule.users.indexOf(user._id) == -1)
-                    throw new Error("user group access is denied");
+                if (!rule.allowAll && rule.groups.length == _.difference(rule.groups, user.groups).length)
+                    if (rule.users.indexOf(user._id) == -1)
+                        throw new Error("user group access is denied");
 
+            }
 
-            if (!globalRule.allowAll && globalRule.groups.length == _.difference(globalRule.groups, user.groups).length)
-                if (globalRule.users.indexOf(user._id) == -1)
-                    throw new Error("user group access is denied");
+        });
 
-        }
 
 
     }
@@ -141,9 +171,9 @@ export class AuthService implements ServerServiceInterface {
         }
         var registeredUser = await this.usersCollection.insertOne(userModel);
 
-        return await this.setNewPassword(registeredUser._id, model.password, ip, useragent);
+        await this.setNewPassword(registeredUser._id, model.password, ip, useragent);
 
-
+        return registeredUser;
     }
 
     public userMatchPassword(user: UserModel, password: string): boolean {
@@ -186,8 +216,8 @@ export class AuthService implements ServerServiceInterface {
             grant_type: 'password',
             useragent: useragent,
             client: client,
-            expires_at: Date.now() + 1000 * 60 * 60 * 2,
-            expires_in: + 1000 * 60 * 60 * 2,
+            expires_at: Date.now() + AuthService.options.tokenExpireIn,
+            expires_in: AuthService.options.tokenExpireIn,
             refresh_token: utils.randomAccessToken(),
             token_type: 'bearer'
         };
@@ -210,8 +240,7 @@ export class AuthService implements ServerServiceInterface {
 
         user.passwordResetToken = utils.randomAsciiString(8).toLowerCase();
 
-        // token will expire in 2 hours
-        user.passwordResetTokenExpireAt = Date.now() + 1000 * 60 * 60 * 2;
+        user.passwordResetTokenExpireAt = Date.now() + AuthService.options.tokenExpireIn;
 
         user.passwordResetTokenIssueAt = Date.now();
 
@@ -222,7 +251,7 @@ export class AuthService implements ServerServiceInterface {
 
     }
 
-    public async setNewPassword(userId, newPass, ip?: string, useragent?: string): Promise<UserModel> {
+    public async setNewPassword(userId, newPass, ip?: string, useragent?: string): Promise<void> {
 
 
         var user = await this.findUserById(userId);
@@ -234,7 +263,7 @@ export class AuthService implements ServerServiceInterface {
         user.passwordChangedByUseragent = useragent;
 
 
-        return await this.usersCollection.updateOne(user);
+        await this.usersCollection.updateOne(user);
 
     }
 

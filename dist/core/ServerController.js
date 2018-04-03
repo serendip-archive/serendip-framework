@@ -9,7 +9,8 @@ class ServerController {
             actions: [
                 (req, res, next, done) => {
                     var model = _.map(_1.Server.routes, (route) => {
-                        return _.omit(route, 'controllerObject');
+                        route = _.omit(route, 'controllerObject');
+                        return route;
                     });
                     res.json(model);
                 }

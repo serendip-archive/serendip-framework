@@ -11,5 +11,4 @@ __export(require("./auth"));
 __export(require("./fax"));
 __export(require("./sms"));
 __export(require("./email"));
-__export(require("./entity"));
 __export(require("./ui"));

@@ -8,7 +8,7 @@ const validator = require("validator");
 class AuthController {
     constructor() {
         this.register = {
-            method: 'get',
+            method: 'post',
             actions: [
                 (req, res, next, done) => {
                     var model = req.body;
@@ -42,7 +42,7 @@ class AuthController {
             ]
         };
         this.resetPassword = {
-            method: 'get',
+            method: 'post',
             actions: [
                 async (req, res, next, done) => {
                     if (!req.body.email && !req.body.mobile)
@@ -90,8 +90,6 @@ class AuthController {
                         return next(new core_1.ServerError(400, 'user/password invalid'));
                     var userToken = await this.authService.getNewToken(user._id, req.useragent(), req.client());
                     res.json(userToken);
-                    //  var model: AccessTokenResponseInterface = {};
-                    //   res.json(model);
                 }
             ]
         };

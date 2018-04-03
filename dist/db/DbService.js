@@ -29,15 +29,16 @@ class DbService {
         mongoCollectionObjects.map((obj) => {
             this.mongoCollections.push(obj.collectionName);
         });
+        this.entityCollection = await this.collection('EntityChanges', false);
     }
-    async collection(collectionName) {
+    async collection(collectionName, track) {
         collectionName = collectionName.trim();
         if (this.mongoCollections.indexOf(collectionName) === -1) {
             await this.db.createCollection(collectionName);
             this.mongoCollections.push(collectionName);
             console.log(`☑ collection ${collectionName} created .`);
         }
-        return new _1.DbCollection(this.db.collection(collectionName));
+        return new _1.DbCollection(this.db.collection(collectionName), track);
     }
 }
 DbService.dependencies = [];

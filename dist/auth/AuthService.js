@@ -5,6 +5,9 @@ const utils = require("../utils");
 const models_1 = require("./models");
 const _ = require("underscore");
 class AuthService {
+    static configure(options) {
+        AuthService.options = _.extend(AuthService.options, options);
+    }
     async start() {
         this._dbService = core_1.Server.services["DbService"];
         this.usersCollection = await this._dbService.collection("Users");
@@ -27,8 +30,6 @@ class AuthService {
         if (req.body.access_token)
             access_token = req.body.access_token;
         else {
-            // var encoded = req.headers.authorization.toString().split(' ')[1];
-            // access_token = new Buffer(encoded, 'base64').toString('utf8');
             access_token = req.headers.authorization.toString().split(' ')[1];
         }
         var userToken = await this.checkToken(access_token);
@@ -43,20 +44,24 @@ class AuthService {
             throw new Error("user mobile needs to get confirmed");
         if (user.groups.indexOf("notConfirmed") != -1)
             throw new Error("user needs to get confirmed");
-        var globalRule = _.findWhere(this.restrictions, { controllerName: '', endpoint: '' });
-        if (globalRule) {
-            // if (globalRule.allowAll && globalRule.users.indexOf(user._id) != -1)
-            //     throw new Error("user access is denied");
-            // else
-            //     if (globalRule.users.indexOf(user._id) == -1)
-            //         throw new Error("user access is denied");
-            if (globalRule.allowAll && globalRule.groups.length != _.difference(globalRule.groups, user.groups).length)
-                if (globalRule.users.indexOf(user._id) == -1)
-                    throw new Error("user group access is denied");
-            if (!globalRule.allowAll && globalRule.groups.length == _.difference(globalRule.groups, user.groups).length)
-                if (globalRule.users.indexOf(user._id) == -1)
-                    throw new Error("user group access is denied");
-        }
+        var rules = [
+            // global
+            _.findWhere(this.restrictions, { controllerName: '', endpoint: '' }),
+            // controller
+            _.findWhere(this.restrictions, { controllerName: controllerName, endpoint: '' }),
+            // endpoint
+            _.findWhere(this.restrictions, { controllerName: controllerName, endpoint: endpoint })
+        ];
+        rules.forEach(rule => {
+            if (rule) {
+                if (rule.allowAll && rule.groups.length != _.difference(rule.groups, user.groups).length)
+                    if (rule.users.indexOf(user._id) == -1)
+                        throw new Error("user group access is denied");
+                if (!rule.allowAll && rule.groups.length == _.difference(rule.groups, user.groups).length)
+                    if (rule.users.indexOf(user._id) == -1)
+                        throw new Error("user group access is denied");
+            }
+        });
     }
     async registerUser(model, ip, useragent) {
         var userModel = new models_1.UserModel();
@@ -80,7 +85,8 @@ class AuthService {
                 throw new Error("DuplicateMobile");
         }
         var registeredUser = await this.usersCollection.insertOne(userModel);
-        return await this.setNewPassword(registeredUser._id, model.password, ip, useragent);
+        await this.setNewPassword(registeredUser._id, model.password, ip, useragent);
+        return registeredUser;
     }
     userMatchPassword(user, password) {
         return utils.bcryptCompare(password + user.passwordSalt, user.password);
@@ -108,8 +114,8 @@ class AuthService {
             grant_type: 'password',
             useragent: useragent,
             client: client,
-            expires_at: Date.now() + 1000 * 60 * 60 * 2,
-            expires_in: +1000 * 60 * 60 * 2,
+            expires_at: Date.now() + AuthService.options.tokenExpireIn,
+            expires_in: AuthService.options.tokenExpireIn,
             refresh_token: utils.randomAccessToken(),
             token_type: 'bearer'
         };
@@ -122,8 +128,7 @@ class AuthService {
     async getNewPasswordResetToken(userId) {
         var user = await this.findUserById(userId);
         user.passwordResetToken = utils.randomAsciiString(8).toLowerCase();
-        // token will expire in 2 hours
-        user.passwordResetTokenExpireAt = Date.now() + 1000 * 60 * 60 * 2;
+        user.passwordResetTokenExpireAt = Date.now() + AuthService.options.tokenExpireIn;
         user.passwordResetTokenIssueAt = Date.now();
         await this.usersCollection.updateOne(user);
         return user.passwordResetToken;
@@ -135,7 +140,7 @@ class AuthService {
         user.passwordChangedAt = Date.now();
         user.passwordChangedByIp = ip;
         user.passwordChangedByUseragent = useragent;
-        return await this.usersCollection.updateOne(user);
+        await this.usersCollection.updateOne(user);
     }
     async findUserByEmail(email) {
         var query = await this.usersCollection.find({ email: email });
@@ -167,4 +172,7 @@ class AuthService {
     }
 }
 AuthService.dependencies = ["DbService", "EmailService", "SmsService"];
+AuthService.options = {
+    tokenExpireIn: 1000 * 60 * 60 * 2
+};
 exports.AuthService = AuthService;

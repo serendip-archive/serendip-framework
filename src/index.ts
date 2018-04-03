@@ -10,6 +10,5 @@ export * from './auth'
 export * from './fax'
 export * from './sms'
 export * from './email'
-export * from './entity'
 
 export * from './ui'

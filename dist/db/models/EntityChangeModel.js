@@ -7,8 +7,5 @@ var entityChangeType;
     entityChangeType[entityChangeType["Update"] = 2] = "Update";
 })(entityChangeType = exports.entityChangeType || (exports.entityChangeType = {}));
 class EntityChangeModel {
-    getUser() {
-        return undefined;
-    }
 }
 exports.EntityChangeModel = EntityChangeModel;

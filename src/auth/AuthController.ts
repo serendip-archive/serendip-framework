@@ -19,7 +19,7 @@ export class AuthController {
     }
 
     public register: ServerEndpointInterface = {
-        method: 'get',
+        method: 'post',
         actions: [
             (req, res, next, done) => {
 
@@ -78,7 +78,7 @@ export class AuthController {
 
 
     public resetPassword: ServerEndpointInterface = {
-        method: 'get',
+        method: 'post',
         actions: [
             async (req, res, next, done) => {
 
@@ -164,11 +164,6 @@ export class AuthController {
 
                 res.json(userToken);
 
-
-
-                //  var model: AccessTokenResponseInterface = {};
-
-                //   res.json(model);
 
             }
 
