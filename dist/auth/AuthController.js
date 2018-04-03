@@ -7,9 +7,8 @@ const validator = require("validator");
 */
 class AuthController {
     constructor() {
-        this.registerUser = {
+        this.register = {
             method: 'get',
-            route: '/api/auth/register',
             actions: [
                 (req, res, next, done) => {
                     var model = req.body;
@@ -44,7 +43,6 @@ class AuthController {
         };
         this.resetPassword = {
             method: 'get',
-            route: '/api/auth/resetPassword',
             actions: [
                 async (req, res, next, done) => {
                     if (!req.body.email && !req.body.mobile)
@@ -67,11 +65,31 @@ class AuthController {
                 }
             ]
         };
-        this.Token = {
-            method: 'get',
-            route: '/api/auth/token',
+        this.checkToken = {
+            method: 'post',
             actions: [
                 (req, res, next, done) => {
+                    this.authService.checkToken(req.body.access_token).then((token) => {
+                        res.json(token);
+                    }).catch((e) => {
+                        return next(new core_1.ServerError(400, e.message));
+                    });
+                }
+            ]
+        };
+        this.token = {
+            method: 'post',
+            actions: [
+                async (req, res, next, done) => {
+                    var user = null;
+                    user = await this.authService.findUserByUsername(req.body.username);
+                    if (!user)
+                        return next(new core_1.ServerError(400, 'user/password invalid'));
+                    var userMatchPassword = this.authService.userMatchPassword(user, req.body.password);
+                    if (!userMatchPassword)
+                        return next(new core_1.ServerError(400, 'user/password invalid'));
+                    var userToken = await this.authService.getNewToken(user._id, req.useragent(), req.client());
+                    res.json(userToken);
                     //  var model: AccessTokenResponseInterface = {};
                     //   res.json(model);
                 }

@@ -2,8 +2,12 @@ import { ServerRequestInterface, ServerResponseInterface, ServerRouteInterface, 
 import * as pathMatch from 'path-match'
 import * as url from 'url';
 import * as qs from 'qs';
+import { AuthService } from "..";
 
 export class ServerRouter {
+
+
+
 
     constructor() {
 
@@ -18,7 +22,7 @@ export class ServerRouter {
     });
 
 
-    static routeIt(req: ServerRequestInterface, res: ServerResponseInterface) {
+    static async routeIt(req: ServerRequestInterface, res: ServerResponseInterface) {
 
         var requestReceived = Date.now();
         var parsedUrl = url.parse(req.url);
@@ -42,13 +46,28 @@ export class ServerRouter {
         });
 
         // Check if controller exist and requested method matches 
-        if (!srvRoute || srvRoute == undefined) {
+        if (!srvRoute || srvRoute == undefined || srvRoute.method.toLowerCase() != req.method.toLowerCase()) {
 
             res.statusCode = 404;
-            res.send(`[${path}] route not found !`);
+            res.send(`[${req.method.toUpperCase()} ${path}] route not found !`);
             return;
 
         }
+
+
+
+        var authService: AuthService = Server.services["AuthService"];
+
+        try {
+            await authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint);
+        } catch (e) {
+
+            res.statusCode = 401;
+            res.send(e.message);
+            return;
+        }
+
+
 
         // creating object from controllerClass 
         // Reason : basically because we need to run constructor

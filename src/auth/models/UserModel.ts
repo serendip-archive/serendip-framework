@@ -1,3 +1,4 @@
+import { UserTokenModel } from "./UserTokenModel";
 
 export class UserModel {
 
@@ -28,5 +29,10 @@ export class UserModel {
     public passwordResetToken: string;
     public passwordResetTokenIssueAt: number;
     public passwordResetTokenExpireAt: number;
+
+    public groups: string[];
+
+    public tokens: UserTokenModel[];
+
 
 }

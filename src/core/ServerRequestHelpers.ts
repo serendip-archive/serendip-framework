@@ -10,12 +10,22 @@ export function ServerRequestHelpers(req: http.IncomingMessage | any) {
 
     };
 
+    req.client = () => {
+
+        if (req.headers["user-client"] != undefined)
+            return req.headers["user-client"].toString();
+        else
+            return null;
+    };
+
     req.ip = () => {
 
         return req.connection.remoteAddress;
 
     };
 
+    if (!req.body)
+        req.body = {};
 
     return req;
 

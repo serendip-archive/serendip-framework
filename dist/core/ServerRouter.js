@@ -7,7 +7,7 @@ const qs = require("qs");
 class ServerRouter {
     constructor() {
     }
-    static routeIt(req, res) {
+    static async routeIt(req, res) {
         var requestReceived = Date.now();
         var parsedUrl = url.parse(req.url);
         var path = parsedUrl.pathname;
@@ -23,9 +23,18 @@ class ServerRouter {
             return false;
         });
         // Check if controller exist and requested method matches 
-        if (!srvRoute || srvRoute == undefined) {
+        if (!srvRoute || srvRoute == undefined || srvRoute.method.toLowerCase() != req.method.toLowerCase()) {
             res.statusCode = 404;
-            res.send(`[${path}] route not found !`);
+            res.send(`[${req.method.toUpperCase()} ${path}] route not found !`);
+            return;
+        }
+        var authService = _1.Server.services["AuthService"];
+        try {
+            await authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint);
+        }
+        catch (e) {
+            res.statusCode = 401;
+            res.send(e.message);
             return;
         }
         // creating object from controllerClass 

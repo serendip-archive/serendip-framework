@@ -1,4 +1,5 @@
 import { ServerMiddlewareInterface } from "./ServerMiddlewareInterface";
+import { ServerServiceInterface } from "..";
 
 export interface ServerOptionsInterface {
 
@@ -7,4 +8,5 @@ export interface ServerOptionsInterface {
     middlewares?: [ServerMiddlewareInterface]
     port?: number;
     cpuCores?: number;
+    
 }

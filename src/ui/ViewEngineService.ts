@@ -1,5 +1,6 @@
 import { ServerServiceInterface } from "../core";
 
+import * as mustache from 'mustache'
 
 export class ViewEngineService implements ServerServiceInterface {
 
@@ -8,5 +9,14 @@ export class ViewEngineService implements ServerServiceInterface {
     async start() {
 
     }
+
+
+    public renderMustache(toRender: string, model: any, partials?: any): string {
+
+        return Mustache.render(toRender, model, partials);
+
+    }
+
+
 
 }

@@ -10,4 +10,5 @@ export interface ServerRequestInterface extends http.IncomingMessage {
     params: any;
     useragent();
     ip();
+    client();
 }

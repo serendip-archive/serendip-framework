@@ -2,6 +2,7 @@ import { Server, ServerEndpointInterface, ServerError } from '../core';
 import { Collection } from 'mongodb';
 import * as validator from 'validator';
 import { AuthService, UserRegisterRequestInterface, UserModel } from '.';
+import { UserTokenModel } from './models/UserTokenModel';
 
 
 /** 
@@ -17,9 +18,8 @@ export class AuthController {
 
     }
 
-    public registerUser: ServerEndpointInterface = {
+    public register: ServerEndpointInterface = {
         method: 'get',
-        route: '/api/auth/register',
         actions: [
             (req, res, next, done) => {
 
@@ -79,7 +79,6 @@ export class AuthController {
 
     public resetPassword: ServerEndpointInterface = {
         method: 'get',
-        route: '/api/auth/resetPassword',
         actions: [
             async (req, res, next, done) => {
 
@@ -117,11 +116,55 @@ export class AuthController {
 
 
 
-    public Token: ServerEndpointInterface = {
-        method: 'get',
-        route: '/api/auth/token',
+    public checkToken: ServerEndpointInterface = {
+        method: 'post',
         actions: [
+
             (req, res, next, done) => {
+
+
+                this.authService.checkToken(req.body.access_token).then((token) => {
+
+                    res.json(token);
+
+                }).catch((e) => {
+
+                    return next(new ServerError(400, e.message));
+
+                });
+
+
+            }
+
+        ]
+    };
+
+    public token: ServerEndpointInterface = {
+        method: 'post',
+        actions: [
+            async (req, res, next, done) => {
+
+
+                var user: UserModel = null;
+
+
+                user = await this.authService.findUserByUsername(req.body.username);
+
+                if (!user)
+                    return next(new ServerError(400, 'user/password invalid'));
+
+
+                var userMatchPassword = this.authService.userMatchPassword(user, req.body.password);
+
+                if (!userMatchPassword)
+                    return next(new ServerError(400, 'user/password invalid'));
+
+
+                var userToken = await this.authService.getNewToken(user._id, req.useragent(), req.client());
+
+                res.json(userToken);
+
+
 
                 //  var model: AccessTokenResponseInterface = {};
 

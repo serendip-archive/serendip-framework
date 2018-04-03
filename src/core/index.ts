@@ -19,6 +19,7 @@ export * from './ServerErrorHandler'
 export * from './ServerRequestHelpers'
 export * from './ServerResponseHelpers'
 export * from './ServerRouter'
+export * from './ServerController'
 
 
 
