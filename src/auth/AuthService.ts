@@ -69,11 +69,10 @@ export class AuthService implements ServerServiceInterface {
     }
 
 
-    public async authorizeRequest(req: ServerRequestInterface, controllerName, endpoint) {
+    public async authorizeRequest(req: ServerRequestInterface, controllerName, endpoint, publicAccess: boolean) {
 
-        if (controllerName == "AuthController")
+        if (publicAccess)
             return true;
-
 
         if (!req.headers.authorization && !req.body.access_token)
             throw new Error("access_token not found in body and authorization header");

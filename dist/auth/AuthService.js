@@ -21,8 +21,8 @@ class AuthService {
     async refreshRestrictions() {
         this.restrictions = await this.restrictionCollection.find({});
     }
-    async authorizeRequest(req, controllerName, endpoint) {
-        if (controllerName == "AuthController")
+    async authorizeRequest(req, controllerName, endpoint, publicAccess) {
+        if (publicAccess)
             return true;
         if (!req.headers.authorization && !req.body.access_token)
             throw new Error("access_token not found in body and authorization header");

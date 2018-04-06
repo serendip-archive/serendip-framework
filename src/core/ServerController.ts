@@ -26,6 +26,7 @@ export class ServerController {
 
     services: ServerEndpointInterface = {
         method: 'get',
+        publicAccess : true,
         actions: [
             (req, res, next, done) => {
                 var model = _.keys(Server.services);

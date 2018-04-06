@@ -18,6 +18,7 @@ class ServerController {
         };
         this.services = {
             method: 'get',
+            publicAccess: true,
             actions: [
                 (req, res, next, done) => {
                     var model = _.keys(_1.Server.services);

@@ -59,7 +59,7 @@ export class ServerRouter {
         var authService: AuthService = Server.services["AuthService"];
 
         try {
-            await authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint);
+            await authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint,srvRoute.publicAccess);
         } catch (e) {
 
             res.statusCode = 401;

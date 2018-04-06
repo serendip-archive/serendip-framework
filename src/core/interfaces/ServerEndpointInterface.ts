@@ -22,4 +22,8 @@ export interface ServerEndpointInterface {
      */
     actions: ServerEndpointActionInterface[]
   
+    /**
+     * is this endpoint publicly accessible by anyone on net
+     */
+    publicAccess?: boolean;
   }

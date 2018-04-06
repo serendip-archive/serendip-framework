@@ -7,6 +7,7 @@ var child = require('child_process');
 var moment = require('moment');
 var fs = require('fs');
 
+
 var paths = {
     dist: 'dist',
     logs: 'logs/*',
@@ -42,6 +43,7 @@ var run = function () {
 
 
 };
+
 
 gulp.task('upload', ['release'], function () {
 
@@ -106,10 +108,40 @@ gulp.task('preBuild', ['clean']);
 // clean and compile
 gulp.task('build', ['preBuild', 'ts'], function () {
 
-    
+
 });
 
+gulp.task('production', function () {
+    glob("./dist/**/*.js", {}, function (er, files) {
+        // files is an array of filenames.
+        console.log(files);
+        // If the `nonull` option is set, and nothing
+        // was found, then files is ["**/*.js"]
+        // er is an error object or null.
+        gulpBundleFiles({
+            "parentTaskName": "production",
+            "concat": {
+                "active": true,
+                "config": {}
+            },
+            "uglify": {
+                "active": false,
+                "config": {}
+            },
+            "sourcemap": {
+                "active": true,
+                "config": {}
+            },
+            "destinationFolder": "./production",
+            "newLine": ";",
+            "files": {
+                "all.js": files
+            }
+        });
 
+    });
+
+});
 // compile and run node process 
 gulp.task('run', ['ts'], run);
 

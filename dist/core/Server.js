@@ -44,7 +44,6 @@ class Server {
         servicesToRegister.forEach((sv) => {
             if (!sv)
                 return;
-            console.log(sv.name, sv.dependencies);
             if (sv.dependencies)
                 sv.dependencies.forEach((val) => {
                     dependenciesToSort.push([sv.name, val]);
@@ -104,6 +103,7 @@ class Server {
                 var serverRoute = {
                     route: endpoint.route || controllerUrl,
                     method: endpoint.method,
+                    publicAccess: endpoint.publicAccess || false,
                     endpoint: controllerEndpointName,
                     controllerName: controller.name,
                     controllerObject: objToRegister,

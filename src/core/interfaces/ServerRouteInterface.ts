@@ -8,6 +8,7 @@ export interface ServerRouteInterface {
     controllerObject: object;
     controllerName: string;
     endpoint: string;
+    publicAccess:boolean;
   
   }
   

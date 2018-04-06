@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const cluster = require("cluster");
 const os_1 = require("os");
 function start(opts) {
+    core_1.Server.dir = __dirname;
     dotenv.config();
     var cpuCount = opts.cpuCores || os_1.cpus().length;
     // if this is process

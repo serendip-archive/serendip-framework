@@ -6,6 +6,9 @@ import { cpus } from 'os';
 
 export function start(opts?: ServerOptionsInterface) {
 
+    Server.dir = __dirname;
+    
+
     dotenv.config();
 
     var cpuCount = opts.cpuCores || cpus().length;

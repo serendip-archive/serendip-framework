@@ -35,6 +35,7 @@ export class Server {
    */
   public static worker: cluster.Worker;
 
+  public static dir : string;
   /**
    * routes which server router will respond to
    * and feel free to add your routes to it 
@@ -114,7 +115,6 @@ export class Server {
       if (!sv)
         return;
 
-      console.log(sv.name, sv.dependencies);
 
       if (sv.dependencies)
         sv.dependencies.forEach((val) => {
@@ -214,6 +214,7 @@ export class Server {
         var serverRoute: ServerRouteInterface = {
           route: endpoint.route || controllerUrl,
           method: endpoint.method,
+          publicAccess : endpoint.publicAccess || false,
           endpoint: controllerEndpointName,
           controllerName: controller.name,
           controllerObject: objToRegister,
