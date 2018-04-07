@@ -21,19 +21,24 @@ export class ServerRouter {
         end: false,
     });
 
+    static findSrvRoute(req): ServerRouteInterface {
 
-    static async routeIt(req: ServerRequestInterface, res: ServerResponseInterface) {
-
-        var requestReceived = Date.now();
         var parsedUrl = url.parse(req.url);
         var path = parsedUrl.pathname;
 
-        // finding controller by path
-        var srvRoute: ServerRouteInterface = Server.routes.find((value) => {
 
-            var matcher = ServerRouter.routerPathMatcher(value.route);
+        // finding controller by path
+        var srvRoute: ServerRouteInterface = Server.routes.find((route) => {
+
+            // Check if controller exist and requested method matches 
+            if (route.method.toLowerCase() != req.method.toLowerCase())
+                return false;
+
+
+            var matcher = ServerRouter.routerPathMatcher(route.route);
 
             var params = matcher(path);
+
             if (params !== false) {
 
                 req.query = qs.parse(parsedUrl.query);
@@ -45,106 +50,114 @@ export class ServerRouter {
 
         });
 
-        // Check if controller exist and requested method matches 
-        if (!srvRoute || srvRoute == undefined || srvRoute.method.toLowerCase() != req.method.toLowerCase()) {
+        return srvRoute;
 
-            res.statusCode = 404;
-            res.send(`[${req.method.toUpperCase()} ${path}] route not found !`);
-            return;
-
-        }
+    }
 
 
+    static executeRoute(srvRoute: ServerRouteInterface, req: ServerRequestInterface, res: ServerResponseInterface): Promise<number> {
 
-        var authService: AuthService = Server.services["AuthService"];
-
-        try {
-            await authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint,srvRoute.publicAccess);
-        } catch (e) {
-
-            res.statusCode = 401;
-            res.send(e.message);
-            return;
-        }
+        return new Promise((resolve, reject) => {
 
 
+            // creating object from controllerClass 
+            // Reason : basically because we need to run constructor
+            var controllerObject = srvRoute.controllerObject;
 
-        // creating object from controllerClass 
-        // Reason : basically because we need to run constructor
-        var controllerObject = srvRoute.controllerObject;
+            var actions: ServerEndpointActionInterface[] = (controllerObject[srvRoute.endpoint].actions);
+            Server.middlewares.forEach((middle) => actions.unshift(middle));
 
-        var actions: ServerEndpointActionInterface[] = (controllerObject[srvRoute.endpoint].actions);
+            // starting from first action
+            var actionIndex = 0;
 
-
-        // starting from first action
-        var actionIndex = 0;
-
-        var executeActions = function (passedModel) {
-
-            actions[actionIndex](req, res, function _next(model) {
+            res.on('finish', () => resolve(actionIndex));
 
 
-                if (model)
-                    if (model.constructor)
-                        if (model.constructor.name == "ServerError") {
+            var executeActions = function (passedModel) {
 
-                            res.json(model);
-                            return;
-
-                        }
-
-                // Execute next
-                actionIndex++;
-
-                if (actions.length == actionIndex) {
-                    console.log(`request answered in ${Date.now() - requestReceived}ms`)
-                    res.end();
-                    return;
-                }
-
-                executeActions(model);
+                actions[actionIndex](req, res, function _next(model) {
 
 
-            }, function _done() {
+                    if (model)
+                        if (model.constructor)
+                            if (model.constructor.name == "ServerError") {
 
-                res.end();
-                console.log(`request answered in ${Date.now() - requestReceived}ms`)
+                                reject(model);
+                                return;
 
-            },
-                passedModel);
+                            }
 
+                    // Execute next
+                    actionIndex++;
 
-        };
-
-        // starting from first action
-        var middleIndex = 0;
-
-        var executeMiddles = function () {
-            Server.middlewares[middleIndex](req, res, function _next() {
-
-                // Execute next
-                middleIndex++;
-
-                if (Server.middlewares.length == middleIndex) {
-                    //if all middlewares successfully executed, its time to begin executing actions
-                    executeActions(null);
-                    return;
-                }
-
-                executeMiddles();
-
-            }, function _done() {
-                res.end();
-            });
-        };
+                    if (actions.length == actionIndex)
+                        return resolve(actionIndex);
 
 
-        // if there is no middleware registered we go straightly to endpoint actions
-        if (Server.middlewares.length > 0)
-            // begin executing middlewares
-            executeMiddles();
-        else
+                    executeActions(model);
+
+
+                }, function _done() {
+                    resolve(actionIndex);
+                },
+                    passedModel);
+
+
+            };
+
             executeActions(null);
+
+        });
+    }
+
+    static routeIt(req: ServerRequestInterface, res: ServerResponseInterface): Promise<void> {
+
+        return new Promise((resolve, reject) => {
+
+            // finding controller by path
+            var srvRoute = ServerRouter.findSrvRoute(req);
+
+            // Check if controller exist and requested method matches 
+            if (!srvRoute) {
+
+                res.statusCode = 404;
+                res.send(`[${req.method.toUpperCase()} ${req.url}] route not found !`);
+                return;
+
+            }
+
+            var authService: AuthService = Server.services["AuthService"];
+
+
+
+            authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint, srvRoute.publicAccess).then(() => {
+
+                ServerRouter.executeRoute(srvRoute, req, res).then(() => {
+
+                    resolve();
+
+                }).catch(e => {
+
+                    reject(e);
+                    res.statusCode = e.code;
+                    res.json(e);
+                });
+
+
+            }).catch((e) => {
+
+                reject(e);
+                res.statusCode = 401;
+                res.json(new ServerError(401, e.message));
+
+            });
+
+
+        });
+
+
+
+
 
 
     }

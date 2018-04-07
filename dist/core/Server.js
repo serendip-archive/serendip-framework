@@ -34,9 +34,18 @@ class Server {
             })
         ], () => {
             Server.httpServer = http.createServer(function (req, res) {
+                var requestReceived = Date.now();
                 req = _1.ServerRequestHelpers(req);
                 res = _1.ServerResponseHelpers(res);
-                ServerRouter_1.ServerRouter.routeIt(req, res);
+                var logString = () => {
+                    return `[${req.method}] "${req.url}" by [${req.ip()}/${req.user ? req.user.username : 'unauthorized'}] from [${req.useragent()}] answered in ${Date.now() - requestReceived}ms`;
+                };
+                ServerRouter_1.ServerRouter.routeIt(req, res).then(() => {
+                    // Request successfully responded
+                    console.info(`${logString()}`);
+                }).catch((e) => {
+                    console.error(`${logString()} => ${e.message}`);
+                });
             });
             Server.httpServer.listen(port, function () {
                 console.log(`worker ${worker.id} running http server at port ${port}`);
@@ -78,7 +87,7 @@ class Server {
                     startService(index + 1);
                 else
                     serviceObject.start().then(() => {
-                        //console.log(`☑ ${serviceName}`);
+                        console.log(`☑ ${serviceName}`);
                         if (sortedDependencies.length > index + 1)
                             startService(index + 1);
                         else
@@ -120,7 +129,9 @@ class Server {
                     controllerName: controller.name,
                     controllerObject: objToRegister,
                 };
-                //console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
+                serverRoute.route = serverRoute.route.toLowerCase();
+                serverRoute.method = serverRoute.method.toLowerCase();
+                console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
                 Server.routes.push(serverRoute);
             });
         });

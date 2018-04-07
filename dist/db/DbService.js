@@ -2,12 +2,16 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongodb_1 = require("mongodb");
 const _1 = require(".");
+const _ = require("underscore");
 /**
  * Every functionality thats use database should use it trough this service
 */
 class DbService {
     constructor() {
         this.mongoCollections = [];
+    }
+    static configure(options) {
+        DbService.options = _.extend(DbService.options, options);
     }
     /**
      * set mongo collection with specified type
@@ -16,12 +20,9 @@ class DbService {
      *  filing Server.db that will use in entire system
      */
     async connect() {
-        // Reading these two from .env file
-        var mongoUrl = process.env.mongoUrl;
-        var dbName = process.env.mongoDb;
         // Creating mongoDB client from mongoUrl
-        var mongoClient = await mongodb_1.MongoClient.connect(mongoUrl);
-        this.db = mongoClient.db(dbName);
+        var mongoClient = await mongodb_1.MongoClient.connect(DbService.options.mongoUrl);
+        this.db = mongoClient.db(DbService.options.mongoDb);
     }
     async start() {
         await this.connect();
@@ -42,4 +43,8 @@ class DbService {
     }
 }
 DbService.dependencies = [];
+DbService.options = {
+    mongoUrl: process.env.mongoUrl,
+    mongoDb: process.env.mongoDb
+};
 exports.DbService = DbService;

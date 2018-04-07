@@ -20,6 +20,7 @@ export class AuthController {
 
     public register: ServerEndpointInterface = {
         method: 'post',
+        publicAccess:true,
         actions: [
             (req, res, next, done) => {
 
@@ -79,6 +80,8 @@ export class AuthController {
 
     public resetPassword: ServerEndpointInterface = {
         method: 'post',
+        publicAccess:true,
+        
         actions: [
             async (req, res, next, done) => {
 
@@ -118,6 +121,7 @@ export class AuthController {
 
     public checkToken: ServerEndpointInterface = {
         method: 'post',
+        publicAccess : true,
         actions: [
 
             (req, res, next, done) => {
@@ -141,6 +145,8 @@ export class AuthController {
 
     public token: ServerEndpointInterface = {
         method: 'post',
+        publicAccess:true,
+        
         actions: [
             async (req, res, next, done) => {
 

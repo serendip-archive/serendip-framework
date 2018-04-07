@@ -44,10 +44,10 @@ export function start(opts?: ServerOptionsInterface) {
 
 
                 if (cluster.worker.id == cpuCount) {
-                    resolve(cluster.worker);
+                    resolve(cluster.workers);
                 }
                 else if (cluster.worker.id < cpuCount)
-                    cluster.worker.send('fork');
+                    process.send('fork');
 
             });
 

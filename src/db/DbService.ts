@@ -1,8 +1,13 @@
 import { MongoClient, Db, ObjectID, Collection, IndexOptions } from 'mongodb'
 import { ServerServiceInterface } from '../core';
 import { DbCollection, EntityChangeModel } from '.';
+import * as _ from 'underscore';
 
+export interface DbServiceOptionsInterface {
 
+    mongoUrl?: string;
+    mongoDb?: string;
+}
 
 /** 
  * Every functionality thats use database should use it trough this service
@@ -19,6 +24,17 @@ export class DbService implements ServerServiceInterface {
      */
     private db: Db;
 
+    static options: DbServiceOptionsInterface = {
+        mongoUrl: process.env.mongoUrl,
+        mongoDb: process.env.mongoDb
+    };
+
+    static configure(options: DbServiceOptionsInterface) {
+
+        DbService.options = _.extend(DbService.options, options);
+
+    }
+
     /**
      * set mongo collection with specified type
      * @param collectionName Collection name in MongoDB
@@ -27,20 +43,15 @@ export class DbService implements ServerServiceInterface {
      */
     public async connect() {
 
-
-        // Reading these two from .env file
-        var mongoUrl: string = process.env.mongoUrl;
-        var dbName: string = process.env.mongoDb;
-
         // Creating mongoDB client from mongoUrl
-        var mongoClient = await MongoClient.connect(mongoUrl);
+        var mongoClient = await MongoClient.connect(DbService.options.mongoUrl);
 
-        this.db = mongoClient.db(dbName);
+        this.db = mongoClient.db(DbService.options.mongoDb);
 
     }
 
     async start() {
-        
+
 
         await this.connect();
 

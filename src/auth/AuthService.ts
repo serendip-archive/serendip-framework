@@ -85,8 +85,8 @@ export class AuthService implements ServerServiceInterface {
             access_token = req.headers.authorization.toString().split(' ')[1];
         }
 
-        var userToken = await this.checkToken(access_token);
-        var user = await this.findUserById(userToken.userId);
+        var userToken = req.userToken = await this.checkToken(access_token);
+        var user = req.user = await this.findUserById(userToken.userId);
 
         if (!user.groups)
             user.groups = [];

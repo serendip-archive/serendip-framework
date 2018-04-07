@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const ua = require("useragent");
 function ServerRequestHelpers(req) {
     req.useragent = () => {
-        return req.headers["user-agent"].toString();
+        return ua.parse(req.headers["user-agent"].toString());
     };
     req.client = () => {
-        if (req.headers["user-client"] != undefined)
-            return req.headers["user-client"].toString();
+        if (req.headers["client"] != undefined)
+            return req.headers["client"].toString();
         else
             return null;
     };

@@ -8,6 +8,11 @@ class ServerController {
             method: 'get',
             actions: [
                 (req, res, next, done) => {
+                    setTimeout(() => {
+                        next();
+                    }, 200);
+                },
+                (req, res, next, done) => {
                     var model = _.map(_1.Server.routes, (route) => {
                         route = _.omit(route, 'controllerObject');
                         return route;
@@ -18,7 +23,6 @@ class ServerController {
         };
         this.services = {
             method: 'get',
-            publicAccess: true,
             actions: [
                 (req, res, next, done) => {
                     var model = _.keys(_1.Server.services);

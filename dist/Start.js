@@ -29,10 +29,10 @@ function start(opts) {
                 if (err)
                     return reject(err);
                 if (cluster.worker.id == cpuCount) {
-                    resolve(cluster.worker);
+                    resolve(cluster.workers);
                 }
                 else if (cluster.worker.id < cpuCount)
-                    cluster.worker.send('fork');
+                    process.send('fork');
             });
         }
     });

@@ -9,6 +9,7 @@ class AuthController {
     constructor() {
         this.register = {
             method: 'post',
+            publicAccess: true,
             actions: [
                 (req, res, next, done) => {
                     var model = req.body;
@@ -43,6 +44,7 @@ class AuthController {
         };
         this.resetPassword = {
             method: 'post',
+            publicAccess: true,
             actions: [
                 async (req, res, next, done) => {
                     if (!req.body.email && !req.body.mobile)
@@ -67,6 +69,7 @@ class AuthController {
         };
         this.checkToken = {
             method: 'post',
+            publicAccess: true,
             actions: [
                 (req, res, next, done) => {
                     this.authService.checkToken(req.body.access_token).then((token) => {
@@ -79,6 +82,7 @@ class AuthController {
         };
         this.token = {
             method: 'post',
+            publicAccess: true,
             actions: [
                 async (req, res, next, done) => {
                     var user = null;

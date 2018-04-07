@@ -92,11 +92,30 @@ export class Server {
 
 
       Server.httpServer = http.createServer(function (req: any, res: any) {
+        var requestReceived = Date.now();
 
         req = ServerRequestHelpers(req);
         res = ServerResponseHelpers(res);
 
-        ServerRouter.routeIt(req, res);
+        var logString = () => {
+
+          return `[${req.method}] "${req.url}" by [${req.ip()}/${req.user ? req.user.username : 'unauthorized'}] from [${req.useragent()}] answered in ${Date.now() - requestReceived}ms`;
+
+        };
+
+        ServerRouter.routeIt(req, res).then(() => {
+
+          // Request successfully responded
+          console.info(`${logString()}`);
+
+        }).catch((e) => {
+
+          console.error(`${logString()} => ${e.message}`);
+
+
+        });
+
+
 
       });
 
@@ -168,7 +187,7 @@ export class Server {
         else
           serviceObject.start().then(() => {
 
-            //console.log(`☑ ${serviceName}`);
+            console.log(`☑ ${serviceName}`);
 
             if (sortedDependencies.length > index + 1)
               startService(index + 1);
@@ -233,8 +252,12 @@ export class Server {
           controllerObject: objToRegister,
         };
 
+        serverRoute.route = serverRoute.route.toLowerCase();
+        serverRoute.method = serverRoute.method.toLowerCase();
 
-        //console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
+
+
+        console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
 
 
         Server.routes.push(serverRoute);

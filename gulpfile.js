@@ -24,7 +24,7 @@ var run = function () {
         if (server.kill)
             server.kill();
 
-    server = child.spawn('node', ['dist/debug.js']);
+    server = child.spawn('node', ['./dist/debug.js']);
 
     server.stdout.on('data', function (chunk) {
 
