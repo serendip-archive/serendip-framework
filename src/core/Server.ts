@@ -35,7 +35,7 @@ export class Server {
    */
   public static worker: cluster.Worker;
 
-  public static dir : string;
+  public static dir: string;
   /**
    * routes which server router will respond to
    * and feel free to add your routes to it 
@@ -51,14 +51,14 @@ export class Server {
 
 
   // usage : starting server from ./Start.js
-  public static bootstrap(opts: ServerOptionsInterface, worker: cluster.Worker) {
-    return new Server(opts, worker);
+  public static bootstrap(opts: ServerOptionsInterface, worker: cluster.Worker, serverStartCallback?: Function) {
+    return new Server(opts, worker, serverStartCallback);
   }
 
 
 
   // passing worker from Start.js 
-  constructor(opts: ServerOptionsInterface, worker: cluster.Worker) {
+  constructor(opts: ServerOptionsInterface, worker: cluster.Worker, serverStartCallback?: Function) {
 
     var port: number = opts.port || parseInt(process.env.port);
 
@@ -75,8 +75,19 @@ export class Server {
 
 
     Async.series([
-      (cb) => this.addServices(opts.services).then(() => cb(null, null)).catch((e) => console.error(e)),
-      (cb) => this.addRoutes(opts.controllers).then(() => cb(null, null)).catch((e) => console.error(e))
+      (cb) => this.addServices(opts.services).then(() => cb(null, null)).catch((e) => {
+        if (serverStartCallback)
+          serverStartCallback(e);
+        else
+          console.error(e);
+
+      }),
+      (cb) => this.addRoutes(opts.controllers).then(() => cb(null, null)).catch((e) => {
+        if (serverStartCallback)
+          serverStartCallback(e);
+        else
+          console.error(e);
+      })
     ], () => {
 
 
@@ -93,6 +104,8 @@ export class Server {
       Server.httpServer.listen(port, function () {
 
         console.log(`worker ${worker.id} running http server at port ${port}`);
+        if (serverStartCallback)
+          serverStartCallback();
 
       });
       // Listen to port after configs done
@@ -155,7 +168,7 @@ export class Server {
         else
           serviceObject.start().then(() => {
 
-            console.log(`☑ ${serviceName}`);
+            //console.log(`☑ ${serviceName}`);
 
             if (sortedDependencies.length > index + 1)
               startService(index + 1);
@@ -214,14 +227,14 @@ export class Server {
         var serverRoute: ServerRouteInterface = {
           route: endpoint.route || controllerUrl,
           method: endpoint.method,
-          publicAccess : endpoint.publicAccess || false,
+          publicAccess: endpoint.publicAccess || false,
           endpoint: controllerEndpointName,
           controllerName: controller.name,
           controllerObject: objToRegister,
         };
 
 
-        console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
+        //console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
 
 
         Server.routes.push(serverRoute);

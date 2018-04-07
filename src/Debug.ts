@@ -12,5 +12,12 @@ AuthService.configure({});
 start({
     cpuCores: 1,
     controllers: [AuthController, ServerController],
-    services: [SmsService, EmailService, FaxService, DbService, AuthService]
+    services: [SmsService, EmailService,DbService,   AuthService]
+}).then(() => {
+    console.log('Server workers started successfully!');
+}).catch((err) => {
+
+  console.error(`Server start error : "${err}"`);
+    
+
 });

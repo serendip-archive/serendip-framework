@@ -6,5 +6,9 @@ _1.AuthService.configure({});
 Start_1.start({
     cpuCores: 1,
     controllers: [_1.AuthController, _1.ServerController],
-    services: [_1.SmsService, _1.EmailService, _1.FaxService, _1.DbService, _1.AuthService]
+    services: [_1.SmsService, _1.EmailService, _1.DbService, _1.AuthService]
+}).then(() => {
+    console.log('Server workers started successfully!');
+}).catch((err) => {
+    console.error(`Server start error : "${err}"`);
 });

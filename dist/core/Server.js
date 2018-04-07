@@ -11,7 +11,7 @@ const ServerRouter_1 = require("./ServerRouter");
  */
 class Server {
     // passing worker from Start.js 
-    constructor(opts, worker) {
+    constructor(opts, worker, serverStartCallback) {
         var port = opts.port || parseInt(process.env.port);
         // Cluster worker
         Server.worker = worker;
@@ -20,8 +20,18 @@ class Server {
         Server.middlewares.unshift(bodyParser.json());
         Server.middlewares.unshift(bodyParser.urlencoded({ extended: false }));
         Async.series([
-            (cb) => this.addServices(opts.services).then(() => cb(null, null)).catch((e) => console.error(e)),
-            (cb) => this.addRoutes(opts.controllers).then(() => cb(null, null)).catch((e) => console.error(e))
+            (cb) => this.addServices(opts.services).then(() => cb(null, null)).catch((e) => {
+                if (serverStartCallback)
+                    serverStartCallback(e);
+                else
+                    console.error(e);
+            }),
+            (cb) => this.addRoutes(opts.controllers).then(() => cb(null, null)).catch((e) => {
+                if (serverStartCallback)
+                    serverStartCallback(e);
+                else
+                    console.error(e);
+            })
         ], () => {
             Server.httpServer = http.createServer(function (req, res) {
                 req = _1.ServerRequestHelpers(req);
@@ -30,13 +40,15 @@ class Server {
             });
             Server.httpServer.listen(port, function () {
                 console.log(`worker ${worker.id} running http server at port ${port}`);
+                if (serverStartCallback)
+                    serverStartCallback();
             });
             // Listen to port after configs done
         });
     }
     // usage : starting server from ./Start.js
-    static bootstrap(opts, worker) {
-        return new Server(opts, worker);
+    static bootstrap(opts, worker, serverStartCallback) {
+        return new Server(opts, worker, serverStartCallback);
     }
     async addServices(servicesToRegister) {
         var servicesToStart = [];
@@ -66,7 +78,7 @@ class Server {
                     startService(index + 1);
                 else
                     serviceObject.start().then(() => {
-                        console.log(`☑ ${serviceName}`);
+                        //console.log(`☑ ${serviceName}`);
                         if (sortedDependencies.length > index + 1)
                             startService(index + 1);
                         else
@@ -108,7 +120,7 @@ class Server {
                     controllerName: controller.name,
                     controllerObject: objToRegister,
                 };
-                console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
+                //console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
                 Server.routes.push(serverRoute);
             });
         });
