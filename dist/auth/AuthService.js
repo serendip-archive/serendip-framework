@@ -10,6 +10,7 @@ class AuthService {
     }
     async start() {
         this._dbService = core_1.Server.services["DbService"];
+        this._emailService = core_1.Server.services["EmailService"];
         this.usersCollection = await this._dbService.collection("Users");
         this.usersCollection.createIndex({ username: 1 }, { unique: true });
         this.usersCollection.createIndex({ mobile: 1 }, {});
@@ -17,6 +18,23 @@ class AuthService {
         this.usersCollection.createIndex({ "tokens.access_token": 1 }, {});
         this.restrictionCollection = await this._dbService.collection("Restrictions");
         await this.refreshRestrictions();
+    }
+    sendVerifyEmail(userModel) {
+        return this._emailService.send({
+            from: process.env.company_mail_auth || process.env.company_mail_noreply,
+            to: userModel.email,
+            text: `Welcome to ${process.env.company_name}, ${userModel.username}!\n\n
+             Your verification code is : ${userModel.emailVerificationCode} \n\n
+             ${process.env.company_domain}`,
+            subject: `Verify your email address on ${process.env.company_name}`,
+            template: {
+                data: {
+                    name: userModel.username,
+                    code: userModel.emailVerificationCode
+                },
+                name: 'verify_email'
+            }
+        });
     }
     async refreshRestrictions() {
         this.restrictions = await this.restrictionCollection.find({});
@@ -69,6 +87,8 @@ class AuthService {
         userModel.registeredAt = Date.now();
         userModel.registeredByIp = ip;
         userModel.registeredByUseragent = useragent;
+        userModel.emailVerificationCode = utils.randomAsciiString(6).toLowerCase();
+        userModel.mobileVerificationCode = utils.randomAsciiString(6).toLowerCase();
         userModel.mobile = model.mobile;
         userModel.email = model.email;
         userModel.emailVerified = false;
@@ -86,6 +106,8 @@ class AuthService {
         }
         var registeredUser = await this.usersCollection.insertOne(userModel);
         await this.setNewPassword(registeredUser._id, model.password, ip, useragent);
+        if (userModel.email)
+            this.sendVerifyEmail(userModel);
         return registeredUser;
     }
     userMatchPassword(user, password) {

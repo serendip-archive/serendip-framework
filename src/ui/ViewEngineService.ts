@@ -13,7 +13,7 @@ export class ViewEngineService implements ServerServiceInterface {
 
     public renderMustache(toRender: string, model: any, partials?: any): string {
 
-        return Mustache.render(toRender, model, partials);
+        return mustache.render(toRender, model, partials);
 
     }
 

@@ -5,6 +5,7 @@ import { DbService, DbCollection } from "../db";
 import { UserModel, UserTokenModel, RestrictionModel } from "./models";
 import { UserRegisterRequestInterface, AccessTokenRequestInterface } from "./interfaces";
 import * as _ from 'underscore';
+import { EmailService } from "..";
 
 export interface AuthServiceOptionsInterface {
 
@@ -29,11 +30,12 @@ export class AuthService implements ServerServiceInterface {
 
     static options: AuthServiceOptionsInterface = {
         tokenExpireIn: 1000 * 60 * 60 * 2
-
     };
 
 
     private _dbService: DbService;
+    private _emailService: EmailService;
+
     private usersCollection: DbCollection<UserModel>;
     private restrictionCollection: DbCollection<RestrictionModel>;
 
@@ -44,6 +46,7 @@ export class AuthService implements ServerServiceInterface {
     async start() {
 
         this._dbService = Server.services["DbService"];
+        this._emailService = Server.services["EmailService"];
 
         this.usersCollection = await this._dbService.collection<UserModel>("Users");
 
@@ -61,6 +64,26 @@ export class AuthService implements ServerServiceInterface {
 
     }
 
+    public sendVerifyEmail(userModel: UserModel): Promise<any> {
+
+
+        return this._emailService.send({
+            from: process.env.company_mail_auth || process.env.company_mail_noreply,
+            to: userModel.email,
+            text: `Welcome to ${process.env.company_name}, ${userModel.username}!\n\n
+             Your verification code is : ${userModel.emailVerificationCode} \n\n
+             ${process.env.company_domain}`,
+            subject: `Verify your email address on ${process.env.company_name}`,
+            template: {
+                data: {
+                    name: userModel.username,
+                    code: userModel.emailVerificationCode
+                },
+                name: 'verify_email'
+            }
+        });
+
+    }
 
     public async refreshRestrictions() {
 
@@ -147,12 +170,15 @@ export class AuthService implements ServerServiceInterface {
         userModel.registeredByIp = ip;
         userModel.registeredByUseragent = useragent;
 
+        userModel.emailVerificationCode = utils.randomAsciiString(6).toLowerCase();
+        userModel.mobileVerificationCode = utils.randomAsciiString(6).toLowerCase();
 
         userModel.mobile = model.mobile;
         userModel.email = model.email;
 
         userModel.emailVerified = false;
         userModel.mobileVerified = false;
+
 
         userModel.tokens = [];
 
@@ -171,6 +197,9 @@ export class AuthService implements ServerServiceInterface {
         var registeredUser = await this.usersCollection.insertOne(userModel);
 
         await this.setNewPassword(registeredUser._id, model.password, ip, useragent);
+
+        if (userModel.email)
+            this.sendVerifyEmail(userModel);
 
         return registeredUser;
     }

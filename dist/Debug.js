@@ -7,7 +7,7 @@ _1.DbService.configure({ mongoDb: 'serendipTests' });
 Start_1.start({
     cpuCores: 1,
     controllers: [_1.AuthController, _1.ServerController],
-    services: [_1.SmsService, _1.EmailService, _1.DbService, _1.AuthService]
+    services: [_1.SmsService, _1.EmailService, _1.DbService, _1.AuthService, _1.ViewEngineService]
 }).then(() => {
     console.log('Server workers started successfully!');
 }).catch((err) => {

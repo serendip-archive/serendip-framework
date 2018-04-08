@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("../core");
 const validator = require("validator");
+const _ = require("underscore");
 /**
  * /api/auth/(endpoint)
 */
@@ -29,7 +30,7 @@ class AuthController {
                 },
                 async (req, res, next, done, model) => {
                     this.authService.registerUser(model, req.ip(), req.useragent()).then((userModel) => {
-                        res.json(userModel);
+                        res.json(_.pick(userModel, 'username'));
                     }).catch((err) => {
                         if (err.codeName == "DuplicateKey")
                             return next(new core_1.ServerError(400, 'username already exists'));
@@ -64,6 +65,20 @@ class AuthController {
                             return next(new core_1.ServerError(400, 'minimum interval between reset password request is 60 seconds'));
                     var resetToken = await this.authService.getNewPasswordResetToken(user._id);
                     res.json(resetToken);
+                }
+            ]
+        };
+        this.sendVerifyEmail = {
+            method: 'post',
+            actions: [
+                (req, res, next, done) => {
+                    if (!req.user.email)
+                        return next(new core_1.ServerError(400, 'User have not submitted email address yet.'));
+                    this.authService.sendVerifyEmail(req.user).then((info) => {
+                        res.json(info);
+                    }).catch((e) => {
+                        res.json(e);
+                    });
                 }
             ]
         };

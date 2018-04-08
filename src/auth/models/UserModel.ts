@@ -17,6 +17,9 @@ export class UserModel {
     public passwordChangedByIp: string;
     public passwordChangedByUseragent: string;
 
+    public emailVerificationCode : string;
+    public mobileVerificationCode : string;
+    
 
     public email: string;
     public mobile: string;

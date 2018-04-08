@@ -62,7 +62,6 @@ export class Server {
 
     var port: number = opts.port || parseInt(process.env.port);
 
-
     // Cluster worker
     Server.worker = worker;
 

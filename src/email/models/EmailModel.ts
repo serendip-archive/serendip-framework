@@ -1,3 +1,11 @@
+export interface EmailTemplateInterface {
+
+    name: string;
+    data?: any;
+    culture?: string;
+
+}
+
 export interface EmailAttachmentInterface {
 
     /**
@@ -23,6 +31,7 @@ export interface EmailAttachmentInterface {
     headers?: any;
 
 }
+
 export class EmailModel {
 
     text?: string;
@@ -51,5 +60,5 @@ export class EmailModel {
      */
     attachments?: EmailAttachmentInterface[] | any;
 
-
+    template?: EmailTemplateInterface;
 }

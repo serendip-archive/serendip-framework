@@ -3,7 +3,7 @@ import { Collection } from 'mongodb';
 import * as validator from 'validator';
 import { AuthService, UserRegisterRequestInterface, UserModel } from '.';
 import { UserTokenModel } from './models/UserTokenModel';
-
+import * as _ from 'underscore'
 
 /** 
  * /api/auth/(endpoint)
@@ -20,7 +20,7 @@ export class AuthController {
 
     public register: ServerEndpointInterface = {
         method: 'post',
-        publicAccess:true,
+        publicAccess: true,
         actions: [
             (req, res, next, done) => {
 
@@ -55,7 +55,7 @@ export class AuthController {
 
                 this.authService.registerUser(model, req.ip(), req.useragent()).then((userModel) => {
 
-                    res.json(userModel);
+                    res.json(_.pick(userModel, 'username'));
 
                 }).catch((err) => {
 
@@ -80,8 +80,8 @@ export class AuthController {
 
     public resetPassword: ServerEndpointInterface = {
         method: 'post',
-        publicAccess:true,
-        
+        publicAccess: true,
+
         actions: [
             async (req, res, next, done) => {
 
@@ -118,10 +118,36 @@ export class AuthController {
     };
 
 
+    public sendVerifyEmail: ServerEndpointInterface = {
+        method: 'post',
+        actions: [
+
+            (req, res, next, done) => {
+
+                if (!req.user.email)
+                    return next(new ServerError(400, 'User have not submitted email address yet.'))
+
+                this.authService.sendVerifyEmail(req.user).then((info) => {
+
+                    res.json(info);
+
+
+                }).catch((e) => {
+
+                    res.json(e);
+
+                });
+
+
+            }
+
+        ]
+    };
+
 
     public checkToken: ServerEndpointInterface = {
         method: 'post',
-        publicAccess : true,
+        publicAccess: true,
         actions: [
 
             (req, res, next, done) => {
@@ -145,8 +171,8 @@ export class AuthController {
 
     public token: ServerEndpointInterface = {
         method: 'post',
-        publicAccess:true,
-        
+        publicAccess: true,
+
         actions: [
             async (req, res, next, done) => {
 
