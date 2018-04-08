@@ -10,9 +10,9 @@
 |Cluster handling| running on every core in cpu | [x] Done |
 |Authentication | auth - tokens | [x] Done |
 |Entity change tracking | document change tracking ( git like )  | [x] Done |
-|Logging| user agent - API requests and related response action ( deep ) | planned |
-|View engine | ejs - pug | planned |
-|Email inbox/compose| syncing with gmail - connecting to pop3,SMTP - email templates | planned |
+|Logging | API requests : user-agent - action result or error | planned |
+|View engine | ejs - pug - mustache | planned - mustache Done |
+|Email inbox/compose| syncing with gmail - connecting to pop3,SMTP - email templates | [x] Done |
 |Sms send/receive| implementing SMS.ir API - SMS templates | planned |
 |Fax send/receive| implementing fax.ir API - fax templates | planned |
 |VoIP call| WebRTC TURN and STUN server | planned |
