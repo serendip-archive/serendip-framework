@@ -3,7 +3,9 @@ import * as bodyParser from 'body-parser'
 
 
 import * as http from 'http'
+import * as https from 'https'
 
+import * as mime from 'mime-types'
 
 import * as Async from 'async'
 
@@ -18,8 +20,12 @@ import {
   ServerMiddlewareInterface
 } from '.';
 
+import * as fs from 'fs'
+import * as path from 'path'
 
 import * as topoSort from 'toposort'
+
+
 import { ServerRouter } from './ServerRouter';
 
 
@@ -45,8 +51,11 @@ export class Server {
   public static services: object = {};
 
   public static httpServer: http.Server;
+  public static httpsServer: https.Server;
 
   public static middlewares: any[];
+
+  public static staticPath: string;
 
 
 
@@ -55,12 +64,93 @@ export class Server {
     return new Server(opts, worker, serverStartCallback);
   }
 
+  private static processRequestToStatic(req: http.IncomingMessage, res: http.ServerResponse): void {
 
+
+    var filePath = path.join(Server.staticPath, req.url);
+    fs.stat(filePath, (err, stat) => {
+
+      if (err) {
+        res.writeHead(404);
+        res.end();
+
+        return;
+
+      }
+
+      if (stat.isDirectory())
+        filePath = path.join(filePath, 'index.html')
+
+      fs.exists(filePath, (exist) => {
+
+        if (exist) {
+
+          res.writeHead(200, {
+            'Content-Type': mime.lookup(filePath).toString()
+          });
+
+          var readStream = fs.createReadStream(filePath);
+          readStream.pipe(res);
+
+        } else {
+
+          res.writeHead(404);
+          res.end();
+
+        }
+
+      })
+
+    });
+
+
+  }
+
+  private static processRequest(req, res): void {
+
+    if (!req.url.startsWith('/api/') && Server.staticPath)
+      return Server.processRequestToStatic(req, res);
+
+    var requestReceived = Date.now();
+
+    req = ServerRequestHelpers(req);
+    res = ServerResponseHelpers(res);
+
+    var logString = () => {
+
+      return `[${req.method}] "${req.url}" by [${req.ip()}/${req.user ? req.user.username : 'unauthorized'}] from [${req.useragent()}] answered in ${Date.now() - requestReceived}ms`;
+
+    };
+
+    ServerRouter.routeIt(req, res).then(() => {
+
+      // Request successfully responded
+      console.info(`${logString()}`);
+
+    }).catch((e) => {
+
+      console.error(`${logString()} => ${e.message}`);
+
+
+    });
+
+  }
+
+  private static redirectToHttps(httpPort, httpsPort) {
+    return (req, res) => {
+      res.writeHead(301, { "Location": "https://" + req.headers['host'].toString().replace(':' + httpPort, ':' + httpsPort) + req.url });
+      res.end();
+    }
+  }
 
   // passing worker from Start.js 
   constructor(opts: ServerOptionsInterface, worker: cluster.Worker, serverStartCallback?: Function) {
 
-    var port: number = opts.port || parseInt(process.env.port);
+    var httpPort: number = opts.httpPort || parseInt(process.env.httpPort);
+    var httpsPort: number = opts.httpsPort || parseInt(process.env.httpsPort);
+
+
+    Server.staticPath = opts.staticPath;
 
     // Cluster worker
     Server.worker = worker;
@@ -90,42 +180,45 @@ export class Server {
     ], () => {
 
 
-      Server.httpServer = http.createServer(function (req: any, res: any) {
-        var requestReceived = Date.now();
+      Server.httpServer = http.createServer();
 
-        req = ServerRequestHelpers(req);
-        res = ServerResponseHelpers(res);
-
-        var logString = () => {
-
-          return `[${req.method}] "${req.url}" by [${req.ip()}/${req.user ? req.user.username : 'unauthorized'}] from [${req.useragent()}] answered in ${Date.now() - requestReceived}ms`;
-
-        };
-
-        ServerRouter.routeIt(req, res).then(() => {
-
-          // Request successfully responded
-          console.info(`${logString()}`);
-
-        }).catch((e) => {
-
-          console.error(`${logString()} => ${e.message}`);
-
-
+      if (opts.cert && opts.key) {
+        Server.httpsServer = https.createServer({
+          cert: fs.readFileSync(opts.cert),
+          key: fs.readFileSync(opts.key)
         });
 
 
 
+      }
+
+      if (opts.httpsOnly) {
+        Server.httpsServer.on('request', Server.processRequest);
+        Server.httpServer.on('request', Server.redirectToHttps(httpPort, httpsPort));
+      }
+      else {
+        Server.httpsServer.on('request', Server.processRequest);
+        Server.httpServer.on('request', Server.processRequest);
+      }
+
+
+
+      Server.httpServer.listen(httpPort, () => {
+
+        console.log(`worker ${worker.id} running http server at port ${httpPort}`);
+
+        Server.httpsServer.listen(httpsPort, () => {
+
+          console.log(`worker ${worker.id} running https server at port ${httpsPort}`);
+          if (serverStartCallback)
+            serverStartCallback();
+
+        });
+
       });
 
 
-      Server.httpServer.listen(port, function () {
 
-        console.log(`worker ${worker.id} running http server at port ${port}`);
-        if (serverStartCallback)
-          serverStartCallback();
-
-      });
       // Listen to port after configs done
 
 
@@ -234,8 +327,10 @@ export class Server {
           return;
 
 
+
+
         // Defining controllerUrl for this controllerMethod
-        var controllerUrl = `/api/${controller.name.replace('Controller', '')}/${controllerEndpointName}`;
+        var controllerUrl = `/api/${controller.apiPrefix ? controller.apiPrefix + '/' : ''}${controller.name.replace('Controller', '')}/${controllerEndpointName}`.toLowerCase();
 
         if (endpoint.route)
           if (!endpoint.route.startsWith('/'))

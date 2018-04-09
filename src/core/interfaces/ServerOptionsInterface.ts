@@ -6,7 +6,11 @@ export interface ServerOptionsInterface {
     services?: any;
     controllers?: any;
     middlewares?: [ServerMiddlewareInterface]
-    port?: number;
+    httpPort?: number;
+    httpsPort?: number;
     cpuCores?: number;
-    
+    staticPath? : string;
+    cert? : string;
+    key? : string;
+    httpsOnly? : boolean;
 }

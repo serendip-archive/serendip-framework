@@ -2,8 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const bodyParser = require("body-parser");
 const http = require("http");
+const https = require("https");
+const mime = require("mime-types");
 const Async = require("async");
 const _1 = require(".");
+const fs = require("fs");
+const path = require("path");
 const topoSort = require("toposort");
 const ServerRouter_1 = require("./ServerRouter");
 /**
@@ -12,7 +16,9 @@ const ServerRouter_1 = require("./ServerRouter");
 class Server {
     // passing worker from Start.js 
     constructor(opts, worker, serverStartCallback) {
-        var port = opts.port || parseInt(process.env.port);
+        var httpPort = opts.httpPort || parseInt(process.env.httpPort);
+        var httpsPort = opts.httpsPort || parseInt(process.env.httpsPort);
+        Server.staticPath = opts.staticPath;
         // Cluster worker
         Server.worker = worker;
         Server.middlewares = opts.middlewares || [];
@@ -33,24 +39,28 @@ class Server {
                     console.error(e);
             })
         ], () => {
-            Server.httpServer = http.createServer(function (req, res) {
-                var requestReceived = Date.now();
-                req = _1.ServerRequestHelpers(req);
-                res = _1.ServerResponseHelpers(res);
-                var logString = () => {
-                    return `[${req.method}] "${req.url}" by [${req.ip()}/${req.user ? req.user.username : 'unauthorized'}] from [${req.useragent()}] answered in ${Date.now() - requestReceived}ms`;
-                };
-                ServerRouter_1.ServerRouter.routeIt(req, res).then(() => {
-                    // Request successfully responded
-                    console.info(`${logString()}`);
-                }).catch((e) => {
-                    console.error(`${logString()} => ${e.message}`);
+            Server.httpServer = http.createServer();
+            if (opts.cert && opts.key) {
+                Server.httpsServer = https.createServer({
+                    cert: fs.readFileSync(opts.cert),
+                    key: fs.readFileSync(opts.key)
                 });
-            });
-            Server.httpServer.listen(port, function () {
-                console.log(`worker ${worker.id} running http server at port ${port}`);
-                if (serverStartCallback)
-                    serverStartCallback();
+            }
+            if (opts.httpsOnly) {
+                Server.httpsServer.on('request', Server.processRequest);
+                Server.httpServer.on('request', Server.redirectToHttps(httpPort, httpsPort));
+            }
+            else {
+                Server.httpsServer.on('request', Server.processRequest);
+                Server.httpServer.on('request', Server.processRequest);
+            }
+            Server.httpServer.listen(httpPort, () => {
+                console.log(`worker ${worker.id} running http server at port ${httpPort}`);
+                Server.httpsServer.listen(httpsPort, () => {
+                    console.log(`worker ${worker.id} running https server at port ${httpsPort}`);
+                    if (serverStartCallback)
+                        serverStartCallback();
+                });
             });
             // Listen to port after configs done
         });
@@ -58,6 +68,53 @@ class Server {
     // usage : starting server from ./Start.js
     static bootstrap(opts, worker, serverStartCallback) {
         return new Server(opts, worker, serverStartCallback);
+    }
+    static processRequestToStatic(req, res) {
+        var filePath = path.join(Server.staticPath, req.url);
+        fs.stat(filePath, (err, stat) => {
+            if (err) {
+                res.writeHead(404);
+                res.end();
+                return;
+            }
+            if (stat.isDirectory())
+                filePath = path.join(filePath, 'index.html');
+            fs.exists(filePath, (exist) => {
+                if (exist) {
+                    res.writeHead(200, {
+                        'Content-Type': mime.lookup(filePath).toString()
+                    });
+                    var readStream = fs.createReadStream(filePath);
+                    readStream.pipe(res);
+                }
+                else {
+                    res.writeHead(404);
+                    res.end();
+                }
+            });
+        });
+    }
+    static processRequest(req, res) {
+        if (!req.url.startsWith('/api/') && Server.staticPath)
+            return Server.processRequestToStatic(req, res);
+        var requestReceived = Date.now();
+        req = _1.ServerRequestHelpers(req);
+        res = _1.ServerResponseHelpers(res);
+        var logString = () => {
+            return `[${req.method}] "${req.url}" by [${req.ip()}/${req.user ? req.user.username : 'unauthorized'}] from [${req.useragent()}] answered in ${Date.now() - requestReceived}ms`;
+        };
+        ServerRouter_1.ServerRouter.routeIt(req, res).then(() => {
+            // Request successfully responded
+            console.info(`${logString()}`);
+        }).catch((e) => {
+            console.error(`${logString()} => ${e.message}`);
+        });
+    }
+    static redirectToHttps(httpPort, httpsPort) {
+        return (req, res) => {
+            res.writeHead(301, { "Location": "https://" + req.headers['host'].toString().replace(':' + httpPort, ':' + httpsPort) + req.url });
+            res.end();
+        };
     }
     async addServices(servicesToRegister) {
         var servicesToStart = [];
@@ -117,7 +174,7 @@ class Server {
                 if (!endpoint.method || !endpoint.actions)
                     return;
                 // Defining controllerUrl for this controllerMethod
-                var controllerUrl = `/api/${controller.name.replace('Controller', '')}/${controllerEndpointName}`;
+                var controllerUrl = `/api/${controller.apiPrefix ? controller.apiPrefix + '/' : ''}${controller.name.replace('Controller', '')}/${controllerEndpointName}`.toLowerCase();
                 if (endpoint.route)
                     if (!endpoint.route.startsWith('/'))
                         endpoint.route = '/' + endpoint.route;
