@@ -193,7 +193,7 @@ class AuthService {
             return query[0];
     }
 }
-AuthService.dependencies = ["DbService", "EmailService", "SmsService"];
+AuthService.dependencies = ["DbService", "EmailService"];
 AuthService.options = {
     tokenExpireIn: 1000 * 60 * 60 * 2
 };

@@ -5,7 +5,7 @@ import { DbService, DbCollection } from "../db";
 import { UserModel, UserTokenModel, RestrictionModel } from "./models";
 import { UserRegisterRequestInterface, AccessTokenRequestInterface } from "./interfaces";
 import * as _ from 'underscore';
-import { EmailService } from "..";
+import { EmailService, SmsIrService } from "..";
 
 export interface AuthServiceOptionsInterface {
 
@@ -13,6 +13,7 @@ export interface AuthServiceOptionsInterface {
      * in milliseconds
      */
     tokenExpireIn?: number;
+
 
 
 }
@@ -26,7 +27,7 @@ export class AuthService implements ServerServiceInterface {
     }
 
 
-    static dependencies = ["DbService", "EmailService", "SmsService"];
+    static dependencies = ["DbService", "EmailService"];
 
     static options: AuthServiceOptionsInterface = {
         tokenExpireIn: 1000 * 60 * 60 * 2
@@ -35,6 +36,7 @@ export class AuthService implements ServerServiceInterface {
 
     private _dbService: DbService;
     private _emailService: EmailService;
+    private _smsIrService: SmsIrService;
 
     private usersCollection: DbCollection<UserModel>;
     private restrictionCollection: DbCollection<RestrictionModel>;
@@ -47,6 +49,8 @@ export class AuthService implements ServerServiceInterface {
 
         this._dbService = Server.services["DbService"];
         this._emailService = Server.services["EmailService"];
+        this._smsIrService = Server.services["SmsIrService"];
+
 
         this.usersCollection = await this._dbService.collection<UserModel>("Users");
 
@@ -82,6 +86,11 @@ export class AuthService implements ServerServiceInterface {
                 name: 'verify_email'
             }
         });
+
+    }
+    public sendVerifySms(userModel: UserModel): Promise<any> {
+
+        return this._smsIrService.sendVerification(userModel.mobile, userModel.mobileVerificationCode);
 
     }
 
@@ -200,6 +209,9 @@ export class AuthService implements ServerServiceInterface {
 
         if (userModel.email)
             this.sendVerifyEmail(userModel);
+
+        if (userModel.mobile)
+            this.sendVerifySms(userModel);
 
         return registeredUser;
     }

@@ -2,7 +2,7 @@ import { start } from './Start'
 
 
 import {
-    AuthService, DbService, FaxService, EmailService, SmsService,
+    AuthService, DbService, FaxService, EmailService, SmsIrService,
     AuthController,
     ServerController,
     ViewEngineService
@@ -18,7 +18,7 @@ start({
     cpuCores: 1,
     httpsOnly: false,
     controllers: [AuthController, ServerController],
-    services: [SmsService, EmailService, DbService, AuthService, ViewEngineService]
+    services: [SmsIrService, EmailService, DbService, AuthService, ViewEngineService]
 }).then(() => {
 
     console.log('Server workers started successfully!');

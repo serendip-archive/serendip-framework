@@ -12,7 +12,7 @@ Start_1.start({
     cpuCores: 1,
     httpsOnly: false,
     controllers: [_1.AuthController, _1.ServerController],
-    services: [_1.SmsService, _1.EmailService, _1.DbService, _1.AuthService, _1.ViewEngineService]
+    services: [_1.SmsIrService, _1.EmailService, _1.DbService, _1.AuthService, _1.ViewEngineService]
 }).then(() => {
     console.log('Server workers started successfully!');
 }).catch((err) => {

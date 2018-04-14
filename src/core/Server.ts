@@ -197,7 +197,8 @@ export class Server {
         Server.httpServer.on('request', Server.redirectToHttps(httpPort, httpsPort));
       }
       else {
-        Server.httpsServer.on('request', Server.processRequest);
+        if (Server.httpsServer)
+          Server.httpsServer.on('request', Server.processRequest);
         Server.httpServer.on('request', Server.processRequest);
       }
 
@@ -206,6 +207,9 @@ export class Server {
       Server.httpServer.listen(httpPort, () => {
 
         console.log(`worker ${worker.id} running http server at port ${httpPort}`);
+
+        if (!Server.httpsServer)
+          return serverStartCallback();
 
         Server.httpsServer.listen(httpsPort, () => {
 

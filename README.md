@@ -13,7 +13,7 @@
 |Logging | API requests : user-agent - action result or error | planned |
 |View engine | ejs - pug - mustache | planned - mustache Done |
 |Email inbox/compose| syncing with gmail - connecting to pop3,SMTP - email templates | [x] Done |
-|Sms send/receive| implementing SMS.ir API - SMS templates | planned |
+|Sms send/receive| implementing SMS.ir API - SMS templates | [x] Done |
 |Fax send/receive| implementing fax.ir API - fax templates | planned |
 |VoIP call| WebRTC TURN and STUN server | planned |
 

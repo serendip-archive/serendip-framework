@@ -1,1 +1,2 @@
-export * from './SmsService'
+export * from './SmsIrService'
+export * from './SmsServiceProviderInterface'
