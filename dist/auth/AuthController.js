@@ -97,7 +97,7 @@ class AuthController {
                     var client = await this.authService.findClientById(req.body.clientId);
                     if (!client)
                         return next(new core_1.ServerError(400, 'client not found'));
-                    this.authService.getNewToken(req.user._id, req.useragent(), client._id).then((token) => {
+                    this.authService.getNewToken(req.user._id, req.useragent(), client._id.toString()).then((token) => {
                         res.json({
                             url: client.url,
                             access_token: token.access_token
@@ -116,7 +116,7 @@ class AuthController {
                     var client = await this.authService.findClientById(req.client());
                     var clientId = null;
                     if (client)
-                        clientId = client._id;
+                        clientId = client._id.toString();
                     var token = undefined;
                     try {
                         token = await this.authService.findToken(req.body.access_token);

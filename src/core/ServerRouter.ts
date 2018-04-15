@@ -116,23 +116,20 @@ export class ServerRouter {
             var authService: AuthService = Server.services["AuthService"];
 
 
-            res.setHeader('Access-Control-Allow-Headers', 'ClientId, Authorization, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+            res.setHeader('Access-Control-Allow-Headers', 'clientid, Authorization, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
             res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
 
             if (req.method === 'OPTIONS') {
 
-                authService.findClientById(req.client()).then(client => {
 
-                    if (client) {
-                        var clientUrl = url.parse(client.url);
-                        res.setHeader('Access-Control-Allow-Origin', clientUrl.protocol + '//' + clientUrl.host);
-                    }
-                })
+                res.setHeader('Access-Control-Allow-Origin', '*');
 
                 res.statusCode = 200;
                 res.end();
                 resolve();
                 return;
+
+
 
             }
 
