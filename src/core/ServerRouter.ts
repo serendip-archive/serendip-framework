@@ -123,7 +123,6 @@ export class ServerRouter {
 
 
                 res.setHeader('Access-Control-Allow-Origin', '*');
-
                 res.statusCode = 200;
                 res.end();
                 resolve();

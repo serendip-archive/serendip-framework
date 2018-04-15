@@ -35,7 +35,6 @@ export class DbCollection<T>{
 
 
         return new Promise((resolve, reject) => {
-            var objectId: ObjectID = new ObjectID();
 
             var doc = this._collection.find<T>(query).toArray((err, results) => {
 
