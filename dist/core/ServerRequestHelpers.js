@@ -6,8 +6,8 @@ function ServerRequestHelpers(req) {
         return ua.parse(req.headers["user-agent"].toString());
     };
     req.client = () => {
-        if (req.headers["client"] != undefined)
-            return req.headers["client"].toString();
+        if (req.headers["clientid"] != undefined)
+            return req.headers["clientid"].toString();
         else
             return null;
     };

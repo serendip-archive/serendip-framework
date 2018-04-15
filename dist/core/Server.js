@@ -73,7 +73,7 @@ class Server {
         return new Server(opts, worker, serverStartCallback);
     }
     static processRequestToStatic(req, res) {
-        var filePath = path.join(Server.staticPath, req.url);
+        var filePath = path.join(Server.staticPath, req.url.split('?')[0]);
         fs.stat(filePath, (err, stat) => {
             if (err) {
                 res.writeHead(404);
@@ -97,7 +97,7 @@ class Server {
             });
         });
     }
-    static processRequest(req, res) {
+    static async processRequest(req, res) {
         if (!req.url.startsWith('/api/') && Server.staticPath)
             return Server.processRequestToStatic(req, res);
         var requestReceived = Date.now();

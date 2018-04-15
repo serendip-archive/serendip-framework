@@ -67,7 +67,7 @@ export class Server {
   private static processRequestToStatic(req: http.IncomingMessage, res: http.ServerResponse): void {
 
 
-    var filePath = path.join(Server.staticPath, req.url);
+    var filePath = path.join(Server.staticPath, req.url.split('?')[0]);
     fs.stat(filePath, (err, stat) => {
 
       if (err) {
@@ -106,7 +106,12 @@ export class Server {
 
   }
 
-  private static processRequest(req, res): void {
+  private static async processRequest(req, res) {
+
+
+
+
+
 
     if (!req.url.startsWith('/api/') && Server.staticPath)
       return Server.processRequestToStatic(req, res);
@@ -161,6 +166,7 @@ export class Server {
     // adding basic middlewares to begging of middlewares array
     Server.middlewares.unshift(bodyParser.json());
     Server.middlewares.unshift(bodyParser.urlencoded({ extended: false }));
+
 
 
     Async.series([

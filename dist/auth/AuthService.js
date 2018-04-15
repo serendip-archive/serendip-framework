@@ -11,6 +11,8 @@ class AuthService {
     async start() {
         this._dbService = core_1.Server.services["DbService"];
         this._emailService = core_1.Server.services["EmailService"];
+        this._smsIrService = core_1.Server.services["SmsIrService"];
+        this.clientsCollection = await this._dbService.collection("Clients");
         this.usersCollection = await this._dbService.collection("Users");
         this.usersCollection.createIndex({ username: 1 }, { unique: true });
         this.usersCollection.createIndex({ mobile: 1 }, {});
@@ -35,6 +37,9 @@ class AuthService {
                 name: 'verify_email'
             }
         });
+    }
+    sendVerifySms(userModel) {
+        return this._smsIrService.sendVerification(userModel.mobile, userModel.mobileVerificationCode);
     }
     async refreshRestrictions() {
         this.restrictions = await this.restrictionCollection.find({});
@@ -108,10 +113,27 @@ class AuthService {
         await this.setNewPassword(registeredUser._id, model.password, ip, useragent);
         if (userModel.email)
             this.sendVerifyEmail(userModel);
+        if (userModel.mobile)
+            this.sendVerifySms(userModel);
         return registeredUser;
     }
     userMatchPassword(user, password) {
         return utils.bcryptCompare(password + user.passwordSalt, user.password);
+    }
+    async findToken(access_token) {
+        var tokenQuery = await this.usersCollection.find({
+            tokens: {
+                $elemMatch: { 'access_token': access_token }
+            }
+        });
+        if (tokenQuery.length == 0)
+            throw new Error("access_token invalid");
+        else {
+            var foundedToken = _.findWhere(tokenQuery[0].tokens, { access_token: access_token });
+            foundedToken.userId = tokenQuery[0]._id;
+            foundedToken.username = tokenQuery[0].username;
+            return foundedToken;
+        }
     }
     async checkToken(access_token) {
         var tokenQuery = await this.usersCollection.find({
@@ -124,6 +146,7 @@ class AuthService {
         else {
             var foundedToken = _.findWhere(tokenQuery[0].tokens, { access_token: access_token });
             foundedToken.userId = tokenQuery[0]._id;
+            foundedToken.username = tokenQuery[0].username;
             if (foundedToken.expires_at < Date.now())
                 throw new Error("access_token expired");
             return foundedToken;
@@ -163,6 +186,20 @@ class AuthService {
         user.passwordChangedByIp = ip;
         user.passwordChangedByUseragent = useragent;
         await this.usersCollection.updateOne(user);
+    }
+    async findClientById(clientId) {
+        var query = await this.clientsCollection.find({ clientId: clientId });
+        if (query.length == 0)
+            return undefined;
+        else
+            return query[0];
+    }
+    async getClientById(clientId) {
+        var query = await this.clientsCollection.find({ clientId: clientId });
+        if (query.length == 0)
+            return undefined;
+        else
+            return query[0];
     }
     async findUserByEmail(email) {
         var query = await this.usersCollection.find({ email: email });

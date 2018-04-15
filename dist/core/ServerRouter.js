@@ -58,27 +58,48 @@ class ServerRouter {
     }
     static routeIt(req, res) {
         return new Promise((resolve, reject) => {
+            var authService = _1.Server.services["AuthService"];
+            res.setHeader('Access-Control-Allow-Headers', 'ClientId, Authorization, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+            res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+            if (req.method === 'OPTIONS') {
+                authService.findClientById(req.client()).then(client => {
+                    if (client) {
+                        var clientUrl = url.parse(client.url);
+                        res.setHeader('Access-Control-Allow-Origin', clientUrl.protocol + '//' + clientUrl.host);
+                    }
+                });
+                res.statusCode = 200;
+                res.end();
+                resolve();
+                return;
+            }
             // finding controller by path
             var srvRoute = ServerRouter.findSrvRoute(req);
             // Check if controller exist and requested method matches 
             if (!srvRoute) {
+                var err = new _1.ServerError(404, `[${req.method.toUpperCase()} ${req.url}] route not found !`);
                 res.statusCode = 404;
-                res.send(`[${req.method.toUpperCase()} ${req.url}] route not found !`);
-                return;
+                res.json(err);
+                return reject(err);
             }
-            var authService = _1.Server.services["AuthService"];
-            authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint, srvRoute.publicAccess).then(() => {
-                ServerRouter.executeRoute(srvRoute, req, res).then(() => {
-                    resolve();
-                }).catch(e => {
+            authService.findClientById(req.client()).then(client => {
+                if (client) {
+                    var clientUrl = url.parse(client.url);
+                    res.setHeader('Access-Control-Allow-Origin', clientUrl.protocol + '//' + clientUrl.host);
+                }
+                authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint, srvRoute.publicAccess).then(() => {
+                    ServerRouter.executeRoute(srvRoute, req, res).then(() => {
+                        resolve();
+                    }).catch(e => {
+                        reject(e);
+                        res.statusCode = e.code;
+                        res.json(e);
+                    });
+                }).catch((e) => {
                     reject(e);
-                    res.statusCode = e.code;
-                    res.json(e);
+                    res.statusCode = 401;
+                    res.json(new _1.ServerError(401, e.message));
                 });
-            }).catch((e) => {
-                reject(e);
-                res.statusCode = 401;
-                res.json(new _1.ServerError(401, e.message));
             });
         });
     }

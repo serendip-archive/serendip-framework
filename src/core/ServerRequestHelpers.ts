@@ -11,14 +11,13 @@ export function ServerRequestHelpers(req: http.IncomingMessage | any) {
     };
 
     req.client = () => {
-
-        if (req.headers["client"] != undefined)
-            return req.headers["client"].toString();
+        if (req.headers["clientid"] != undefined)
+            return req.headers["clientid"].toString();
         else
             return null;
     };
 
-  
+
     req.ip = () => {
 
         return req.connection.remoteAddress;

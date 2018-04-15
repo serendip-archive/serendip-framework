@@ -2,7 +2,7 @@ import { Collection, ObjectID } from "mongodb";
 import { ServerServiceInterface, Server, ServerRequestInterface } from "../core";
 import * as utils from "../utils";
 import { DbService, DbCollection } from "../db";
-import { UserModel, UserTokenModel, RestrictionModel } from "./models";
+import { UserModel, UserTokenModel, RestrictionModel, ClientModel } from "./models";
 import { UserRegisterRequestInterface, AccessTokenRequestInterface } from "./interfaces";
 import * as _ from 'underscore';
 import { EmailService, SmsIrService } from "..";
@@ -14,6 +14,10 @@ export interface AuthServiceOptionsInterface {
      */
     tokenExpireIn?: number;
 
+    /**
+     * login page path
+     */
+    loginPage?: string;
 
 
 }
@@ -39,9 +43,11 @@ export class AuthService implements ServerServiceInterface {
     private _smsIrService: SmsIrService;
 
     private usersCollection: DbCollection<UserModel>;
+    private clientsCollection: DbCollection<ClientModel>;
     private restrictionCollection: DbCollection<RestrictionModel>;
 
     private restrictions: RestrictionModel[];
+
 
 
 
@@ -51,6 +57,8 @@ export class AuthService implements ServerServiceInterface {
         this._emailService = Server.services["EmailService"];
         this._smsIrService = Server.services["SmsIrService"];
 
+
+        this.clientsCollection = await this._dbService.collection<ClientModel>("Clients");
 
         this.usersCollection = await this._dbService.collection<UserModel>("Users");
 
@@ -88,6 +96,7 @@ export class AuthService implements ServerServiceInterface {
         });
 
     }
+
     public sendVerifySms(userModel: UserModel): Promise<any> {
 
         return this._smsIrService.sendVerification(userModel.mobile, userModel.mobileVerificationCode);
@@ -222,6 +231,26 @@ export class AuthService implements ServerServiceInterface {
 
     }
 
+    public async findToken(access_token: string): Promise<UserTokenModel> {
+        var tokenQuery = await this.usersCollection.find({
+            tokens: {
+                $elemMatch: { 'access_token': access_token }
+            }
+        });
+
+        if (tokenQuery.length == 0)
+            throw new Error("access_token invalid");
+        else {
+            var foundedToken = _.findWhere(tokenQuery[0].tokens, { access_token: access_token });
+
+            foundedToken.userId = tokenQuery[0]._id;
+            foundedToken.username = tokenQuery[0].username;
+
+            return foundedToken;
+
+        }
+    }
+
 
     public async checkToken(access_token: string): Promise<UserTokenModel> {
         var tokenQuery = await this.usersCollection.find({
@@ -236,6 +265,7 @@ export class AuthService implements ServerServiceInterface {
             var foundedToken = _.findWhere(tokenQuery[0].tokens, { access_token: access_token });
 
             foundedToken.userId = tokenQuery[0]._id;
+            foundedToken.username = tokenQuery[0].username;
 
             if (foundedToken.expires_at < Date.now())
                 throw new Error("access_token expired");
@@ -304,6 +334,28 @@ export class AuthService implements ServerServiceInterface {
 
 
         await this.usersCollection.updateOne(user);
+
+    }
+
+    public async findClientById(clientId: string): Promise<ClientModel> {
+
+        var query = await this.clientsCollection.find({ clientId: clientId });
+
+        if (query.length == 0)
+            return undefined;
+        else
+            return query[0];
+
+    }
+
+    public async getClientById(clientId: string): Promise<ClientModel> {
+
+        var query = await this.clientsCollection.find({ clientId: clientId });
+
+        if (query.length == 0)
+            return undefined;
+        else
+            return query[0];
 
     }
 

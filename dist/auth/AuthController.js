@@ -16,6 +16,13 @@ class AuthController {
                     var model = req.body;
                     if (!model.username || !model.password)
                         return next(new core_1.ServerError(400, 'username or password missing'));
+                    if (!model.email)
+                        if (validator.isEmail(model.username))
+                            model.email = model.username;
+                    if (!model.mobile)
+                        if (model.username.startsWith('+'))
+                            if (validator.isNumeric(model.username.replace('+', '')))
+                                model.mobile = model.username;
                     if (!validator.isLength(model.username, { min: 6, max: 32 }))
                         return next(new core_1.ServerError(400, 'username should be between 6 and 32 char length'));
                     if (!validator.isAlphanumeric(model.username))
@@ -82,16 +89,61 @@ class AuthController {
                 }
             ]
         };
-        this.checkToken = {
+        this.clientToken = {
             method: 'post',
-            publicAccess: true,
+            publicAccess: false,
             actions: [
-                (req, res, next, done) => {
-                    this.authService.checkToken(req.body.access_token).then((token) => {
-                        res.json(token);
+                async (req, res, next, done) => {
+                    var client = await this.authService.findClientById(req.body.clientId);
+                    if (!client)
+                        return next(new core_1.ServerError(400, 'client not found'));
+                    this.authService.getNewToken(req.user._id, req.useragent(), client._id).then((token) => {
+                        res.json({
+                            url: client.url,
+                            access_token: token.access_token
+                        });
                     }).catch((e) => {
                         return next(new core_1.ServerError(400, e.message));
                     });
+                }
+            ]
+        };
+        this.refreshToken = {
+            method: 'post',
+            publicAccess: true,
+            actions: [
+                async (req, res, next, done) => {
+                    var client = await this.authService.findClientById(req.client());
+                    var clientId = null;
+                    if (client)
+                        clientId = client._id;
+                    var token = undefined;
+                    try {
+                        token = await this.authService.findToken(req.body.access_token);
+                    }
+                    catch (err) {
+                        return next(new core_1.ServerError(500, err.message));
+                    }
+                    if (token)
+                        if (token.refresh_token == req.body.refresh_token)
+                            this.authService.getNewToken(token.userId, req.useragent(), clientId).then((token) => {
+                                return res.json(token);
+                            }).catch((e) => {
+                                return next(new core_1.ServerError(400, e.message));
+                            });
+                        else
+                            return next(new core_1.ServerError(400, 'refresh token invalid'));
+                    else
+                        return next(new core_1.ServerError(400, 'access token invalid'));
+                }
+            ]
+        };
+        this.checkToken = {
+            method: 'post',
+            publicAccess: false,
+            actions: [
+                (req, res, next, done) => {
+                    res.json(req.userToken);
                 }
             ]
         };
@@ -103,11 +155,16 @@ class AuthController {
                     var user = null;
                     user = await this.authService.findUserByUsername(req.body.username);
                     if (!user)
+                        user = await this.authService.findUserByEmail(req.body.username);
+                    if (!user)
+                        user = await this.authService.findUserByMobile(req.body.username);
+                    if (!user)
                         return next(new core_1.ServerError(400, 'user/password invalid'));
                     var userMatchPassword = this.authService.userMatchPassword(user, req.body.password);
                     if (!userMatchPassword)
                         return next(new core_1.ServerError(400, 'user/password invalid'));
                     var userToken = await this.authService.getNewToken(user._id, req.useragent(), req.client());
+                    userToken.username = user.username;
                     res.json(userToken);
                 }
             ]
