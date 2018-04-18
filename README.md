@@ -6,7 +6,7 @@
 | Service / feature | Description | status |
 |-|-|-|
 |HTTP & HTTPS Server | - | [x] Done | 
-|Service Managment (DI , TopoSort dependencies) | internal ORM | [x] Done | 
+|Service  | DI , TopoSort dependencies | [x] Done | 
 |Database | internal ORM | [x] Done | 
 | Router | OOP based router | [x] Done |
 |Cluster handling| running on every core in cpu | [x] Done |
