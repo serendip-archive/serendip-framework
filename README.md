@@ -1,10 +1,11 @@
 
 [Documentation at Wiki](https://github.com/m-esm/serendip/wiki)
 # SERENDIP Framework
-> It's a Node.js web framework based on express it will provide you services such as :
+> It's a Node.js web framework it will provide you :
 
 | Service / feature | Description | status |
 |-|-|-|
+|HTTP & HTTPS Server | - | [x] Done | 
 |Service Managment (DI , TopoSort dependencies) | internal ORM | [x] Done | 
 |Database | internal ORM | [x] Done | 
 | Router | OOP based router | [x] Done |
