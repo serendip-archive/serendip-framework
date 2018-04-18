@@ -5,6 +5,7 @@
 
 | Service / feature | Description | status |
 |-|-|-|
+|Service Managment (DI , TopoSort dependencies) | internal ORM | [x] Done | 
 |Database | internal ORM | [x] Done | 
 | Router | OOP based router | [x] Done |
 |Cluster handling| running on every core in cpu | [x] Done |
@@ -12,7 +13,7 @@
 |Entity change tracking | document change tracking ( git like )  | [x] Done |
 |Logging | API requests : user-agent - action result or error | planned |
 |View engine | ejs - pug - mustache | planned - mustache Done |
-|Email inbox/compose| syncing with gmail - connecting to pop3,SMTP - email templates | [x] Done |
+|Email inbox/compose| syncing with gmail - connecting to pop3,SMTP - email templates | [x] Done (SMTP) |
 |Sms send/receive| implementing SMS.ir API - SMS templates | [x] Done |
 |Fax send/receive| implementing fax.ir API - fax templates | planned |
 |VoIP call| WebRTC TURN and STUN server | planned |

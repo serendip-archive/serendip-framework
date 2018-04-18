@@ -3,11 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bodyParser = require("body-parser");
 const http = require("http");
 const https = require("https");
-const mime = require("mime-types");
 const Async = require("async");
 const _1 = require(".");
 const fs = require("fs");
-const path = require("path");
 const topoSort = require("toposort");
 const ServerRouter_1 = require("./ServerRouter");
 /**
@@ -72,34 +70,9 @@ class Server {
     static bootstrap(opts, worker, serverStartCallback) {
         return new Server(opts, worker, serverStartCallback);
     }
-    static processRequestToStatic(req, res) {
-        var filePath = path.join(Server.staticPath, req.url.split('?')[0]);
-        fs.stat(filePath, (err, stat) => {
-            if (err) {
-                res.writeHead(404);
-                res.end();
-                return;
-            }
-            if (stat.isDirectory())
-                filePath = path.join(filePath, 'index.html');
-            fs.exists(filePath, (exist) => {
-                if (exist) {
-                    res.writeHead(200, {
-                        'Content-Type': mime.lookup(filePath).toString()
-                    });
-                    var readStream = fs.createReadStream(filePath);
-                    readStream.pipe(res);
-                }
-                else {
-                    res.writeHead(404);
-                    res.end();
-                }
-            });
-        });
-    }
     static async processRequest(req, res) {
         if (!req.url.startsWith('/api/') && Server.staticPath)
-            return Server.processRequestToStatic(req, res);
+            return ServerRouter_1.ServerRouter.processRequestToStatic(req, res);
         var requestReceived = Date.now();
         req = _1.ServerRequestHelpers(req);
         res = _1.ServerResponseHelpers(res);

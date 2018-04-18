@@ -5,7 +5,6 @@ import * as bodyParser from 'body-parser'
 import * as http from 'http'
 import * as https from 'https'
 
-import * as mime from 'mime-types'
 
 import * as Async from 'async'
 
@@ -21,7 +20,6 @@ import {
 } from '.';
 
 import * as fs from 'fs'
-import * as path from 'path'
 
 import * as topoSort from 'toposort'
 
@@ -64,57 +62,11 @@ export class Server {
     return new Server(opts, worker, serverStartCallback);
   }
 
-  private static processRequestToStatic(req: http.IncomingMessage, res: http.ServerResponse): void {
-
-
-    var filePath = path.join(Server.staticPath, req.url.split('?')[0]);
-    fs.stat(filePath, (err, stat) => {
-
-      if (err) {
-        res.writeHead(404);
-        res.end();
-
-        return;
-
-      }
-
-      if (stat.isDirectory())
-        filePath = path.join(filePath, 'index.html')
-
-      fs.exists(filePath, (exist) => {
-
-        if (exist) {
-
-          res.writeHead(200, {
-            'Content-Type': mime.lookup(filePath).toString()
-          });
-
-          var readStream = fs.createReadStream(filePath);
-          readStream.pipe(res);
-
-        } else {
-
-          res.writeHead(404);
-          res.end();
-
-        }
-
-      })
-
-    });
-
-
-  }
-
   private static async processRequest(req, res) {
 
 
-
-
-
-
     if (!req.url.startsWith('/api/') && Server.staticPath)
-      return Server.processRequestToStatic(req, res);
+      return ServerRouter.processRequestToStatic(req, res);
 
     var requestReceived = Date.now();
 

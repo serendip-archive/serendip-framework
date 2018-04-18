@@ -3,6 +3,10 @@ import * as pathMatch from 'path-match'
 import * as url from 'url';
 import * as qs from 'qs';
 import { AuthService } from "..";
+import * as path from 'path'
+import * as fs from 'fs'
+import * as http from 'http'
+import * as mime from 'mime-types'
 
 export class ServerRouter {
 
@@ -12,6 +16,50 @@ export class ServerRouter {
 
 
     }
+
+
+     static processRequestToStatic(req: http.IncomingMessage, res: http.ServerResponse): void {
+
+
+        var filePath = path.join(Server.staticPath, req.url.split('?')[0]);
+        fs.stat(filePath, (err, stat) => {
+
+            if (err) {
+                res.writeHead(404);
+                res.end();
+
+                return;
+
+            }
+
+            if (stat.isDirectory())
+                filePath = path.join(filePath, 'index.html')
+
+            fs.exists(filePath, (exist) => {
+
+                if (exist) {
+
+                    res.writeHead(200, {
+                        'Content-Type': mime.lookup(filePath).toString()
+                    });
+
+                    var readStream = fs.createReadStream(filePath);
+                    readStream.pipe(res);
+
+                } else {
+
+                    res.writeHead(404);
+                    res.end();
+
+                }
+
+            })
+
+        });
+
+
+    }
+
 
     static routerPathMatcher = pathMatch({
         // path-to-regexp options 

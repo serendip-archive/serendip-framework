@@ -19,7 +19,6 @@ class DbCollection {
     ;
     find(query) {
         return new Promise((resolve, reject) => {
-            var objectId = new mongodb_1.ObjectID();
             var doc = this._collection.find(query).toArray((err, results) => {
                 if (err)
                     return reject(err);

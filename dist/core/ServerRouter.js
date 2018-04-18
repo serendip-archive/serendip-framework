@@ -4,8 +4,36 @@ const _1 = require(".");
 const pathMatch = require("path-match");
 const url = require("url");
 const qs = require("qs");
+const path = require("path");
+const fs = require("fs");
+const mime = require("mime-types");
 class ServerRouter {
     constructor() {
+    }
+    static processRequestToStatic(req, res) {
+        var filePath = path.join(_1.Server.staticPath, req.url.split('?')[0]);
+        fs.stat(filePath, (err, stat) => {
+            if (err) {
+                res.writeHead(404);
+                res.end();
+                return;
+            }
+            if (stat.isDirectory())
+                filePath = path.join(filePath, 'index.html');
+            fs.exists(filePath, (exist) => {
+                if (exist) {
+                    res.writeHead(200, {
+                        'Content-Type': mime.lookup(filePath).toString()
+                    });
+                    var readStream = fs.createReadStream(filePath);
+                    readStream.pipe(res);
+                }
+                else {
+                    res.writeHead(404);
+                    res.end();
+                }
+            });
+        });
     }
     static findSrvRoute(req) {
         var parsedUrl = url.parse(req.url);
