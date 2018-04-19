@@ -179,7 +179,17 @@ export class AuthService implements ServerServiceInterface {
 
     public async registerUser(model: UserRegisterRequestInterface, ip?, useragent?): Promise<UserModel> {
 
+        if (model.username)
+            model.username = model.username.toLowerCase();
+
+        if (model.mobile)
+            model.mobile = model.mobile.toLowerCase();
+
+        if (model.email)
+            model.email = model.email.toLowerCase();
+
         var userModel = new UserModel();
+
 
 
         userModel.username = model.username;
@@ -196,6 +206,7 @@ export class AuthService implements ServerServiceInterface {
 
         userModel.emailVerified = false;
         userModel.mobileVerified = false;
+
 
 
         userModel.tokens = [];
@@ -361,7 +372,7 @@ export class AuthService implements ServerServiceInterface {
 
     public async findUserByEmail(email: string): Promise<UserModel> {
 
-        var query = await this.usersCollection.find({ email: email });
+        var query = await this.usersCollection.find({ email: email.toLowerCase() });
 
         if (query.length == 0)
             return undefined;
@@ -372,7 +383,7 @@ export class AuthService implements ServerServiceInterface {
 
     public async findUserByMobile(mobile: string): Promise<UserModel> {
 
-        var query = await this.usersCollection.find({ mobile: mobile });
+        var query = await this.usersCollection.find({ mobile: mobile.toLowerCase() });
 
         if (query.length == 0)
             return undefined;
@@ -385,7 +396,7 @@ export class AuthService implements ServerServiceInterface {
 
     public async findUserByUsername(username: string): Promise<UserModel> {
 
-        var query = await this.usersCollection.find({ username: username });
+        var query = await this.usersCollection.find({ username: username.toLowerCase() });
 
         if (query.length == 0)
             return undefined;

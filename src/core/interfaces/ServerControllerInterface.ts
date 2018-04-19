@@ -1,6 +1,9 @@
-export interface ServerControllerInterface{
+import { ServerRequestInterface, ServerResponseInterface, ServerEndpointActionInterface } from "..";
 
-   start() : Promise<void>;
+export interface ServerControllerInterface {
+
+    onRequest?(req: ServerRequestInterface, res: ServerResponseInterface, next?: Function, done?: Function, model?: any);
+
 
 
 

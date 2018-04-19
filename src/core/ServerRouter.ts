@@ -18,7 +18,7 @@ export class ServerRouter {
     }
 
 
-     static processRequestToStatic(req: http.IncomingMessage, res: http.ServerResponse): void {
+    static processRequestToStatic(req: http.IncomingMessage, res: http.ServerResponse): void {
 
 
         var filePath = path.join(Server.staticPath, req.url.split('?')[0]);
@@ -112,7 +112,13 @@ export class ServerRouter {
             var controllerObject = srvRoute.controllerObject;
 
             var actions: ServerEndpointActionInterface[] = (controllerObject[srvRoute.endpoint].actions);
+
+            if (controllerObject["onRequest"])
+                actions.unshift(controllerObject["onRequest"]);
+                
             Server.middlewares.forEach((middle) => actions.unshift(middle));
+
+
 
             // starting from first action
             var actionIndex = 0;
@@ -198,6 +204,7 @@ export class ServerRouter {
 
                 if (client) {
                     var clientUrl = url.parse(client.url);
+                 
                     res.setHeader('Access-Control-Allow-Origin', clientUrl.protocol + '//' + clientUrl.host);
                 }
 

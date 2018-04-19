@@ -87,6 +87,12 @@ class AuthService {
         });
     }
     async registerUser(model, ip, useragent) {
+        if (model.username)
+            model.username = model.username.toLowerCase();
+        if (model.mobile)
+            model.mobile = model.mobile.toLowerCase();
+        if (model.email)
+            model.email = model.email.toLowerCase();
         var userModel = new models_1.UserModel();
         userModel.username = model.username;
         userModel.registeredAt = Date.now();
@@ -202,21 +208,21 @@ class AuthService {
             return query[0];
     }
     async findUserByEmail(email) {
-        var query = await this.usersCollection.find({ email: email });
+        var query = await this.usersCollection.find({ email: email.toLowerCase() });
         if (query.length == 0)
             return undefined;
         else
             return query[0];
     }
     async findUserByMobile(mobile) {
-        var query = await this.usersCollection.find({ mobile: mobile });
+        var query = await this.usersCollection.find({ mobile: mobile.toLowerCase() });
         if (query.length == 0)
             return undefined;
         else
             return query[0];
     }
     async findUserByUsername(username) {
-        var query = await this.usersCollection.find({ username: username });
+        var query = await this.usersCollection.find({ username: username.toLowerCase() });
         if (query.length == 0)
             return undefined;
         else

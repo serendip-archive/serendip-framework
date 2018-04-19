@@ -6,6 +6,7 @@ import { EventEmitter } from 'events';
 
 export function start(opts?: ServerOptionsInterface) {
 
+   
 
     var workerEmitter = new EventEmitter();
 
@@ -36,6 +37,7 @@ export function start(opts?: ServerOptionsInterface) {
             });
 
         } else {
+
             Server.bootstrap(opts, cluster.worker, (err) => {
 
 

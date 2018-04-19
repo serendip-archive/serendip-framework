@@ -60,6 +60,8 @@ class ServerRouter {
             // Reason : basically because we need to run constructor
             var controllerObject = srvRoute.controllerObject;
             var actions = (controllerObject[srvRoute.endpoint].actions);
+            if (controllerObject["onRequest"])
+                actions.unshift(controllerObject["onRequest"]);
             _1.Server.middlewares.forEach((middle) => actions.unshift(middle));
             // starting from first action
             var actionIndex = 0;

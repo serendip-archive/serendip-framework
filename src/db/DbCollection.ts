@@ -31,22 +31,44 @@ export class DbCollection<T>{
 
     };
 
-    public find(query): Promise<T[]> {
+    public find(query, skip?: any, limit?: any): Promise<T[]> {
 
+        if (skip)
+            skip = parseInt(skip);
+
+        if (limit)
+            limit = parseInt(limit);
 
         return new Promise((resolve, reject) => {
 
-            var doc = this._collection.find<T>(query).toArray((err, results) => {
 
-                if (err)
-                    return reject(err);
-
-                return resolve(results);
-
-
-            });
+            if (skip >= 0 && limit > 0)
+                this._collection.find<T>(query)
+                    .skip(skip)
+                    .limit(limit)
+                    .toArray((err, results) => {
+                        if (err)
+                            return reject(err);
+                        return resolve(results);
+                    });
+            else
+                this._collection
+                    .find<T>(query)
+                    .toArray((err, results) => {
+                        if (err)
+                            return reject(err);
+                        return resolve(results);
+                    });
 
         });
+
+    }
+
+    public count(query): Promise<Number> {
+
+
+        return this._collection.count(query);
+
 
     }
 
@@ -58,11 +80,11 @@ export class DbCollection<T>{
             model["_id"] = new ObjectID(model["_id"]);
 
 
-            var doc = this._collection.findOneAndUpdate(
+            this._collection.findOneAndUpdate(
                 { _id: model["_id"] },
                 { $set: model },
                 {
-                    upsert: false,
+                    upsert: true,
                     returnOriginal: true
                 }, (err, result) => {
 

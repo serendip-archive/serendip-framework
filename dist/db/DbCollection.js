@@ -17,20 +17,39 @@ class DbCollection {
         return this._collection.createIndex(fieldOrSpec, options);
     }
     ;
-    find(query) {
+    find(query, skip, limit) {
+        if (skip)
+            skip = parseInt(skip);
+        if (limit)
+            limit = parseInt(limit);
         return new Promise((resolve, reject) => {
-            var doc = this._collection.find(query).toArray((err, results) => {
-                if (err)
-                    return reject(err);
-                return resolve(results);
-            });
+            if (skip >= 0 && limit > 0)
+                this._collection.find(query)
+                    .skip(skip)
+                    .limit(limit)
+                    .toArray((err, results) => {
+                    if (err)
+                        return reject(err);
+                    return resolve(results);
+                });
+            else
+                this._collection
+                    .find(query)
+                    .toArray((err, results) => {
+                    if (err)
+                        return reject(err);
+                    return resolve(results);
+                });
         });
+    }
+    count(query) {
+        return this._collection.count(query);
     }
     updateOne(model, userId) {
         return new Promise((resolve, reject) => {
             model["_id"] = new mongodb_1.ObjectID(model["_id"]);
-            var doc = this._collection.findOneAndUpdate({ _id: model["_id"] }, { $set: model }, {
-                upsert: false,
+            this._collection.findOneAndUpdate({ _id: model["_id"] }, { $set: model }, {
+                upsert: true,
                 returnOriginal: true
             }, (err, result) => {
                 if (err)
