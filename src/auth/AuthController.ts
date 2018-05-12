@@ -1,6 +1,6 @@
 import { Server, ServerEndpointInterface, ServerError } from '../core';
 import { Collection } from 'mongodb';
-import * as validator from 'validator';
+import { Validator } from '../utils'
 import { AuthService, UserRegisterRequestInterface, UserModel } from '.';
 import { UserTokenModel } from './models/UserTokenModel';
 import * as _ from 'underscore'
@@ -33,30 +33,30 @@ export class AuthController {
                     return next(new ServerError(400, 'username or password missing'));
 
                 if (!model.email)
-                    if (validator.isEmail(model.username))
+                    if (Validator.isEmail(model.username))
                         model.email = model.username;
 
 
                 if (!model.mobile)
                     if (model.username.startsWith('+'))
-                        if (validator.isNumeric(model.username.replace('+', '')))
+                        if (Validator.isNumeric(model.username.replace('+', '')))
                             model.mobile = model.username;
 
 
-                if (!validator.isLength(model.username, { min: 6, max: 32 }))
+                if (!Validator.isLength(model.username, 6, 32))
                     return next(new ServerError(400, 'username should be between 6 and 32 char length'));
 
 
-                if (!validator.isAlphanumeric(model.username))
+                if (!Validator.isAlphanumeric(model.username))
                     return next(new ServerError(400, 'username should be alphanumeric a-z and 0-9'));
 
                 if (model.email)
-                    if (!validator.isEmail(model.email))
+                    if (!Validator.isEmail(model.email))
                         return next(new ServerError(400, 'email not valid'));
 
 
 
-                if (!validator.isLength(model.password, { min: 8, max: 32 }))
+                if (!Validator.isLength(model.password, 8, 32))
                     return next(new ServerError(400, 'password should be between 8 and 32 char length'));
 
 
@@ -104,7 +104,7 @@ export class AuthController {
 
 
                 if (req.body.email)
-                    if (!validator.isEmail(req.body.email))
+                    if (!Validator.isEmail(req.body.email))
                         return next(new ServerError(400, 'email not valid'));
 
                 var user: UserModel = null;

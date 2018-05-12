@@ -79,6 +79,7 @@ export class DbCollection<T>{
 
             model["_id"] = new ObjectID(model["_id"]);
 
+            model["_vdate"] = Date.now();
 
             this._collection.findOneAndUpdate(
                 { _id: model["_id"] },
@@ -110,23 +111,35 @@ export class DbCollection<T>{
 
     }
 
-    public deleteOne(_id: string | ObjectID, userId?: string) {
+    public deleteOne(_id: string | ObjectID, userId?: string): Promise<T> {
 
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
 
-            this._collection.deleteOne({ _id: new ObjectID(_id) }).then(() => {
+            var model: any;
+
+            var modelQuery = await this.find({ _id: new ObjectID(_id) });
+            if (modelQuery && modelQuery[0])
+                model = modelQuery[0];
+            else
+                return reject('not found');
+
+            this._collection.deleteOne({ _id: new ObjectID(_id) }).then(async () => {
 
 
-                if (this._track)
-                    resolve();
-                this._dbService.entityCollection.insertOne({
-                    date: Date.now(),
-                    diff: null,
-                    type: entityChangeType.Delete,
-                    userId: userId,
-                    collection: this._collection.collectionName,
-                    entityId: _id
-                });
+                if (this._track) {
+                    await this._dbService.entityCollection.insertOne({
+                        date: Date.now(),
+                        diff: null,
+                        type: entityChangeType.Delete,
+                        userId: userId,
+                        collection: this._collection.collectionName,
+                        entityId: _id,
+                        model: model
+                    });
+
+                }
+
+                resolve(model);
 
             }).catch((err) => {
 
@@ -137,6 +150,8 @@ export class DbCollection<T>{
     }
 
     public insertOne(model: T, userId?: string): Promise<T> {
+
+        model["_vdate"] = Date.now();
 
 
         return new Promise((resolve, reject) => {

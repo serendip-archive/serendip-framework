@@ -48,6 +48,7 @@ class DbCollection {
     updateOne(model, userId) {
         return new Promise((resolve, reject) => {
             model["_id"] = new mongodb_1.ObjectID(model["_id"]);
+            model["_vdate"] = Date.now();
             this._collection.findOneAndUpdate({ _id: model["_id"] }, { $set: model }, {
                 upsert: true,
                 returnOriginal: true
@@ -68,18 +69,26 @@ class DbCollection {
         });
     }
     deleteOne(_id, userId) {
-        return new Promise((resolve, reject) => {
-            this._collection.deleteOne({ _id: new mongodb_1.ObjectID(_id) }).then(() => {
-                if (this._track)
-                    resolve();
-                this._dbService.entityCollection.insertOne({
-                    date: Date.now(),
-                    diff: null,
-                    type: _1.entityChangeType.Delete,
-                    userId: userId,
-                    collection: this._collection.collectionName,
-                    entityId: _id
-                });
+        return new Promise(async (resolve, reject) => {
+            var model;
+            var modelQuery = await this.find({ _id: new mongodb_1.ObjectID(_id) });
+            if (modelQuery && modelQuery[0])
+                model = modelQuery[0];
+            else
+                return reject('not found');
+            this._collection.deleteOne({ _id: new mongodb_1.ObjectID(_id) }).then(async () => {
+                if (this._track) {
+                    await this._dbService.entityCollection.insertOne({
+                        date: Date.now(),
+                        diff: null,
+                        type: _1.entityChangeType.Delete,
+                        userId: userId,
+                        collection: this._collection.collectionName,
+                        entityId: _id,
+                        model: model
+                    });
+                }
+                resolve(model);
             }).catch((err) => {
                 console.error(`error in deleting ${_id} from ${this._collection.collectionName}`);
                 reject(err);
@@ -87,6 +96,7 @@ class DbCollection {
         });
     }
     insertOne(model, userId) {
+        model["_vdate"] = Date.now();
         return new Promise((resolve, reject) => {
             var objectId = new mongodb_1.ObjectID();
             var doc = this._collection.findOneAndUpdate({ _id: objectId }, { $set: model }, {

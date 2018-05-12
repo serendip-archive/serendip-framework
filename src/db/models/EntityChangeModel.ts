@@ -13,7 +13,8 @@ export class EntityChangeModel {
     public _id?: string;
     public date: number;
     public type: entityChangeType;
-    public diff: object;
+    public model?: object;
+    public diff?: object;
     public userId?: string;
     public collection: string;
     public entityId: string | ObjectId;

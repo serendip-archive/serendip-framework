@@ -1,6 +1,9 @@
 import * as crypto from 'crypto'
 import * as bcrypt from 'bcryptjs'
 
+
+export * from './Validator'
+
 /** Sync */
 export function randomString(length, chars): string {
     if (!chars) {

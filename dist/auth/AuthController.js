@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("../core");
-const validator = require("validator");
+const utils_1 = require("../utils");
 const _ = require("underscore");
 /**
  * /api/auth/(endpoint)
@@ -17,20 +17,20 @@ class AuthController {
                     if (!model.username || !model.password)
                         return next(new core_1.ServerError(400, 'username or password missing'));
                     if (!model.email)
-                        if (validator.isEmail(model.username))
+                        if (utils_1.Validator.isEmail(model.username))
                             model.email = model.username;
                     if (!model.mobile)
                         if (model.username.startsWith('+'))
-                            if (validator.isNumeric(model.username.replace('+', '')))
+                            if (utils_1.Validator.isNumeric(model.username.replace('+', '')))
                                 model.mobile = model.username;
-                    if (!validator.isLength(model.username, { min: 6, max: 32 }))
+                    if (!utils_1.Validator.isLength(model.username, 6, 32))
                         return next(new core_1.ServerError(400, 'username should be between 6 and 32 char length'));
-                    if (!validator.isAlphanumeric(model.username))
+                    if (!utils_1.Validator.isAlphanumeric(model.username))
                         return next(new core_1.ServerError(400, 'username should be alphanumeric a-z and 0-9'));
                     if (model.email)
-                        if (!validator.isEmail(model.email))
+                        if (!utils_1.Validator.isEmail(model.email))
                             return next(new core_1.ServerError(400, 'email not valid'));
-                    if (!validator.isLength(model.password, { min: 8, max: 32 }))
+                    if (!utils_1.Validator.isLength(model.password, 8, 32))
                         return next(new core_1.ServerError(400, 'password should be between 8 and 32 char length'));
                     model.username = model.username.trim().toLowerCase();
                     next(model);
@@ -58,7 +58,7 @@ class AuthController {
                     if (!req.body.email && !req.body.mobile)
                         return next(new core_1.ServerError(400, 'email or mobile missing'));
                     if (req.body.email)
-                        if (!validator.isEmail(req.body.email))
+                        if (!utils_1.Validator.isEmail(req.body.email))
                             return next(new core_1.ServerError(400, 'email not valid'));
                     var user = null;
                     if (req.body.email)
