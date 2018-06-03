@@ -13,4 +13,5 @@ export interface ServerOptionsInterface {
     cert? : string;
     key? : string;
     httpsOnly? : boolean;
+    cors? : string;
 }

@@ -19,6 +19,7 @@ export class UserTokenModel implements AccessTokenResponseInterface, AccessToken
     refresh_token: string;
     access_token: string;
 
+    groups: string[];
 
 
 

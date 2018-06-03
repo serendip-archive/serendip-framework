@@ -115,7 +115,7 @@ export class ServerRouter {
 
             if (controllerObject["onRequest"])
                 actions.unshift(controllerObject["onRequest"]);
-                
+
             Server.middlewares.forEach((middle) => actions.unshift(middle));
 
 
@@ -204,9 +204,12 @@ export class ServerRouter {
 
                 if (client) {
                     var clientUrl = url.parse(client.url);
-                 
                     res.setHeader('Access-Control-Allow-Origin', clientUrl.protocol + '//' + clientUrl.host);
                 }
+
+                if (!client)
+                    if (Server.opts.cors)
+                        res.setHeader('Access-Control-Allow-Origin', Server.opts.cors);
 
                 authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint, srvRoute.publicAccess).then(() => {
 

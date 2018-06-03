@@ -55,6 +55,7 @@ export class Server {
 
   public static staticPath: string;
 
+  public static opts: ServerOptionsInterface;
 
 
   // usage : starting server from ./Start.js
@@ -106,7 +107,7 @@ export class Server {
     var httpPort: number = opts.httpPort || parseInt(process.env.httpPort);
     var httpsPort: number = opts.httpsPort || parseInt(process.env.httpsPort);
 
-
+    Server.opts = opts;
     Server.staticPath = opts.staticPath;
 
     // Cluster worker
