@@ -42,9 +42,9 @@ export class AuthService implements ServerServiceInterface {
     private _emailService: EmailService;
     private _smsIrService: SmsIrService;
 
-    private usersCollection: DbCollection<UserModel>;
-    private clientsCollection: DbCollection<ClientModel>;
-    private restrictionCollection: DbCollection<RestrictionModel>;
+    public usersCollection: DbCollection<UserModel>;
+    public clientsCollection: DbCollection<ClientModel>;
+    public restrictionCollection: DbCollection<RestrictionModel>;
 
     private restrictions: RestrictionModel[];
 
