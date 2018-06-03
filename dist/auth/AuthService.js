@@ -168,7 +168,8 @@ class AuthService {
             expires_at: Date.now() + AuthService.options.tokenExpireIn,
             expires_in: AuthService.options.tokenExpireIn,
             refresh_token: utils.randomAccessToken(),
-            token_type: 'bearer'
+            token_type: 'bearer',
+            groups: user.groups || []
         };
         if (!user.tokens)
             user.tokens = [];

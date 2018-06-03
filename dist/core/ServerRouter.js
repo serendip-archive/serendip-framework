@@ -112,6 +112,9 @@ class ServerRouter {
                     var clientUrl = url.parse(client.url);
                     res.setHeader('Access-Control-Allow-Origin', clientUrl.protocol + '//' + clientUrl.host);
                 }
+                if (!client)
+                    if (_1.Server.opts.cors)
+                        res.setHeader('Access-Control-Allow-Origin', _1.Server.opts.cors);
                 authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint, srvRoute.publicAccess).then(() => {
                     ServerRouter.executeRoute(srvRoute, req, res).then(() => {
                         resolve();

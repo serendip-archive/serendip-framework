@@ -16,6 +16,7 @@ class Server {
     constructor(opts, worker, serverStartCallback) {
         var httpPort = opts.httpPort || parseInt(process.env.httpPort);
         var httpsPort = opts.httpsPort || parseInt(process.env.httpsPort);
+        Server.opts = opts;
         Server.staticPath = opts.staticPath;
         // Cluster worker
         Server.worker = worker;
