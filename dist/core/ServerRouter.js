@@ -80,6 +80,8 @@ class ServerRouter {
                         return resolve(actionIndex);
                     executeActions(model);
                 }, function _done() {
+                    res.statusCode = 200;
+                    res.end();
                     resolve(actionIndex);
                 }, passedModel);
             };

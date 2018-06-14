@@ -45,13 +45,16 @@ class DbCollection {
     count(query) {
         return this._collection.count(query);
     }
+    aggregate(pipeline) {
+        return this._collection.aggregate(pipeline);
+    }
     updateOne(model, userId) {
         return new Promise((resolve, reject) => {
             model["_id"] = new mongodb_1.ObjectID(model["_id"]);
             model["_vdate"] = Date.now();
             this._collection.findOneAndUpdate({ _id: model["_id"] }, { $set: model }, {
                 upsert: true,
-                returnOriginal: true
+                returnOriginal: false
             }, (err, result) => {
                 if (err)
                     return reject(err);

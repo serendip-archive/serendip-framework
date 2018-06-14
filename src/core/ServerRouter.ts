@@ -151,6 +151,8 @@ export class ServerRouter {
 
 
                 }, function _done() {
+                    res.statusCode = 200;
+                    res.end();
                     resolve(actionIndex);
                 },
                     passedModel);

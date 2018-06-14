@@ -1,4 +1,4 @@
-import { Collection, IndexOptions, ObjectID } from "mongodb";
+import { Collection, IndexOptions, ObjectID, AggregationCursor } from "mongodb";
 import * as deep from 'deep-diff';
 import { DbService, entityChangeType } from ".";
 import { Server } from "..";
@@ -65,11 +65,12 @@ export class DbCollection<T>{
     }
 
     public count(query): Promise<Number> {
-
-
         return this._collection.count(query);
+    }
 
 
+    public aggregate(pipeline): AggregationCursor<T> {
+        return this._collection.aggregate(pipeline);
     }
 
     public updateOne(model: T, userId?: string): Promise<void> {
@@ -86,7 +87,7 @@ export class DbCollection<T>{
                 { $set: model },
                 {
                     upsert: true,
-                    returnOriginal: true
+                    returnOriginal: false
                 }, (err, result) => {
 
                     if (err)
