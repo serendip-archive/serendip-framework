@@ -24,20 +24,14 @@ class Server {
         // adding basic middlewares to begging of middlewares array
         Server.middlewares.unshift(bodyParser.json());
         Server.middlewares.unshift(bodyParser.urlencoded({ extended: false }));
+        if (!opts.services)
+            opts.services = [];
         Async.series([
-            (cb) => this.addServices(opts.services).then(() => cb(null, null)).catch((e) => {
-                if (serverStartCallback)
-                    serverStartCallback(e);
-                else
-                    console.error(e);
-            }),
-            (cb) => this.addRoutes(opts.controllers).then(() => cb(null, null)).catch((e) => {
-                if (serverStartCallback)
-                    serverStartCallback(e);
-                else
-                    console.error(e);
-            })
-        ], () => {
+            (cb) => this.addServices(opts.services).then(() => cb(null, null)).catch((e) => cb(e, null)),
+            (cb) => this.addRoutes(opts.controllers).then(() => cb(null, null)).catch((e) => cb(e, null))
+        ], (err, results) => {
+            if (err)
+                return serverStartCallback(err);
             Server.httpServer = http.createServer();
             if (opts.cert && opts.key) {
                 Server.httpsServer = https.createServer({
@@ -64,7 +58,6 @@ class Server {
                         serverStartCallback();
                 });
             });
-            // Listen to port after configs done
         });
     }
     // usage : starting server from ./Start.js
@@ -82,7 +75,8 @@ class Server {
         };
         ServerRouter_1.ServerRouter.routeIt(req, res).then(() => {
             // Request successfully responded
-            console.info(`${logString()}`);
+            if (req.method != "OPTIONS")
+                console.info(`${logString()}`);
         }).catch((e) => {
             console.error(`${logString()} => ${e.message}`);
         });
@@ -94,6 +88,10 @@ class Server {
         };
     }
     async addServices(servicesToRegister) {
+        if (!servicesToRegister)
+            return;
+        if (servicesToRegister.length == 0)
+            return;
         var servicesToStart = [];
         var dependenciesToSort = [];
         servicesToRegister.forEach((sv) => {

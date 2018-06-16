@@ -24,7 +24,7 @@
 ## Installing
 using npm : 
 ```
-npm install m-esm/serendip
+npm install serendip
 ```
 
 
@@ -46,6 +46,7 @@ class fooController {
      */
     hi: serendip.ServerEndpointInterface = {
         method: 'get',
+        public : true,
         actions: [
             (req, res, next, done) => {
                 res.write('<h1>Hello</h1>');
@@ -67,7 +68,7 @@ serendip.start({
 
     controllers: [ fooController ],
     cpuCores: 1,
-    port: 3000
+    httpPort: 3000
 
 });
 
@@ -76,43 +77,46 @@ serendip.start({
 #### 1. Hello world :
 ```javascript
 var serendip = require('serendip');
-
+ 
 // GET /api/foo/(endpoint)
 class fooController {
-
+ 
     constructor() {
-
+ 
         //  GET /api/foo/hi
         this.hi = {
+			public:true,
             method: 'get',
             // action to be executed in series
             actions: [
                 (req, res, next, done) => {
-
+ 
                     // send model with next callback
                     next({ message: 'hello world !' })
-
+ 
                 },
                 (req, res, next, done, model) => {
-
+ 
                     res.json(model);
                     done();
                 }
             ]
         }
     }
-
+ 
 }
-
+ 
+ 
 // starting application
 serendip.start({
     // controllers who are responsible to api requests
+
     controllers: [ fooController ],
     // Specify or by default all cores will be used
     cpuCores: 1,
     // port to listen on
-    port: 3000
-});
+    httpPort: 3000
+}).then(()=>{}).catch((e)=>{console.error(e)});
 
 ```
 

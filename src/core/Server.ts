@@ -25,6 +25,8 @@ import * as topoSort from 'toposort'
 
 
 import { ServerRouter } from './ServerRouter';
+import { AuthService } from '../auth';
+import { EmailService } from '../email';
 
 
 /**
@@ -46,7 +48,7 @@ export class Server {
    */
   public static routes: ServerRouteInterface[] = [];
 
-  public static services: object = {};
+  public static services: any = {};
 
   public static httpServer: http.Server;
   public static httpsServer: https.Server;
@@ -83,7 +85,8 @@ export class Server {
     ServerRouter.routeIt(req, res).then(() => {
 
       // Request successfully responded
-      console.info(`${logString()}`);
+      if (req.method != "OPTIONS")
+        console.info(`${logString()}`);
 
     }).catch((e) => {
 
@@ -120,24 +123,17 @@ export class Server {
     Server.middlewares.unshift(bodyParser.json());
     Server.middlewares.unshift(bodyParser.urlencoded({ extended: false }));
 
-
+    if (!opts.services)
+      opts.services = [];
+ 
 
     Async.series([
-      (cb) => this.addServices(opts.services).then(() => cb(null, null)).catch((e) => {
-        if (serverStartCallback)
-          serverStartCallback(e);
-        else
-          console.error(e);
+      (cb) => this.addServices(opts.services).then(() => cb(null, null)).catch((e) => cb(e, null)),
+      (cb) => this.addRoutes(opts.controllers).then(() => cb(null, null)).catch((e) => cb(e, null))
+    ], (err, results) => {
 
-      }),
-      (cb) => this.addRoutes(opts.controllers).then(() => cb(null, null)).catch((e) => {
-        if (serverStartCallback)
-          serverStartCallback(e);
-        else
-          console.error(e);
-      })
-    ], () => {
-
+      if (err)
+        return serverStartCallback(err);
 
       Server.httpServer = http.createServer();
 
@@ -146,11 +142,7 @@ export class Server {
           cert: fs.readFileSync(opts.cert),
           key: fs.readFileSync(opts.key)
         });
-
-
-
       }
-
       if (opts.httpsOnly) {
         Server.httpsServer.on('request', Server.processRequest);
         Server.httpServer.on('request', Server.redirectToHttps(httpPort, httpsPort));
@@ -161,31 +153,16 @@ export class Server {
         Server.httpServer.on('request', Server.processRequest);
       }
 
-
-
       Server.httpServer.listen(httpPort, () => {
-
         console.log(`worker ${worker.id} running http server at port ${httpPort}`);
-
         if (!Server.httpsServer)
           return serverStartCallback();
-
         Server.httpsServer.listen(httpsPort, () => {
-
           console.log(`worker ${worker.id} running https server at port ${httpsPort}`);
           if (serverStartCallback)
             serverStartCallback();
-
         });
-
       });
-
-
-
-      // Listen to port after configs done
-
-
-
     });
 
   }
@@ -194,6 +171,11 @@ export class Server {
 
   private async addServices(servicesToRegister) {
 
+    if (!servicesToRegister)
+      return;
+
+    if (servicesToRegister.length == 0)
+      return;
 
     var servicesToStart = [];
     var dependenciesToSort = [];

@@ -90,7 +90,8 @@ class ServerRouter {
     }
     static routeIt(req, res) {
         return new Promise((resolve, reject) => {
-            var authService = _1.Server.services["AuthService"];
+            if (_1.Server.opts.cors)
+                res.setHeader('Access-Control-Allow-Origin', _1.Server.opts.cors);
             res.setHeader('Access-Control-Allow-Headers', 'clientid, Authorization, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
             res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
             if (req.method === 'OPTIONS') {
@@ -109,28 +110,35 @@ class ServerRouter {
                 res.json(err);
                 return reject(err);
             }
-            authService.findClientById(req.client()).then(client => {
-                if (client) {
-                    var clientUrl = url.parse(client.url);
-                    res.setHeader('Access-Control-Allow-Origin', clientUrl.protocol + '//' + clientUrl.host);
-                }
-                if (!client)
-                    if (_1.Server.opts.cors)
-                        res.setHeader('Access-Control-Allow-Origin', _1.Server.opts.cors);
-                authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint, srvRoute.publicAccess).then(() => {
-                    ServerRouter.executeRoute(srvRoute, req, res).then(() => {
-                        resolve();
-                    }).catch(e => {
-                        reject(e);
-                        res.statusCode = e.code;
-                        res.json(e);
-                    });
-                }).catch((e) => {
+            var authService = _1.Server.services["AuthService"];
+            if (!authService)
+                ServerRouter.executeRoute(srvRoute, req, res).then(() => {
+                    resolve();
+                }).catch(e => {
                     reject(e);
-                    res.statusCode = 401;
-                    res.json(new _1.ServerError(401, e.message));
+                    res.statusCode = e.code;
+                    res.json(e);
                 });
-            });
+            else
+                authService.findClientById(req.client()).then(client => {
+                    if (client) {
+                        var clientUrl = url.parse(client.url);
+                        res.setHeader('Access-Control-Allow-Origin', clientUrl.protocol + '//' + clientUrl.host);
+                    }
+                    authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint, srvRoute.publicAccess).then(() => {
+                        ServerRouter.executeRoute(srvRoute, req, res).then(() => {
+                            resolve();
+                        }).catch(e => {
+                            reject(e);
+                            res.statusCode = e.code;
+                            res.json(e);
+                        });
+                    }).catch((e) => {
+                        reject(e);
+                        res.statusCode = 401;
+                        res.json(new _1.ServerError(401, e.message));
+                    });
+                });
         });
     }
 }

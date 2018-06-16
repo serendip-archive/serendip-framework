@@ -73,7 +73,7 @@ export class DbCollection<T>{
         return this._collection.aggregate(pipeline);
     }
 
-    public updateOne(model: T, userId?: string): Promise<void> {
+    public updateOne(model: T, userId?: string): Promise<T> {
 
 
         return new Promise((resolve, reject) => {
