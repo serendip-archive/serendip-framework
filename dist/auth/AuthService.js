@@ -1,28 +1,31 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const mongodb_1 = require("mongodb");
 const core_1 = require("../core");
 const utils = require("../utils");
 const models_1 = require("./models");
 const _ = require("underscore");
 class AuthService {
+    constructor() {
+        this.dbService = core_1.Server.services["DbService"];
+        this.emailService = core_1.Server.services["EmailService"];
+        this.smsIrService = core_1.Server.services["SmsIrService"];
+    }
     static configure(options) {
         AuthService.options = _.extend(AuthService.options, options);
     }
     async start() {
-        this._dbService = core_1.Server.services["DbService"];
-        this._emailService = core_1.Server.services["EmailService"];
-        this._smsIrService = core_1.Server.services["SmsIrService"];
-        this.clientsCollection = await this._dbService.collection("Clients");
-        this.usersCollection = await this._dbService.collection("Users");
+        this.clientsCollection = await this.dbService.collection("Clients");
+        this.usersCollection = await this.dbService.collection("Users");
         this.usersCollection.createIndex({ username: 1 }, { unique: true });
         this.usersCollection.createIndex({ mobile: 1 }, {});
         this.usersCollection.createIndex({ email: 1 }, {});
         this.usersCollection.createIndex({ "tokens.access_token": 1 }, {});
-        this.restrictionCollection = await this._dbService.collection("Restrictions");
+        this.restrictionCollection = await this.dbService.collection("Restrictions");
         await this.refreshRestrictions();
     }
     sendVerifyEmail(userModel) {
-        return this._emailService.send({
+        return this.emailService.send({
             from: process.env.company_mail_auth || process.env.company_mail_noreply,
             to: userModel.email,
             text: `Welcome to ${process.env.company_name}, ${userModel.username}!\n\n
@@ -39,7 +42,7 @@ class AuthService {
         });
     }
     sendVerifySms(userModel) {
-        return this._smsIrService.sendVerification(userModel.mobile, userModel.mobileVerificationCode);
+        return this.smsIrService.sendVerification(userModel.mobile, userModel.mobileVerificationCode);
     }
     async refreshRestrictions() {
         this.restrictions = await this.restrictionCollection.find({});
@@ -86,7 +89,17 @@ class AuthService {
             }
         });
     }
-    async registerUser(model, ip, useragent) {
+    async VerifyUserMobile(mobile, code) {
+        var user = await this.findUserByMobile(mobile);
+        user.mobileVerified = user.mobileVerificationCode == code;
+        await this.usersCollection.updateOne(user);
+    }
+    async VerifyUserEmail(email, code) {
+        var user = await this.findUserByEmail(email);
+        user.emailVerified = user.emailVerificationCode == code;
+        await this.usersCollection.updateOne(user);
+    }
+    async registerUser(model, ip, useragent, confirmed) {
         if (model.username)
             model.username = model.username.toLowerCase();
         if (model.mobile)
@@ -98,12 +111,13 @@ class AuthService {
         userModel.registeredAt = Date.now();
         userModel.registeredByIp = ip;
         userModel.registeredByUseragent = useragent;
-        userModel.emailVerificationCode = utils.randomAsciiString(6).toLowerCase();
-        userModel.mobileVerificationCode = utils.randomAsciiString(6).toLowerCase();
+        userModel.emailVerificationCode = utils.randomNumberString(6).toLowerCase();
+        userModel.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
         userModel.mobile = model.mobile;
         userModel.email = model.email;
-        userModel.emailVerified = false;
-        userModel.mobileVerified = false;
+        userModel.emailVerified = confirmed;
+        userModel.mobileVerified = confirmed;
+        userModel.groups = [];
         userModel.tokens = [];
         if (userModel.email) {
             var userByEmail = await this.findUserByEmail(userModel.email);
@@ -117,10 +131,16 @@ class AuthService {
         }
         var registeredUser = await this.usersCollection.insertOne(userModel);
         await this.setNewPassword(registeredUser._id, model.password, ip, useragent);
-        if (userModel.email)
-            this.sendVerifyEmail(userModel);
-        if (userModel.mobile)
-            this.sendVerifySms(userModel);
+        if (!confirmed)
+            try {
+                if (userModel.email)
+                    await this.sendVerifyEmail(userModel);
+                if (userModel.mobile)
+                    await this.sendVerifySms(userModel);
+            }
+            catch (error) {
+                console.error('AuthService register error in sending verification', error);
+            }
         return registeredUser;
     }
     userMatchPassword(user, password) {
@@ -177,13 +197,14 @@ class AuthService {
         await this.usersCollection.updateOne(user);
         return userToken;
     }
-    async getNewPasswordResetToken(userId) {
+    async sendPasswordResetToken(userId) {
         var user = await this.findUserById(userId);
-        user.passwordResetToken = utils.randomAsciiString(8).toLowerCase();
+        user.passwordResetToken = utils.randomNumberString(6).toLowerCase();
         user.passwordResetTokenExpireAt = Date.now() + AuthService.options.tokenExpireIn;
         user.passwordResetTokenIssueAt = Date.now();
         await this.usersCollection.updateOne(user);
-        return user.passwordResetToken;
+        if (user.mobile)
+            return this.smsIrService.sendVerification(user.mobile, user.passwordResetToken);
     }
     async setNewPassword(userId, newPass, ip, useragent) {
         var user = await this.findUserById(userId);
@@ -230,14 +251,14 @@ class AuthService {
             return query[0];
     }
     async findUserById(id) {
-        var query = await this.usersCollection.find({ _id: id });
+        var query = await this.usersCollection.find({ _id: new mongodb_1.ObjectId(id) });
         if (query.length == 0)
             return undefined;
         else
             return query[0];
     }
 }
-AuthService.dependencies = ["DbService", "EmailService"];
+AuthService.dependencies = ["DbService", "SmsIrService", "EmailService"];
 AuthService.options = {
     tokenExpireIn: 1000 * 60 * 60 * 2
 };

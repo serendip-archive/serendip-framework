@@ -4,7 +4,7 @@ const Start_1 = require("./Start");
 const _1 = require(".");
 const path_1 = require("path");
 _1.AuthService.configure({});
-_1.DbService.configure({ mongoDb: 'serendipTests' });
+_1.DbService.configure({ mongoDb: 'serendipTests', mongoUrl: 'mongodb://localhost:27017' });
 Start_1.start({
     cert: path_1.join(__dirname, '..', 'localhost_cert.pem'),
     key: path_1.join(__dirname, '..', 'localhost_key.pem'),

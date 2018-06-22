@@ -45,12 +45,13 @@ class AuthController {
                             return next(new core_1.ServerError(400, 'email already exists'));
                         if (err.message == "DuplicateMobile")
                             return next(new core_1.ServerError(400, 'mobile already exists'));
-                        return next(new core_1.ServerError(500, 'Server Error'));
+                        console.log('User register => Error', err);
+                        return next(new core_1.ServerError(500, err));
                     });
                 }
             ]
         };
-        this.resetPassword = {
+        this.sendResetPasswordToken = {
             method: 'post',
             publicAccess: true,
             actions: [
@@ -70,22 +71,120 @@ class AuthController {
                     if (user.passwordResetTokenIssueAt)
                         if (Date.now() - user.passwordResetTokenIssueAt < 1000 * 60)
                             return next(new core_1.ServerError(400, 'minimum interval between reset password request is 60 seconds'));
-                    var resetToken = await this.authService.getNewPasswordResetToken(user._id);
-                    res.json(resetToken);
+                    await this.authService.sendPasswordResetToken(user._id);
+                    done();
+                }
+            ]
+        };
+        this.changePassword = {
+            method: 'post',
+            publicAccess: false,
+            actions: [
+                async (req, res, next, done) => {
+                    if (!req.body.password)
+                        return next(new core_1.ServerError(400, 'password is missing'));
+                    if (req.body.password != req.body.passwordConfirm)
+                        return next(new core_1.ServerError(400, 'password and passwordConfirm do not match'));
+                    await this.authService.setNewPassword(req.user._id, req.body.password, req.ip(), req.useragent());
+                    done(202, "password changed");
+                }
+            ]
+        };
+        this.resetPassword = {
+            method: 'post',
+            publicAccess: true,
+            actions: [
+                async (req, res, next, done) => {
+                    if (!req.body.code)
+                        return next(new core_1.ServerError(400, 'code is missing'));
+                    if (!req.body.password)
+                        return next(new core_1.ServerError(400, 'password is missing'));
+                    if (req.body.password != req.body.passwordConfirm)
+                        return next(new core_1.ServerError(400, 'password and passwordConfirm do not match'));
+                    if (!req.body.email && !req.body.mobile)
+                        return next(new core_1.ServerError(400, 'email or mobile missing'));
+                    if (req.body.email)
+                        if (!utils_1.Validator.isEmail(req.body.email))
+                            return next(new core_1.ServerError(400, 'email not valid'));
+                    var user = null;
+                    if (req.body.email)
+                        user = await this.authService.findUserByEmail(req.body.email);
+                    else
+                        user = await this.authService.findUserByMobile(req.body.mobile);
+                    if (!user)
+                        return next(new core_1.ServerError(400, 'user not found'));
+                    await this.authService.setNewPassword(user._id, req.body.password, req.ip(), req.useragent());
+                    done(202, "password changed");
                 }
             ]
         };
         this.sendVerifyEmail = {
+            publicAccess: true,
             method: 'post',
             actions: [
-                (req, res, next, done) => {
-                    if (!req.user.email)
-                        return next(new core_1.ServerError(400, 'User have not submitted email address yet.'));
-                    this.authService.sendVerifyEmail(req.user).then((info) => {
+                async (req, res, next, done) => {
+                    if (!req.body.email)
+                        return next(new core_1.ServerError(400, 'email required'));
+                    var user = await this.authService.findUserByEmail(req.body.email);
+                    if (!user)
+                        return next(new core_1.ServerError(400, 'no user found with this email'));
+                    this.authService.sendVerifyEmail(user).then((info) => {
                         res.json(info);
                     }).catch((e) => {
                         res.json(e);
                     });
+                }
+            ]
+        };
+        this.sendVerifySms = {
+            method: 'post',
+            publicAccess: true,
+            actions: [
+                async (req, res, next, done) => {
+                    if (!req.body.mobile)
+                        return next(new core_1.ServerError(400, 'mobile required'));
+                    var user = await this.authService.findUserByMobile(req.body.mobile);
+                    if (!user)
+                        return next(new core_1.ServerError(400, 'no user found with this mobile'));
+                    this.authService.sendVerifySms(user).then((info) => {
+                        res.json(info);
+                    }).catch((e) => {
+                        res.json(e);
+                    });
+                }
+            ]
+        };
+        this.verifyMobile = {
+            method: 'post',
+            publicAccess: true,
+            actions: [
+                async (req, res, next, done) => {
+                    if (!req.body.mobile)
+                        return next(new core_1.ServerError(400, 'mobile required'));
+                    if (!req.body.code)
+                        return next(new core_1.ServerError(400, 'code required'));
+                    var user = await this.authService.findUserByMobile(req.body.mobile);
+                    if (!user)
+                        return next(new core_1.ServerError(400, 'no user found with this mobile'));
+                    await this.authService.VerifyUserMobile(req.body.mobile, req.body.code);
+                    done(202, "mobile verified");
+                }
+            ]
+        };
+        this.verifyEmail = {
+            method: 'post',
+            publicAccess: true,
+            actions: [
+                async (req, res, next, done) => {
+                    if (!req.body.email)
+                        return next(new core_1.ServerError(400, 'email required'));
+                    if (!req.body.code)
+                        return next(new core_1.ServerError(400, 'code required'));
+                    var user = await this.authService.findUserByEmail(req.body.email);
+                    if (!user)
+                        return next(new core_1.ServerError(400, 'no user found with this email'));
+                    await this.authService.VerifyUserEmail(req.body.email, req.body.code);
+                    done(202, "email verified");
                 }
             ]
         };

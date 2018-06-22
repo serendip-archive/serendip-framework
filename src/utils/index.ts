@@ -34,6 +34,13 @@ export function randomAsciiString(length): string {
         'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
 }
 
+
+/** Sync */
+export function randomNumberString(length): string {
+    return randomString(length,
+        '0123456789');
+}
+
 /** Sync */
 export function randomAccessToken(): string {
     return randomString(128,

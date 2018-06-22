@@ -79,8 +79,9 @@ class ServerRouter {
                     if (actions.length == actionIndex)
                         return resolve(actionIndex);
                     executeActions(model);
-                }, function _done() {
-                    res.statusCode = 200;
+                }, function _done(statusCode, statusMessage) {
+                    res.statusCode = statusCode || 200;
+                    res.statusMessage = statusMessage;
                     res.end();
                     resolve(actionIndex);
                 }, passedModel);

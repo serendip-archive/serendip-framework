@@ -27,6 +27,7 @@ import * as topoSort from 'toposort'
 import { ServerRouter } from './ServerRouter';
 import { AuthService } from '../auth';
 import { EmailService } from '../email';
+import { ServerRequestInterface } from './interfaces/ServerRequestInterface';
 
 
 /**
@@ -61,7 +62,7 @@ export class Server {
 
 
   // usage : starting server from ./Start.js
-  public static bootstrap(opts: ServerOptionsInterface, worker: cluster.Worker, serverStartCallback?: Function) {
+  public static bootstrap(opts: ServerOptionsInterface, worker: cluster.Worker | any, serverStartCallback?: Function) {
     return new Server(opts, worker, serverStartCallback);
   }
 
@@ -78,14 +79,13 @@ export class Server {
 
     var logString = () => {
 
-      return `[${req.method}] "${req.url}" by [${req.ip()}/${req.user ? req.user.username : 'unauthorized'}] from [${req.useragent()}] answered in ${Date.now() - requestReceived}ms`;
+      return `[${new Date().toString()}] [${req.method}] "${req.url}" by [${req.ip()}/${req.user ? req.user.username : 'unauthorized'}] from [${req.useragent()}] answered in ${Date.now() - requestReceived}ms`;
 
     };
 
     ServerRouter.routeIt(req, res).then(() => {
-
       // Request successfully responded
-      if (req.method != "OPTIONS")
+      if (req.method.toLowerCase() != "OPTIONS")
         console.info(`${logString()}`);
 
     }).catch((e) => {
@@ -125,12 +125,16 @@ export class Server {
 
     if (!opts.services)
       opts.services = [];
- 
 
-    Async.series([
-      (cb) => this.addServices(opts.services).then(() => cb(null, null)).catch((e) => cb(e, null)),
-      (cb) => this.addRoutes(opts.controllers).then(() => cb(null, null)).catch((e) => cb(e, null))
-    ], (err, results) => {
+
+    Async.series({
+      services: (callback) => {
+        this.addServices(opts.services).then(() => callback(null, null)).catch(e => callback(e, null))
+      },
+      routes: (callback) => {
+        this.addRoutes(opts.controllers).then(() => callback(null, null)).catch(e => callback(e, null))
+      }
+    }, (err, results) => {
 
       if (err)
         return serverStartCallback(err);
@@ -157,11 +161,12 @@ export class Server {
         console.log(`worker ${worker.id} running http server at port ${httpPort}`);
         if (!Server.httpsServer)
           return serverStartCallback();
-        Server.httpsServer.listen(httpsPort, () => {
-          console.log(`worker ${worker.id} running https server at port ${httpsPort}`);
-          if (serverStartCallback)
-            serverStartCallback();
-        });
+        else
+          Server.httpsServer.listen(httpsPort, () => {
+            console.log(`worker ${worker.id} running https server at port ${httpsPort}`);
+            if (serverStartCallback)
+              serverStartCallback();
+          });
       });
     });
 

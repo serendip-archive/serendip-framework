@@ -10,7 +10,7 @@ import {
 import { join } from 'path';
 
 AuthService.configure({});
-DbService.configure({ mongoDb: 'serendipTests' });
+DbService.configure({ mongoDb: 'serendipTests', mongoUrl: 'mongodb://localhost:27017' });
 start({
     cert: join(__dirname, '..', 'localhost_cert.pem'),
     key: join(__dirname, '..', 'localhost_key.pem'),

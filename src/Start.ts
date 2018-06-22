@@ -19,7 +19,7 @@ export function start(opts?: ServerOptionsInterface) {
 
 
         // if this is process
-        if (cluster.isMaster) {
+        if (cluster.isMaster && cpuCount > 1) {
 
             var onClusterMsg = (msg) => {
 
@@ -38,16 +38,19 @@ export function start(opts?: ServerOptionsInterface) {
 
         } else {
 
-            Server.bootstrap(opts, cluster.worker, (err) => {
+            Server.bootstrap(opts, cluster.worker || { id: 0 }, (err) => {
 
                 if (err)
                     return reject(err);
 
-                if (cluster.worker.id == cpuCount) {
-                    resolve(cluster.workers);
-                }
-                else if (cluster.worker.id < cpuCount)
-                    process.send('fork');
+                if (cpuCount == 1)
+                    resolve();
+                else
+                    if (cluster.worker.id == cpuCount) {
+                        resolve(cluster.workers);
+                    }
+                    else if (cluster.worker.id < cpuCount)
+                        process.send('fork');
 
             });
 

@@ -26,10 +26,14 @@ class Server {
         Server.middlewares.unshift(bodyParser.urlencoded({ extended: false }));
         if (!opts.services)
             opts.services = [];
-        Async.series([
-            (cb) => this.addServices(opts.services).then(() => cb(null, null)).catch((e) => cb(e, null)),
-            (cb) => this.addRoutes(opts.controllers).then(() => cb(null, null)).catch((e) => cb(e, null))
-        ], (err, results) => {
+        Async.series({
+            services: (callback) => {
+                this.addServices(opts.services).then(() => callback(null, null)).catch(e => callback(e, null));
+            },
+            routes: (callback) => {
+                this.addRoutes(opts.controllers).then(() => callback(null, null)).catch(e => callback(e, null));
+            }
+        }, (err, results) => {
             if (err)
                 return serverStartCallback(err);
             Server.httpServer = http.createServer();
@@ -52,11 +56,12 @@ class Server {
                 console.log(`worker ${worker.id} running http server at port ${httpPort}`);
                 if (!Server.httpsServer)
                     return serverStartCallback();
-                Server.httpsServer.listen(httpsPort, () => {
-                    console.log(`worker ${worker.id} running https server at port ${httpsPort}`);
-                    if (serverStartCallback)
-                        serverStartCallback();
-                });
+                else
+                    Server.httpsServer.listen(httpsPort, () => {
+                        console.log(`worker ${worker.id} running https server at port ${httpsPort}`);
+                        if (serverStartCallback)
+                            serverStartCallback();
+                    });
             });
         });
     }
@@ -71,11 +76,11 @@ class Server {
         req = _1.ServerRequestHelpers(req);
         res = _1.ServerResponseHelpers(res);
         var logString = () => {
-            return `[${req.method}] "${req.url}" by [${req.ip()}/${req.user ? req.user.username : 'unauthorized'}] from [${req.useragent()}] answered in ${Date.now() - requestReceived}ms`;
+            return `[${new Date().toString()}] [${req.method}] "${req.url}" by [${req.ip()}/${req.user ? req.user.username : 'unauthorized'}] from [${req.useragent()}] answered in ${Date.now() - requestReceived}ms`;
         };
         ServerRouter_1.ServerRouter.routeIt(req, res).then(() => {
             // Request successfully responded
-            if (req.method != "OPTIONS")
+            if (req.method.toLowerCase() != "OPTIONS")
                 console.info(`${logString()}`);
         }).catch((e) => {
             console.error(`${logString()} => ${e.message}`);

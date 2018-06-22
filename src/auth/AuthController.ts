@@ -83,7 +83,8 @@ export class AuthController {
                     if (err.message == "DuplicateMobile")
                         return next(new ServerError(400, 'mobile already exists'));
 
-                    return next(new ServerError(500, 'Server Error'));
+                    console.log('User register => Error', err);
+                    return next(new ServerError(500, err));
 
                 });
 
@@ -92,10 +93,9 @@ export class AuthController {
     };
 
 
-    public resetPassword: ServerEndpointInterface = {
+    public sendResetPasswordToken: ServerEndpointInterface = {
         method: 'post',
         publicAccess: true,
-
         actions: [
             async (req, res, next, done) => {
 
@@ -122,41 +122,195 @@ export class AuthController {
                         return next(new ServerError(400, 'minimum interval between reset password request is 60 seconds'));
 
 
-                var resetToken = await this.authService.getNewPasswordResetToken(user._id);
+                await this.authService.sendPasswordResetToken(user._id);
+                done();
 
-                res.json(resetToken);
 
             }
 
         ]
     };
+
+
+    public changePassword: ServerEndpointInterface = {
+        method: 'post',
+        publicAccess: false,
+        actions: [
+            async (req, res, next, done) => {
+
+                if (!req.body.password)
+                    return next(new ServerError(400, 'password is missing'));
+
+
+                if (req.body.password != req.body.passwordConfirm)
+                    return next(new ServerError(400, 'password and passwordConfirm do not match'));
+
+                await this.authService.setNewPassword(req.user._id, req.body.password, req.ip(), req.useragent());
+                done(202, "password changed");
+
+            }
+
+        ]
+    };
+
+    public resetPassword: ServerEndpointInterface = {
+        method: 'post',
+        publicAccess: true,
+        actions: [
+            async (req, res, next, done) => {
+
+                if (!req.body.code)
+                    return next(new ServerError(400, 'code is missing'));
+
+                if (!req.body.password)
+                    return next(new ServerError(400, 'password is missing'));
+
+
+                if (req.body.password != req.body.passwordConfirm)
+                    return next(new ServerError(400, 'password and passwordConfirm do not match'));
+
+
+                if (!req.body.email && !req.body.mobile)
+                    return next(new ServerError(400, 'email or mobile missing'));
+
+
+                if (req.body.email)
+                    if (!Validator.isEmail(req.body.email))
+                        return next(new ServerError(400, 'email not valid'));
+
+                var user: UserModel = null;
+
+                if (req.body.email)
+                    user = await this.authService.findUserByEmail(req.body.email);
+                else
+                    user = await this.authService.findUserByMobile(req.body.mobile);
+
+                if (!user)
+                    return next(new ServerError(400, 'user not found'));
+
+
+                await this.authService.setNewPassword(user._id, req.body.password, req.ip(), req.useragent());
+                done(202, "password changed");
+
+            }
+
+        ]
+    };
+
 
 
     public sendVerifyEmail: ServerEndpointInterface = {
+        publicAccess: true,
         method: 'post',
         actions: [
 
-            (req, res, next, done) => {
+            async (req, res, next, done) => {
 
-                if (!req.user.email)
-                    return next(new ServerError(400, 'User have not submitted email address yet.'))
+                if (!req.body.email)
+                    return next(new ServerError(400, 'email required'))
 
-                this.authService.sendVerifyEmail(req.user).then((info) => {
 
+                var user = await this.authService.findUserByEmail(req.body.email);
+                if (!user)
+                    return next(new ServerError(400, 'no user found with this email'))
+
+                this.authService.sendVerifyEmail(user).then((info) => {
                     res.json(info);
-
-
                 }).catch((e) => {
-
                     res.json(e);
-
                 });
-
 
             }
 
         ]
     };
+
+
+
+    public sendVerifySms: ServerEndpointInterface = {
+        method: 'post',
+        publicAccess: true,
+
+        actions: [
+
+            async (req, res, next, done) => {
+
+                if (!req.body.mobile)
+                    return next(new ServerError(400, 'mobile required'))
+
+                var user = await this.authService.findUserByMobile(req.body.mobile);
+
+                if (!user)
+                    return next(new ServerError(400, 'no user found with this mobile'))
+
+                this.authService.sendVerifySms(user).then((info) => {
+                    res.json(info);
+                }).catch((e) => {
+                    res.json(e);
+                });
+
+            }
+
+        ]
+    };
+
+
+
+
+    public verifyMobile: ServerEndpointInterface = {
+        method: 'post',
+        publicAccess: true,
+
+        actions: [
+
+            async (req, res, next, done) => {
+
+                if (!req.body.mobile)
+                    return next(new ServerError(400, 'mobile required'))
+
+                if (!req.body.code)
+                    return next(new ServerError(400, 'code required'))
+
+                var user = await this.authService.findUserByMobile(req.body.mobile);
+
+                if (!user)
+                    return next(new ServerError(400, 'no user found with this mobile'))
+
+                await this.authService.VerifyUserMobile(req.body.mobile, req.body.code);
+                done(202, "mobile verified");
+            }
+
+        ]
+    };
+
+
+    public verifyEmail: ServerEndpointInterface = {
+        method: 'post',
+        publicAccess: true,
+
+        actions: [
+
+            async (req, res, next, done) => {
+
+                if (!req.body.email)
+                    return next(new ServerError(400, 'email required'))
+
+                if (!req.body.code)
+                    return next(new ServerError(400, 'code required'))
+
+                var user = await this.authService.findUserByEmail(req.body.email);
+
+                if (!user)
+                    return next(new ServerError(400, 'no user found with this email'))
+
+                await this.authService.VerifyUserEmail(req.body.email, req.body.code);
+                done(202, "email verified");
+            }
+
+        ]
+    };
+
+
 
     public clientToken: ServerEndpointInterface = {
         method: 'post',

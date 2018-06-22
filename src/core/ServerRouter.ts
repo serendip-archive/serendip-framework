@@ -150,8 +150,9 @@ export class ServerRouter {
                     executeActions(model);
 
 
-                }, function _done() {
-                    res.statusCode = 200;
+                }, function _done(statusCode?: number, statusMessage?: string) {
+                    res.statusCode = statusCode || 200;
+                    res.statusMessage = statusMessage;
                     res.end();
                     resolve(actionIndex);
                 },

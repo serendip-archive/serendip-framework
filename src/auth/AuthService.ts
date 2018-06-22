@@ -1,4 +1,4 @@
-import { Collection, ObjectID } from "mongodb";
+import { Collection, ObjectID, ObjectId } from "mongodb";
 import { ServerServiceInterface, Server, ServerRequestInterface } from "../core";
 import * as utils from "../utils";
 import { DbService, DbCollection } from "../db";
@@ -31,16 +31,16 @@ export class AuthService implements ServerServiceInterface {
     }
 
 
-    static dependencies = ["DbService", "EmailService"];
+    static dependencies = ["DbService", "SmsIrService", "EmailService"];
 
     static options: AuthServiceOptionsInterface = {
         tokenExpireIn: 1000 * 60 * 60 * 2
     };
 
 
-    private _dbService: DbService;
-    private _emailService: EmailService;
-    private _smsIrService: SmsIrService;
+    private dbService: DbService;
+    private emailService: EmailService;
+    private smsIrService: SmsIrService;
 
     public usersCollection: DbCollection<UserModel>;
     public clientsCollection: DbCollection<ClientModel>;
@@ -49,18 +49,19 @@ export class AuthService implements ServerServiceInterface {
     private restrictions: RestrictionModel[];
 
 
-
+    constructor() {
+        this.dbService = Server.services["DbService"];
+        this.emailService = Server.services["EmailService"];
+        this.smsIrService = Server.services["SmsIrService"];
+    }
 
     async start() {
 
-        this._dbService = Server.services["DbService"];
-        this._emailService = Server.services["EmailService"];
-        this._smsIrService = Server.services["SmsIrService"];
 
 
-        this.clientsCollection = await this._dbService.collection<ClientModel>("Clients");
+        this.clientsCollection = await this.dbService.collection<ClientModel>("Clients");
 
-        this.usersCollection = await this._dbService.collection<UserModel>("Users");
+        this.usersCollection = await this.dbService.collection<UserModel>("Users");
 
         this.usersCollection.createIndex({ username: 1 }, { unique: true });
         this.usersCollection.createIndex({ mobile: 1 }, {});
@@ -69,7 +70,7 @@ export class AuthService implements ServerServiceInterface {
 
 
 
-        this.restrictionCollection = await this._dbService.collection<RestrictionModel>("Restrictions");
+        this.restrictionCollection = await this.dbService.collection<RestrictionModel>("Restrictions");
 
         await this.refreshRestrictions();
 
@@ -79,7 +80,7 @@ export class AuthService implements ServerServiceInterface {
     public sendVerifyEmail(userModel: UserModel): Promise<any> {
 
 
-        return this._emailService.send({
+        return this.emailService.send({
             from: process.env.company_mail_auth || process.env.company_mail_noreply,
             to: userModel.email,
             text: `Welcome to ${process.env.company_name}, ${userModel.username}!\n\n
@@ -99,7 +100,7 @@ export class AuthService implements ServerServiceInterface {
 
     public sendVerifySms(userModel: UserModel): Promise<any> {
 
-        return this._smsIrService.sendVerification(userModel.mobile, userModel.mobileVerificationCode);
+        return this.smsIrService.sendVerification(userModel.mobile, userModel.mobileVerificationCode);
 
     }
 
@@ -176,8 +177,17 @@ export class AuthService implements ServerServiceInterface {
 
 
     }
-
-    public async registerUser(model: UserRegisterRequestInterface, ip?, useragent?): Promise<UserModel> {
+    public async VerifyUserMobile(mobile: string, code: string) {
+        var user = await this.findUserByMobile(mobile);
+        user.mobileVerified = user.mobileVerificationCode == code;
+        await this.usersCollection.updateOne(user);
+    }
+    public async VerifyUserEmail(email: string, code: string) {
+        var user = await this.findUserByEmail(email);
+        user.emailVerified = user.emailVerificationCode == code;
+        await this.usersCollection.updateOne(user);
+    }
+    public async registerUser(model: UserRegisterRequestInterface, ip?, useragent?, confirmed?: boolean): Promise<UserModel> {
 
         if (model.username)
             model.username = model.username.toLowerCase();
@@ -198,15 +208,16 @@ export class AuthService implements ServerServiceInterface {
         userModel.registeredByIp = ip;
         userModel.registeredByUseragent = useragent;
 
-        userModel.emailVerificationCode = utils.randomAsciiString(6).toLowerCase();
-        userModel.mobileVerificationCode = utils.randomAsciiString(6).toLowerCase();
+        userModel.emailVerificationCode = utils.randomNumberString(6).toLowerCase();
+        userModel.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
 
         userModel.mobile = model.mobile;
         userModel.email = model.email;
 
-        userModel.emailVerified = false;
-        userModel.mobileVerified = false;
+        userModel.emailVerified = confirmed;
+        userModel.mobileVerified = confirmed;
 
+        userModel.groups = [];
 
 
         userModel.tokens = [];
@@ -227,11 +238,15 @@ export class AuthService implements ServerServiceInterface {
 
         await this.setNewPassword(registeredUser._id, model.password, ip, useragent);
 
-        if (userModel.email)
-            this.sendVerifyEmail(userModel);
-
-        if (userModel.mobile)
-            this.sendVerifySms(userModel);
+        if (!confirmed)
+            try {
+                if (userModel.email)
+                    await this.sendVerifyEmail(userModel);
+                if (userModel.mobile)
+                    await this.sendVerifySms(userModel);
+            } catch (error) {
+                console.error('AuthService register error in sending verification', error);
+            }
 
         return registeredUser;
     }
@@ -315,21 +330,21 @@ export class AuthService implements ServerServiceInterface {
 
     }
 
-    public async getNewPasswordResetToken(userId: string): Promise<string> {
+    public async sendPasswordResetToken(userId: string): Promise<any> {
 
 
-        var user = await this.findUserById(userId);
+        var user: UserModel = await this.findUserById(userId);
 
-        user.passwordResetToken = utils.randomAsciiString(8).toLowerCase();
+        user.passwordResetToken = utils.randomNumberString(6).toLowerCase();
 
         user.passwordResetTokenExpireAt = Date.now() + AuthService.options.tokenExpireIn;
 
         user.passwordResetTokenIssueAt = Date.now();
 
-
         await this.usersCollection.updateOne(user);
 
-        return user.passwordResetToken;
+        if (user.mobile)
+            return this.smsIrService.sendVerification(user.mobile, user.passwordResetToken);
 
     }
 
@@ -409,7 +424,7 @@ export class AuthService implements ServerServiceInterface {
 
     public async findUserById(id: string): Promise<UserModel> {
 
-        var query = await this.usersCollection.find({ _id: id });
+        var query = await this.usersCollection.find({ _id: new ObjectId(id) });
 
         if (query.length == 0)
             return undefined;

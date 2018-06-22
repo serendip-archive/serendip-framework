@@ -40,23 +40,27 @@ export class SmsIrService implements ServerServiceInterface, SmsServiceProviderI
                 method: 'POST',
                 url: 'http://RestfulSms.com/api/Token',
                 headers:
-                    {
-                        'Cache-Control': 'no-cache',
-                        'Content-Type': 'application/json'
-                    },
+                {
+                    'Cache-Control': 'no-cache',
+                    'Content-Type': 'application/json'
+                },
                 body:
-                    {
-                        UserApiKey: SmsIrService.options.apiKey,
-                        SecretKey: SmsIrService.options.secretKey
-                    },
+                {
+                    UserApiKey: SmsIrService.options.apiKey,
+                    SecretKey: SmsIrService.options.secretKey
+                },
                 json: true
             }, (error, response, body) => {
-                if (error)
+                if (error) {
+                    console.log('SmsIrService getToken =>', error);
                     return reject(error);
-
+                }
                 if (body.TokenKey) {
                     this.token = body.TokenKey;
                     this.tokenIssueAt = Date.now();
+
+                    console.log('SmsIrService getToken =>', body);
+
                     resolve(this.token);
 
                 }
@@ -79,11 +83,11 @@ export class SmsIrService implements ServerServiceInterface, SmsServiceProviderI
                     method: 'GET',
                     url: 'http://RestfulSms.com/api/credit',
                     headers:
-                        {
-                            'Cache-Control': 'no-cache',
-                            'Content-Type': 'application/json',
-                            'x-sms-ir-secure-token': token
-                        },
+                    {
+                        'Cache-Control': 'no-cache',
+                        'Content-Type': 'application/json',
+                        'x-sms-ir-secure-token': token
+                    },
                     json: true
                 }, (error, response, body) => {
                     if (error)
@@ -103,6 +107,8 @@ export class SmsIrService implements ServerServiceInterface, SmsServiceProviderI
 
     sendVerification(mobileNumber: string, code: string) {
         return new Promise((resolve, reject) => {
+            
+            console.log('SmsIrService sendVerification =>', mobileNumber, code);
 
             this.getToken().then(token => {
 
@@ -110,19 +116,26 @@ export class SmsIrService implements ServerServiceInterface, SmsServiceProviderI
                     method: 'POST',
                     url: 'http://RestfulSms.com/api/VerificationCode',
                     headers:
-                        {
-                            'Cache-Control': 'no-cache',
-                            'Content-Type': 'application/json',
-                            'x-sms-ir-secure-token': token
-                        },
+                    {
+                        'Cache-Control': 'no-cache',
+                        'Content-Type': 'application/json',
+                        'x-sms-ir-secure-token': token
+                    },
                     body: {
                         Code: code,
                         MobileNumber: mobileNumber
                     },
                     json: true
                 }, function (error, response, body) {
-                    if (error)
+
+
+                    if (error) {
+                        console.log('SmsIrService sendVerification =>', error);
                         return reject(error);
+
+                    }
+
+                    console.log('SmsIrService sendVerification =>', body);
 
                     if (body.IsSuccessful)
                         resolve(body);
@@ -143,11 +156,11 @@ export class SmsIrService implements ServerServiceInterface, SmsServiceProviderI
                     method: 'POST',
                     url: 'http://RestfulSms.com/api/VerificationCode',
                     headers:
-                        {
-                            'Cache-Control': 'no-cache',
-                            'Content-Type': 'application/json',
-                            'x-sms-ir-secure-token': token
-                        },
+                    {
+                        'Cache-Control': 'no-cache',
+                        'Content-Type': 'application/json',
+                        'x-sms-ir-secure-token': token
+                    },
                     body: {
                         Messages: [message],
                         MobileNumbers: mobileNumbers,

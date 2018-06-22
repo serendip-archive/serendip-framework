@@ -23,11 +23,14 @@ class SmsIrService {
                 },
                 json: true
             }, (error, response, body) => {
-                if (error)
+                if (error) {
+                    console.log('SmsIrService getToken =>', error);
                     return reject(error);
+                }
                 if (body.TokenKey) {
                     this.token = body.TokenKey;
                     this.tokenIssueAt = Date.now();
+                    console.log('SmsIrService getToken =>', body);
                     resolve(this.token);
                 }
                 else
@@ -61,6 +64,7 @@ class SmsIrService {
     }
     sendVerification(mobileNumber, code) {
         return new Promise((resolve, reject) => {
+            console.log('SmsIrService sendVerification =>', mobileNumber, code);
             this.getToken().then(token => {
                 request({
                     method: 'POST',
@@ -76,8 +80,11 @@ class SmsIrService {
                     },
                     json: true
                 }, function (error, response, body) {
-                    if (error)
+                    if (error) {
+                        console.log('SmsIrService sendVerification =>', error);
                         return reject(error);
+                    }
+                    console.log('SmsIrService sendVerification =>', body);
                     if (body.IsSuccessful)
                         resolve(body);
                     else
