@@ -119,7 +119,6 @@ export class ServerRouter {
             Server.middlewares.forEach((middle) => actions.unshift(middle));
 
 
-
             // starting from first action
             var actionIndex = 0;
 
@@ -128,36 +127,49 @@ export class ServerRouter {
 
             var executeActions = function (passedModel) {
 
-                actions[actionIndex](req, res, function _next(model) {
+                try {
+
+                    var action = actions[actionIndex](req, res, function _next(model) {
 
 
-                    if (model)
-                        if (model.constructor)
-                            if (model.constructor.name == "ServerError") {
+                        if (model)
+                            if (model.constructor)
+                                if (model.constructor.name == "ServerError") {
 
-                                reject(model);
-                                return;
+                                    reject(model);
+                                    return;
 
-                            }
+                                }
 
-                    // Execute next
-                    actionIndex++;
+                        // Execute next
+                        actionIndex++;
 
-                    if (actions.length == actionIndex)
-                        return resolve(actionIndex);
-
-
-                    executeActions(model);
+                        if (actions.length == actionIndex)
+                            return resolve(actionIndex);
 
 
-                }, function _done(statusCode?: number, statusMessage?: string) {
-                    res.statusCode = statusCode || 200;
-                    res.statusMessage = statusMessage;
-                    res.end();
-                    resolve(actionIndex);
-                },
-                    passedModel);
+                        executeActions(model);
 
+
+                    }, function _done(statusCode?: number, statusMessage?: string) {
+                        res.statusCode = statusCode || 200;
+                        res.statusMessage = statusMessage;
+                        res.end();
+                        resolve(actionIndex);
+                    },
+                        passedModel);
+
+                    if (action)
+                        if (action.then)
+                            action.then(() => {
+                                resolve();
+                            }).catch((e: Error) => {
+                                reject(new ServerError(500, e.message));
+                            });
+
+                } catch (error) {
+                    reject(error);
+                }
 
             };
 
@@ -197,8 +209,7 @@ export class ServerRouter {
             if (!srvRoute) {
 
                 var err = new ServerError(404, `[${req.method.toUpperCase()} ${req.url}] route not found !`);
-                res.statusCode = 404;
-                res.json(err);
+
                 return reject(err);
 
             }
@@ -212,8 +223,6 @@ export class ServerRouter {
                     resolve();
                 }).catch(e => {
                     reject(e);
-                    res.statusCode = e.code;
-                    res.json(e);
                 });
             else
                 authService.findClientById(req.client()).then(client => {
@@ -231,21 +240,15 @@ export class ServerRouter {
                             resolve();
                         }).catch(e => {
                             reject(e);
-                            res.statusCode = e.code;
-                            res.json(e);
                         });
 
 
                     }).catch((e) => {
-
                         reject(e);
-                        res.statusCode = 401;
-                        res.json(new ServerError(401, e.message));
-
                     });
 
 
-                });
+                }).catch(e => { });
         });
 
 

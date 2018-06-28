@@ -107,7 +107,7 @@ export class SmsIrService implements ServerServiceInterface, SmsServiceProviderI
 
     sendVerification(mobileNumber: string, code: string) {
         return new Promise((resolve, reject) => {
-            
+
             console.log('SmsIrService sendVerification =>', mobileNumber, code);
 
             this.getToken().then(token => {
@@ -130,19 +130,20 @@ export class SmsIrService implements ServerServiceInterface, SmsServiceProviderI
 
 
                     if (error) {
-                        console.log('SmsIrService sendVerification =>', error);
+                        console.error('SmsIrService sendVerification Error =>', error);
                         return reject(error);
 
                     }
 
                     console.log('SmsIrService sendVerification =>', body);
 
-                    if (body.IsSuccessful)
-                        resolve(body);
-                    else
-                        reject(body);
+                    resolve(body);
+
                 });
-            }).catch(reject);
+            }).catch((e) => {
+                console.error(e);
+                reject(e);
+            });
 
         });
     }

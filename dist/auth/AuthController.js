@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("../core");
 const utils_1 = require("../utils");
+const _1 = require(".");
 const _ = require("underscore");
 /**
  * /api/auth/(endpoint)
@@ -30,13 +31,13 @@ class AuthController {
                     if (model.email)
                         if (!utils_1.Validator.isEmail(model.email))
                             return next(new core_1.ServerError(400, 'email not valid'));
-                    if (!utils_1.Validator.isLength(model.password, 8, 32))
-                        return next(new core_1.ServerError(400, 'password should be between 8 and 32 char length'));
+                    if (!utils_1.Validator.isLength(model.password, 4, 32))
+                        return next(new core_1.ServerError(400, 'password should be between 4 and 32 char length'));
                     model.username = model.username.trim().toLowerCase();
                     next(model);
                 },
-                async (req, res, next, done, model) => {
-                    this.authService.registerUser(model, req.ip(), req.useragent()).then((userModel) => {
+                (req, res, next, done, model) => {
+                    this.authService.registerUser(model, req.ip(), req.useragent(), false).then((userModel) => {
                         res.json(_.pick(userModel, 'username'));
                     }).catch((err) => {
                         if (err.codeName == "DuplicateKey")
@@ -140,17 +141,20 @@ class AuthController {
             method: 'post',
             publicAccess: true,
             actions: [
-                async (req, res, next, done) => {
+                (req, res, next, done) => {
                     if (!req.body.mobile)
                         return next(new core_1.ServerError(400, 'mobile required'));
-                    var user = await this.authService.findUserByMobile(req.body.mobile);
-                    if (!user)
-                        return next(new core_1.ServerError(400, 'no user found with this mobile'));
-                    this.authService.sendVerifySms(user).then((info) => {
-                        res.json(info);
-                    }).catch((e) => {
-                        res.json(e);
-                    });
+                    var user = this.authService.findUserByMobile(req.body.mobile).then((user) => {
+                        if (!user)
+                            return next(new core_1.ServerError(400, 'no user found with this mobile'));
+                        this.authService.sendVerifySms(user);
+                        done(200);
+                        // .then((info) => {
+                        //     res.json(info);
+                        // }).catch((e) => {
+                        //     next(new ServerError(500, e.message));
+                        // });
+                    }).catch(e => next(new core_1.ServerError(500, e.message)));
                 }
             ]
         };
@@ -158,16 +162,19 @@ class AuthController {
             method: 'post',
             publicAccess: true,
             actions: [
-                async (req, res, next, done) => {
+                (req, res, next, done) => {
                     if (!req.body.mobile)
                         return next(new core_1.ServerError(400, 'mobile required'));
                     if (!req.body.code)
                         return next(new core_1.ServerError(400, 'code required'));
-                    var user = await this.authService.findUserByMobile(req.body.mobile);
-                    if (!user)
-                        return next(new core_1.ServerError(400, 'no user found with this mobile'));
-                    await this.authService.VerifyUserMobile(req.body.mobile, req.body.code);
-                    done(202, "mobile verified");
+                    this.authService.findUserByMobile(req.body.mobile).then((user) => {
+                        if (!user)
+                            return next(new core_1.ServerError(400, 'no user found with this mobile'));
+                        this.authService.VerifyUserMobile(req.body.mobile, req.body.code)
+                            .then(() => {
+                            done(202, "mobile verified");
+                        }).catch(e => next(e));
+                    }).catch(e => next(e));
                 }
             ]
         };
@@ -262,6 +269,12 @@ class AuthController {
                     var userMatchPassword = this.authService.userMatchPassword(user, req.body.password);
                     if (!userMatchPassword)
                         return next(new core_1.ServerError(400, 'user/password invalid'));
+                    if (_1.AuthService.options.mobileConfirmationRequired)
+                        if (!user.mobileVerified)
+                            return next(new core_1.ServerError(403, 'mobile not confirmed'));
+                    if (_1.AuthService.options.emailConfirmationRequired)
+                        if (!user.emailVerified)
+                            return next(new core_1.ServerError(403, 'email not confirmed'));
                     var userToken = await this.authService.getNewToken(user._id, req.useragent(), req.client());
                     userToken.username = user.username;
                     res.json(userToken);

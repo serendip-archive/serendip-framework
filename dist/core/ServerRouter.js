@@ -67,24 +67,36 @@ class ServerRouter {
             var actionIndex = 0;
             res.on('finish', () => resolve(actionIndex));
             var executeActions = function (passedModel) {
-                actions[actionIndex](req, res, function _next(model) {
-                    if (model)
-                        if (model.constructor)
-                            if (model.constructor.name == "ServerError") {
-                                reject(model);
-                                return;
-                            }
-                    // Execute next
-                    actionIndex++;
-                    if (actions.length == actionIndex)
-                        return resolve(actionIndex);
-                    executeActions(model);
-                }, function _done(statusCode, statusMessage) {
-                    res.statusCode = statusCode || 200;
-                    res.statusMessage = statusMessage;
-                    res.end();
-                    resolve(actionIndex);
-                }, passedModel);
+                try {
+                    var action = actions[actionIndex](req, res, function _next(model) {
+                        if (model)
+                            if (model.constructor)
+                                if (model.constructor.name == "ServerError") {
+                                    reject(model);
+                                    return;
+                                }
+                        // Execute next
+                        actionIndex++;
+                        if (actions.length == actionIndex)
+                            return resolve(actionIndex);
+                        executeActions(model);
+                    }, function _done(statusCode, statusMessage) {
+                        res.statusCode = statusCode || 200;
+                        res.statusMessage = statusMessage;
+                        res.end();
+                        resolve(actionIndex);
+                    }, passedModel);
+                    if (action)
+                        if (action.then)
+                            action.then(() => {
+                                resolve();
+                            }).catch((e) => {
+                                reject(new _1.ServerError(500, e.message));
+                            });
+                }
+                catch (error) {
+                    reject(error);
+                }
             };
             executeActions(null);
         });
@@ -107,8 +119,6 @@ class ServerRouter {
             // Check if controller exist and requested method matches 
             if (!srvRoute) {
                 var err = new _1.ServerError(404, `[${req.method.toUpperCase()} ${req.url}] route not found !`);
-                res.statusCode = 404;
-                res.json(err);
                 return reject(err);
             }
             var authService = _1.Server.services["AuthService"];
@@ -117,8 +127,6 @@ class ServerRouter {
                     resolve();
                 }).catch(e => {
                     reject(e);
-                    res.statusCode = e.code;
-                    res.json(e);
                 });
             else
                 authService.findClientById(req.client()).then(client => {
@@ -131,15 +139,11 @@ class ServerRouter {
                             resolve();
                         }).catch(e => {
                             reject(e);
-                            res.statusCode = e.code;
-                            res.json(e);
                         });
                     }).catch((e) => {
                         reject(e);
-                        res.statusCode = 401;
-                        res.json(new _1.ServerError(401, e.message));
                     });
-                });
+                }).catch(e => { });
         });
     }
 }

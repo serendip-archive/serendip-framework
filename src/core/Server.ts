@@ -28,6 +28,7 @@ import { ServerRouter } from './ServerRouter';
 import { AuthService } from '../auth';
 import { EmailService } from '../email';
 import { ServerRequestInterface } from './interfaces/ServerRequestInterface';
+import { ServerError } from './ServerErrorHandler';
 
 
 /**
@@ -68,10 +69,6 @@ export class Server {
 
   private static async processRequest(req, res) {
 
-
-    if (!req.url.startsWith('/api/') && Server.staticPath)
-      return ServerRouter.processRequestToStatic(req, res);
-
     var requestReceived = Date.now();
 
     req = ServerRequestHelpers(req);
@@ -79,19 +76,25 @@ export class Server {
 
     var logString = () => {
 
-      return `[${new Date().toString()}] [${req.method}] "${req.url}" by [${req.ip()}/${req.user ? req.user.username : 'unauthorized'}] from [${req.useragent()}] answered in ${Date.now() - requestReceived}ms`;
+      return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : 'unauthorized'}  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
 
     };
 
     ServerRouter.routeIt(req, res).then(() => {
       // Request successfully responded
-      if (req.method.toLowerCase() != "OPTIONS")
+      if (req.method.toLowerCase() != "options")
         console.info(`${logString()}`);
 
-    }).catch((e) => {
+    }).catch((e: any) => {
 
-      console.error(`${logString()} => ${e.message}`);
-
+      if (e.code == 404 && Server.staticPath) {
+        ServerRouter.processRequestToStatic(req, res);
+      } else {
+        res.statusCode = e.code || 500;
+        res.statusMessage = e.message;
+        res.json(e);
+        console.error(`${logString()} => ${e.message}`);
+      }
 
     });
 

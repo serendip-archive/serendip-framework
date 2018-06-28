@@ -81,16 +81,16 @@ class SmsIrService {
                     json: true
                 }, function (error, response, body) {
                     if (error) {
-                        console.log('SmsIrService sendVerification =>', error);
+                        console.error('SmsIrService sendVerification Error =>', error);
                         return reject(error);
                     }
                     console.log('SmsIrService sendVerification =>', body);
-                    if (body.IsSuccessful)
-                        resolve(body);
-                    else
-                        reject(body);
+                    resolve(body);
                 });
-            }).catch(reject);
+            }).catch((e) => {
+                console.error(e);
+                reject(e);
+            });
         });
     }
     send(mobileNumbers, message) {

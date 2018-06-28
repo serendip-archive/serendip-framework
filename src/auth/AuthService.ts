@@ -1,5 +1,5 @@
 import { Collection, ObjectID, ObjectId } from "mongodb";
-import { ServerServiceInterface, Server, ServerRequestInterface } from "../core";
+import { ServerServiceInterface, Server, ServerRequestInterface, ServerError } from "../core";
 import * as utils from "../utils";
 import { DbService, DbCollection } from "../db";
 import { UserModel, UserTokenModel, RestrictionModel, ClientModel } from "./models";
@@ -18,6 +18,9 @@ export interface AuthServiceOptionsInterface {
      * login page path
      */
     loginPage?: string;
+
+    mobileConfirmationRequired?: boolean;
+    emailConfirmationRequired?: boolean;
 
 
 }
@@ -116,35 +119,44 @@ export class AuthService implements ServerServiceInterface {
         if (publicAccess)
             return true;
 
+
+
         if (!req.headers.authorization && !req.body.access_token)
-            throw new Error("access_token not found in body and authorization header");
+            throw new ServerError(401, "access_token not found in body and authorization header");
 
         var access_token: string;
 
         if (req.body.access_token)
             access_token = req.body.access_token;
-        else {
+        else
             access_token = req.headers.authorization.toString().split(' ')[1];
-        }
 
-        var userToken = req.userToken = await this.checkToken(access_token);
-        var user = req.user = await this.findUserById(userToken.userId);
+        var userToken;
+        var user;
+
+        try {
+            userToken = req.userToken = await this.checkToken(access_token);
+            user = req.user = await this.findUserById(userToken.userId);
+        }
+        catch (error) {
+            throw error;
+        }
 
         if (!user.groups)
             user.groups = [];
 
         if (user.groups.indexOf("blocked") != -1)
-            throw new Error("user access is blocked");
+            throw new ServerError(401, "user access is blocked");
 
         if (user.groups.indexOf("emailNotConfirmed") != -1)
-            throw new Error("user email needs to get confirmed");
+            throw new ServerError(401, "user email needs to get confirmed");
 
 
         if (user.groups.indexOf("mobileNotConfirmed") != -1)
-            throw new Error("user mobile needs to get confirmed");
+            throw new ServerError(401, "user mobile needs to get confirmed");
 
         if (user.groups.indexOf("notConfirmed") != -1)
-            throw new Error("user needs to get confirmed");
+            throw new ServerError(401, "user needs to get confirmed");
 
 
         var rules = [
@@ -163,12 +175,12 @@ export class AuthService implements ServerServiceInterface {
 
                 if (rule.allowAll && rule.groups.length != _.difference(rule.groups, user.groups).length)
                     if (rule.users.indexOf(user._id) == -1)
-                        throw new Error("user group access is denied");
+                        throw new ServerError(401, "user group access is denied");
 
 
                 if (!rule.allowAll && rule.groups.length == _.difference(rule.groups, user.groups).length)
                     if (rule.users.indexOf(user._id) == -1)
-                        throw new Error("user group access is denied");
+                        throw new ServerError(401, "user group access is denied");
 
             }
 
@@ -206,7 +218,7 @@ export class AuthService implements ServerServiceInterface {
 
         userModel.registeredAt = Date.now();
         userModel.registeredByIp = ip;
-        userModel.registeredByUseragent = useragent;
+        userModel.registeredByUseragent = useragent ? useragent.toString() : '';
 
         userModel.emailVerificationCode = utils.randomNumberString(6).toLowerCase();
         userModel.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
@@ -238,15 +250,12 @@ export class AuthService implements ServerServiceInterface {
 
         await this.setNewPassword(registeredUser._id, model.password, ip, useragent);
 
-        if (!confirmed)
-            try {
-                if (userModel.email)
-                    await this.sendVerifyEmail(userModel);
-                if (userModel.mobile)
-                    await this.sendVerifySms(userModel);
-            } catch (error) {
-                console.error('AuthService register error in sending verification', error);
-            }
+        if (!confirmed) {
+            if (userModel.email)
+                this.sendVerifyEmail(userModel);
+            if (userModel.mobile)
+                this.sendVerifySms(userModel);
+        }
 
         return registeredUser;
     }
@@ -265,7 +274,7 @@ export class AuthService implements ServerServiceInterface {
         });
 
         if (tokenQuery.length == 0)
-            throw new Error("access_token invalid");
+            throw new ServerError(401, "access_token invalid");
         else {
             var foundedToken = _.findWhere(tokenQuery[0].tokens, { access_token: access_token });
 
@@ -286,7 +295,7 @@ export class AuthService implements ServerServiceInterface {
         });
 
         if (tokenQuery.length == 0)
-            throw new Error("access_token invalid");
+            throw new ServerError(401, "access_token invalid");
         else {
             var foundedToken = _.findWhere(tokenQuery[0].tokens, { access_token: access_token });
 
@@ -294,7 +303,7 @@ export class AuthService implements ServerServiceInterface {
             foundedToken.username = tokenQuery[0].username;
 
             if (foundedToken.expires_at < Date.now())
-                throw new Error("access_token expired");
+                throw new ServerError(401, "access_token expired");
 
             return foundedToken;
 
@@ -357,7 +366,7 @@ export class AuthService implements ServerServiceInterface {
         user.password = utils.bcryptHash(newPass + user.passwordSalt);
         user.passwordChangedAt = Date.now();
         user.passwordChangedByIp = ip;
-        user.passwordChangedByUseragent = useragent;
+        user.passwordChangedByUseragent = useragent ? useragent.toString() : '';
 
 
         await this.usersCollection.updateOne(user);

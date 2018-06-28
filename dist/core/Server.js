@@ -70,20 +70,26 @@ class Server {
         return new Server(opts, worker, serverStartCallback);
     }
     static async processRequest(req, res) {
-        if (!req.url.startsWith('/api/') && Server.staticPath)
-            return ServerRouter_1.ServerRouter.processRequestToStatic(req, res);
         var requestReceived = Date.now();
         req = _1.ServerRequestHelpers(req);
         res = _1.ServerResponseHelpers(res);
         var logString = () => {
-            return `[${new Date().toString()}] [${req.method}] "${req.url}" by [${req.ip()}/${req.user ? req.user.username : 'unauthorized'}] from [${req.useragent()}] answered in ${Date.now() - requestReceived}ms`;
+            return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : 'unauthorized'}  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
         };
         ServerRouter_1.ServerRouter.routeIt(req, res).then(() => {
             // Request successfully responded
-            if (req.method.toLowerCase() != "OPTIONS")
+            if (req.method.toLowerCase() != "options")
                 console.info(`${logString()}`);
         }).catch((e) => {
-            console.error(`${logString()} => ${e.message}`);
+            if (e.code == 404 && Server.staticPath) {
+                ServerRouter_1.ServerRouter.processRequestToStatic(req, res);
+            }
+            else {
+                res.statusCode = e.code || 500;
+                res.statusMessage = e.message;
+                res.json(e);
+                console.error(`${logString()} => ${e.message}`);
+            }
         });
     }
     static redirectToHttps(httpPort, httpsPort) {

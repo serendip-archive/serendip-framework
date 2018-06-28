@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
+const Path = require("path");
 function ServerResponseHelpers(res) {
     res.sendFile = (path) => {
         // maps file extention to MIME types
@@ -35,9 +36,10 @@ function ServerResponseHelpers(res) {
                 }
                 else {
                     // based on the URL path, extract the file extention. e.g. .js, .doc, ...
-                    const ext = path.parse(path).ext;
+                    const ext = Path.parse(path).ext;
                     // if the file is found, set Content-type and send data
-                    res.setHeader('Content-type', mimeType[ext] || 'text/plain');
+                    res.setHeader('Content-type', mimeType[ext] || 'application/octet-stream');
+                    res.setHeader("content-disposition", "attachment; filename=\"" + Path.parse(path).base + "\"");
                     res.end(data);
                 }
             });

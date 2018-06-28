@@ -56,8 +56,8 @@ export class AuthController {
 
 
 
-                if (!Validator.isLength(model.password, 8, 32))
-                    return next(new ServerError(400, 'password should be between 8 and 32 char length'));
+                if (!Validator.isLength(model.password, 4, 32))
+                    return next(new ServerError(400, 'password should be between 4 and 32 char length'));
 
 
                 model.username = model.username.trim().toLowerCase();
@@ -65,9 +65,9 @@ export class AuthController {
                 next(model);
 
             },
-            async (req, res, next, done, model) => {
+            (req, res, next, done, model) => {
 
-                this.authService.registerUser(model, req.ip(), req.useragent()).then((userModel) => {
+                this.authService.registerUser(model, req.ip(), req.useragent(), false).then((userModel) => {
 
                     res.json(_.pick(userModel, 'username'));
 
@@ -233,28 +233,31 @@ export class AuthController {
 
         actions: [
 
-            async (req, res, next, done) => {
+            (req, res, next, done) => {
 
                 if (!req.body.mobile)
                     return next(new ServerError(400, 'mobile required'))
 
-                var user = await this.authService.findUserByMobile(req.body.mobile);
+                var user = this.authService.findUserByMobile(req.body.mobile).then((user) => {
 
-                if (!user)
-                    return next(new ServerError(400, 'no user found with this mobile'))
+                    if (!user)
+                        return next(new ServerError(400, 'no user found with this mobile'))
 
-                this.authService.sendVerifySms(user).then((info) => {
-                    res.json(info);
-                }).catch((e) => {
-                    res.json(e);
-                });
+                    this.authService.sendVerifySms(user);
+
+                    done(200);
+                    // .then((info) => {
+                    //     res.json(info);
+                    // }).catch((e) => {
+                    //     next(new ServerError(500, e.message));
+                    // });
+
+                }).catch(e => next(new ServerError(500, e.message)));
 
             }
 
         ]
     };
-
-
 
 
     public verifyMobile: ServerEndpointInterface = {
@@ -263,7 +266,7 @@ export class AuthController {
 
         actions: [
 
-            async (req, res, next, done) => {
+            (req, res, next, done) => {
 
                 if (!req.body.mobile)
                     return next(new ServerError(400, 'mobile required'))
@@ -271,13 +274,21 @@ export class AuthController {
                 if (!req.body.code)
                     return next(new ServerError(400, 'code required'))
 
-                var user = await this.authService.findUserByMobile(req.body.mobile);
+                this.authService.findUserByMobile(req.body.mobile).then((user) => {
+                    if (!user)
+                        return next(new ServerError(400, 'no user found with this mobile'))
 
-                if (!user)
-                    return next(new ServerError(400, 'no user found with this mobile'))
+                    this.authService.VerifyUserMobile(req.body.mobile, req.body.code)
+                        .then(() => {
 
-                await this.authService.VerifyUserMobile(req.body.mobile, req.body.code);
-                done(202, "mobile verified");
+                            done(202, "mobile verified");
+
+                        }).catch(e => next(e));
+
+
+                }).catch(e => next(e));
+
+
             }
 
         ]
@@ -425,10 +436,19 @@ export class AuthController {
                     return next(new ServerError(400, 'user/password invalid'));
 
 
+
                 var userMatchPassword = this.authService.userMatchPassword(user, req.body.password);
 
                 if (!userMatchPassword)
                     return next(new ServerError(400, 'user/password invalid'));
+
+                if (AuthService.options.mobileConfirmationRequired)
+                    if (!user.mobileVerified)
+                        return next(new ServerError(403, 'mobile not confirmed'));
+
+                if (AuthService.options.emailConfirmationRequired)
+                    if (!user.emailVerified)
+                        return next(new ServerError(403, 'email not confirmed'));
 
 
                 var userToken = await this.authService.getNewToken(user._id, req.useragent(), req.client());

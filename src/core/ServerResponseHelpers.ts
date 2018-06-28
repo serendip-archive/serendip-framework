@@ -1,6 +1,6 @@
 import * as http from 'http'
 import * as fs from 'fs'
-
+import * as Path from 'path';
 /**
  * ServerRequest 
  */
@@ -53,16 +53,17 @@ export function ServerResponseHelpers(res: http.ServerResponse | any) {
                     res.end(`Error getting the file: ${err}.`);
                 } else {
                     // based on the URL path, extract the file extention. e.g. .js, .doc, ...
-                    const ext = path.parse(path).ext;
+                    const ext = Path.parse(path).ext;
                     // if the file is found, set Content-type and send data
-                    res.setHeader('Content-type', mimeType[ext] || 'text/plain');
+                    res.setHeader('Content-type', mimeType[ext] || 'application/octet-stream');
+                    res.setHeader("content-disposition", "attachment; filename=\"" + Path.parse(path).base +"\"");
                     res.end(data);
                 }
             });
         });
 
     };
-    
+
     res.send = (data) => {
 
         res.write(data);
