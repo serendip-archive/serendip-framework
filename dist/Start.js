@@ -1,14 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("./core");
-const dotenv = require("dotenv");
 const cluster = require("cluster");
 const os_1 = require("os");
 const events_1 = require("events");
 function start(opts) {
     var workerEmitter = new events_1.EventEmitter();
     return new Promise((resolve, reject) => {
-        dotenv.config();
         var cpuCount = opts.cpuCores || os_1.cpus().length;
         var stopForking = false;
         // if this is process

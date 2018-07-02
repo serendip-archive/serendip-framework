@@ -1,5 +1,4 @@
 import { Server, ServerOptionsInterface } from "./core";
-import * as dotenv from 'dotenv';
 import * as cluster from 'cluster';
 import { cpus } from 'os';
 import { EventEmitter } from 'events';
@@ -11,8 +10,6 @@ export function start(opts?: ServerOptionsInterface) {
     var workerEmitter = new EventEmitter();
 
     return new Promise((resolve, reject) => {
-
-        dotenv.config();
 
         var cpuCount = opts.cpuCores || cpus().length;
         var stopForking = false;

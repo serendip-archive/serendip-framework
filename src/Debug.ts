@@ -9,13 +9,21 @@ import {
 } from '.';
 import { join } from 'path';
 
-AuthService.configure({});
-DbService.configure({ mongoDb: 'serendipTests', mongoUrl: 'mongodb://localhost:27017' });
+AuthService.configure({
+    tokenExpireIn: 1000 * 60 * 60
+});
+
+DbService.configure({
+    mongoDb: 'serendipTests',
+    mongoUrl: 'mongodb://localhost:27017'
+});
 start({
     cert: join(__dirname, '..', 'localhost_cert.pem'),
     key: join(__dirname, '..', 'localhost_key.pem'),
     staticPath: __dirname,
     cpuCores: 1,
+    httpPort: 2020,
+    httpsPort: 2022,
     httpsOnly: false,
     controllers: [AuthController, ServerController],
     services: [SmsIrService, EmailService, DbService, AuthService, ViewEngineService]

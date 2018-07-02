@@ -130,48 +130,43 @@ export class Server {
       opts.services = [];
 
 
-    Async.series({
-      services: (callback) => {
-        this.addServices(opts.services).then(() => callback(null, null)).catch(e => callback(e, null))
-      },
-      routes: (callback) => {
-        this.addRoutes(opts.controllers).then(() => callback(null, null)).catch(e => callback(e, null))
-      }
-    }, (err, results) => {
+    this.addServices(opts.services).then(() => {
+      this.addRoutes(opts.controllers).then(() => {
 
-      if (err)
-        return serverStartCallback(err);
 
-      Server.httpServer = http.createServer();
+        Server.httpServer = http.createServer();
 
-      if (opts.cert && opts.key) {
-        Server.httpsServer = https.createServer({
-          cert: fs.readFileSync(opts.cert),
-          key: fs.readFileSync(opts.key)
-        });
-      }
-      if (opts.httpsOnly) {
-        Server.httpsServer.on('request', Server.processRequest);
-        Server.httpServer.on('request', Server.redirectToHttps(httpPort, httpsPort));
-      }
-      else {
-        if (Server.httpsServer)
-          Server.httpsServer.on('request', Server.processRequest);
-        Server.httpServer.on('request', Server.processRequest);
-      }
-
-      Server.httpServer.listen(httpPort, () => {
-        console.log(`worker ${worker.id} running http server at port ${httpPort}`);
-        if (!Server.httpsServer)
-          return serverStartCallback();
-        else
-          Server.httpsServer.listen(httpsPort, () => {
-            console.log(`worker ${worker.id} running https server at port ${httpsPort}`);
-            if (serverStartCallback)
-              serverStartCallback();
+        if (opts.cert && opts.key) {
+          Server.httpsServer = https.createServer({
+            cert: fs.readFileSync(opts.cert),
+            key: fs.readFileSync(opts.key)
           });
-      });
-    });
+        }
+        if (opts.httpsOnly) {
+          Server.httpsServer.on('request', Server.processRequest);
+          Server.httpServer.on('request', Server.redirectToHttps(httpPort, httpsPort));
+        }
+        else {
+          if (Server.httpsServer)
+            Server.httpsServer.on('request', Server.processRequest);
+          Server.httpServer.on('request', Server.processRequest);
+        }
+  
+        Server.httpServer.listen(httpPort, () => {
+          console.log(`worker ${worker.id} running http server at port ${httpPort}`);
+          if (!Server.httpsServer)
+            return serverStartCallback();
+          else
+            Server.httpsServer.listen(httpsPort, () => {
+              console.log(`worker ${worker.id} running https server at port ${httpsPort}`);
+              if (serverStartCallback)
+                serverStartCallback();
+            });
+        });
+
+
+      }).catch(e => serverStartCallback(e))
+    }).catch(e => serverStartCallback(e));
 
   }
 

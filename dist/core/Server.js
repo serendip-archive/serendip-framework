@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bodyParser = require("body-parser");
 const http = require("http");
 const https = require("https");
-const Async = require("async");
 const _1 = require(".");
 const fs = require("fs");
 const topoSort = require("toposort");
@@ -26,44 +25,37 @@ class Server {
         Server.middlewares.unshift(bodyParser.urlencoded({ extended: false }));
         if (!opts.services)
             opts.services = [];
-        Async.series({
-            services: (callback) => {
-                this.addServices(opts.services).then(() => callback(null, null)).catch(e => callback(e, null));
-            },
-            routes: (callback) => {
-                this.addRoutes(opts.controllers).then(() => callback(null, null)).catch(e => callback(e, null));
-            }
-        }, (err, results) => {
-            if (err)
-                return serverStartCallback(err);
-            Server.httpServer = http.createServer();
-            if (opts.cert && opts.key) {
-                Server.httpsServer = https.createServer({
-                    cert: fs.readFileSync(opts.cert),
-                    key: fs.readFileSync(opts.key)
-                });
-            }
-            if (opts.httpsOnly) {
-                Server.httpsServer.on('request', Server.processRequest);
-                Server.httpServer.on('request', Server.redirectToHttps(httpPort, httpsPort));
-            }
-            else {
-                if (Server.httpsServer)
-                    Server.httpsServer.on('request', Server.processRequest);
-                Server.httpServer.on('request', Server.processRequest);
-            }
-            Server.httpServer.listen(httpPort, () => {
-                console.log(`worker ${worker.id} running http server at port ${httpPort}`);
-                if (!Server.httpsServer)
-                    return serverStartCallback();
-                else
-                    Server.httpsServer.listen(httpsPort, () => {
-                        console.log(`worker ${worker.id} running https server at port ${httpsPort}`);
-                        if (serverStartCallback)
-                            serverStartCallback();
+        this.addServices(opts.services).then(() => {
+            this.addRoutes(opts.controllers).then(() => {
+                Server.httpServer = http.createServer();
+                if (opts.cert && opts.key) {
+                    Server.httpsServer = https.createServer({
+                        cert: fs.readFileSync(opts.cert),
+                        key: fs.readFileSync(opts.key)
                     });
-            });
-        });
+                }
+                if (opts.httpsOnly) {
+                    Server.httpsServer.on('request', Server.processRequest);
+                    Server.httpServer.on('request', Server.redirectToHttps(httpPort, httpsPort));
+                }
+                else {
+                    if (Server.httpsServer)
+                        Server.httpsServer.on('request', Server.processRequest);
+                    Server.httpServer.on('request', Server.processRequest);
+                }
+                Server.httpServer.listen(httpPort, () => {
+                    console.log(`worker ${worker.id} running http server at port ${httpPort}`);
+                    if (!Server.httpsServer)
+                        return serverStartCallback();
+                    else
+                        Server.httpsServer.listen(httpsPort, () => {
+                            console.log(`worker ${worker.id} running https server at port ${httpsPort}`);
+                            if (serverStartCallback)
+                                serverStartCallback();
+                        });
+                });
+            }).catch(e => serverStartCallback(e));
+        }).catch(e => serverStartCallback(e));
     }
     // usage : starting server from ./Start.js
     static bootstrap(opts, worker, serverStartCallback) {
