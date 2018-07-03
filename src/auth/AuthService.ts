@@ -311,6 +311,41 @@ export class AuthService implements ServerServiceInterface {
 
     }
 
+    public async addUserToGroup(userId: string, group: string) {
+
+        var user = await this.findUserById(userId);
+
+        user.groups.push(group);
+
+        await this.usersCollection.updateOne(user);
+
+    }
+
+
+    public async deleteUserFromGroup(userId: string, group: string) {
+
+        var user = await this.findUserById(userId);
+
+        user.groups = _.filter(user.groups, (item: string) => {
+            return item != group
+        });
+
+        await this.usersCollection.updateOne(user);
+
+    }
+
+
+    public async getUsersInGroup(group: string) : Promise<UserModel[]> {
+        var users = await this.usersCollection.find({
+            groups: {
+                $elemMatch: { $eq: group }
+            }
+        });
+        return users;
+    }
+
+
+
     public async getNewToken(userId: string, useragent: string, client: string): Promise<UserTokenModel> {
 
 
@@ -325,6 +360,7 @@ export class AuthService implements ServerServiceInterface {
             expires_in: AuthService.options.tokenExpireIn,
             refresh_token: utils.randomAccessToken(),
             token_type: 'bearer',
+            userId: user._id,
             groups: user.groups || []
         };
 

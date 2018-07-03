@@ -180,6 +180,26 @@ class AuthService {
             return foundedToken;
         }
     }
+    async addUserToGroup(userId, group) {
+        var user = await this.findUserById(userId);
+        user.groups.push(group);
+        await this.usersCollection.updateOne(user);
+    }
+    async deleteUserFromGroup(userId, group) {
+        var user = await this.findUserById(userId);
+        user.groups = _.filter(user.groups, (item) => {
+            return item != group;
+        });
+        await this.usersCollection.updateOne(user);
+    }
+    async getUsersInGroup(group) {
+        var users = await this.usersCollection.find({
+            groups: {
+                $elemMatch: { $eq: group }
+            }
+        });
+        return users;
+    }
     async getNewToken(userId, useragent, client) {
         var user = await this.findUserById(userId);
         var userToken = {
@@ -191,6 +211,7 @@ class AuthService {
             expires_in: AuthService.options.tokenExpireIn,
             refresh_token: utils.randomAccessToken(),
             token_type: 'bearer',
+            userId: user._id,
             groups: user.groups || []
         };
         if (!user.tokens)
