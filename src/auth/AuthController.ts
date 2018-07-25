@@ -132,11 +132,56 @@ export class AuthController {
     };
 
 
+    public addUserToGroup: ServerEndpointInterface = {
+        method: 'post',
+        publicAccess: false,
+        actions: [
+            async (req, res, next, done) => {
+
+                if (req.user.groups.indexOf('admin') == -1)
+                    return next(new ServerError(401, 'admin access required'));
+
+                this.authService.addUserToGroup(req.body.user, req.body.group);
+
+                done(202, "added to group");
+
+            }
+
+        ]
+    };
+
+
+    public deleteUserFromGroup: ServerEndpointInterface = {
+        method: 'post',
+        publicAccess: false,
+        actions: [
+            async (req, res, next, done) => {
+
+                if (req.user.groups.indexOf('admin') == -1)
+                    return next(new ServerError(401, 'admin access required'));
+
+                this.authService.deleteUserFromGroup(req.body.user, req.body.group);
+
+                done(202, "removed from group");
+
+            }
+
+        ]
+    };
+
     public changePassword: ServerEndpointInterface = {
         method: 'post',
         publicAccess: false,
         actions: [
             async (req, res, next, done) => {
+
+                var userId = req.user._id;
+
+                if (req.body.user)
+                    if (req.user.groups.indexOf("admin") != -1)
+                        userId = req.body.user;
+                    else
+                        return next(new ServerError(401, 'admin access required'));
 
                 if (!req.body.password)
                     return next(new ServerError(400, 'password is missing'));
@@ -145,7 +190,8 @@ export class AuthController {
                 if (req.body.password != req.body.passwordConfirm)
                     return next(new ServerError(400, 'password and passwordConfirm do not match'));
 
-                await this.authService.setNewPassword(req.user._id, req.body.password, req.ip(), req.useragent());
+                await this.authService.setNewPassword(userId, req.body.password, req.ip(), req.useragent());
+
                 done(202, "password changed");
 
             }
@@ -387,14 +433,24 @@ export class AuthController {
                 else
                     return next(new ServerError(400, 'access token invalid'));
 
-
-
-
             }
 
         ]
     };
 
+    public sessions: ServerEndpointInterface = {
+        method: 'get',
+        publicAccess: false,
+        actions: [
+            async (req, res, next, done) => {
+
+                var model = await this.authService.getUserTokens(req.user._id);
+
+                res.json(model);
+                
+            }
+        ]
+    };
 
     public checkToken: ServerEndpointInterface = {
         method: 'post',

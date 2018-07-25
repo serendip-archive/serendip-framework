@@ -14,6 +14,12 @@ export interface AuthServiceOptionsInterface {
      */
     tokenExpireIn?: number;
 
+
+    /**
+    * maximum token count per user
+    */
+    maxTokenCount?: number;
+
     /**
      * login page path
      */
@@ -315,7 +321,8 @@ export class AuthService implements ServerServiceInterface {
 
         var user = await this.findUserById(userId);
 
-        user.groups.push(group);
+        if (user.groups.indexOf(group) == -1)
+            user.groups.push(group);
 
         await this.usersCollection.updateOne(user);
 
@@ -326,16 +333,17 @@ export class AuthService implements ServerServiceInterface {
 
         var user = await this.findUserById(userId);
 
-        user.groups = _.filter(user.groups, (item: string) => {
-            return item != group
-        });
+        if (user.groups.indexOf(group) != -1)
+            user.groups = _.filter(user.groups, (item: string) => {
+                return item != group
+            });
 
         await this.usersCollection.updateOne(user);
 
     }
 
 
-    public async getUsersInGroup(group: string) : Promise<UserModel[]> {
+    public async getUsersInGroup(group: string): Promise<UserModel[]> {
         var users = await this.usersCollection.find({
             groups: {
                 $elemMatch: { $eq: group }
@@ -345,29 +353,39 @@ export class AuthService implements ServerServiceInterface {
     }
 
 
+    
+    public async getUserTokens(userId: string): Promise<UserTokenModel[]> {
 
-    public async getNewToken(userId: string, useragent: string, client: string): Promise<UserTokenModel> {
+        var user = await this.findUserById(userId);
+        return user.tokens;
 
+    }
+
+    public async getNewToken(userId: string, useragent: any, client: string): Promise<UserTokenModel> {
 
         var user = await this.findUserById(userId);
 
         var userToken: UserTokenModel = {
             access_token: utils.randomAccessToken(),
             grant_type: 'password',
-            useragent: useragent,
+            useragent: useragent.toString(),
             client: client,
             expires_at: Date.now() + AuthService.options.tokenExpireIn,
             expires_in: AuthService.options.tokenExpireIn,
             refresh_token: utils.randomAccessToken(),
             token_type: 'bearer',
             userId: user._id,
+            username: user.username,
             groups: user.groups || []
         };
 
         if (!user.tokens)
             user.tokens = [];
 
-        user.tokens.push(userToken);
+        user.tokens.unshift(userToken);
+
+        if (user.tokens.length > AuthService.options.maxTokenCount)
+            user.tokens.pop();
 
         await this.usersCollection.updateOne(user);
 
@@ -404,6 +422,9 @@ export class AuthService implements ServerServiceInterface {
         user.passwordChangedByIp = ip;
         user.passwordChangedByUseragent = useragent ? useragent.toString() : '';
 
+
+        // terminate current sessions
+        user.tokens = [];
 
         await this.usersCollection.updateOne(user);
 

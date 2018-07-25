@@ -77,16 +77,46 @@ class AuthController {
                 }
             ]
         };
+        this.addUserToGroup = {
+            method: 'post',
+            publicAccess: false,
+            actions: [
+                async (req, res, next, done) => {
+                    if (req.user.groups.indexOf('admin') == -1)
+                        return next(new core_1.ServerError(401, 'admin access required'));
+                    this.authService.addUserToGroup(req.body.user, req.body.group);
+                    done(202, "added to group");
+                }
+            ]
+        };
+        this.deleteUserFromGroup = {
+            method: 'post',
+            publicAccess: false,
+            actions: [
+                async (req, res, next, done) => {
+                    if (req.user.groups.indexOf('admin') == -1)
+                        return next(new core_1.ServerError(401, 'admin access required'));
+                    this.authService.deleteUserFromGroup(req.body.user, req.body.group);
+                    done(202, "removed from group");
+                }
+            ]
+        };
         this.changePassword = {
             method: 'post',
             publicAccess: false,
             actions: [
                 async (req, res, next, done) => {
+                    var userId = req.user._id;
+                    if (req.body.user)
+                        if (req.user.groups.indexOf("admin") != -1)
+                            userId = req.body.user;
+                        else
+                            return next(new core_1.ServerError(401, 'admin access required'));
                     if (!req.body.password)
                         return next(new core_1.ServerError(400, 'password is missing'));
                     if (req.body.password != req.body.passwordConfirm)
                         return next(new core_1.ServerError(400, 'password and passwordConfirm do not match'));
-                    await this.authService.setNewPassword(req.user._id, req.body.password, req.ip(), req.useragent());
+                    await this.authService.setNewPassword(userId, req.body.password, req.ip(), req.useragent());
                     done(202, "password changed");
                 }
             ]
@@ -241,6 +271,16 @@ class AuthController {
                             return next(new core_1.ServerError(400, 'refresh token invalid'));
                     else
                         return next(new core_1.ServerError(400, 'access token invalid'));
+                }
+            ]
+        };
+        this.sessions = {
+            method: 'get',
+            publicAccess: false,
+            actions: [
+                async (req, res, next, done) => {
+                    var model = await this.authService.getUserTokens(req.user._id);
+                    res.json(model);
                 }
             ]
         };

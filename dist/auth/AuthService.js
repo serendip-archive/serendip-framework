@@ -182,14 +182,16 @@ class AuthService {
     }
     async addUserToGroup(userId, group) {
         var user = await this.findUserById(userId);
-        user.groups.push(group);
+        if (user.groups.indexOf(group) == -1)
+            user.groups.push(group);
         await this.usersCollection.updateOne(user);
     }
     async deleteUserFromGroup(userId, group) {
         var user = await this.findUserById(userId);
-        user.groups = _.filter(user.groups, (item) => {
-            return item != group;
-        });
+        if (user.groups.indexOf(group) != -1)
+            user.groups = _.filter(user.groups, (item) => {
+                return item != group;
+            });
         await this.usersCollection.updateOne(user);
     }
     async getUsersInGroup(group) {
@@ -200,23 +202,30 @@ class AuthService {
         });
         return users;
     }
+    async getUserTokens(userId) {
+        var user = await this.findUserById(userId);
+        return user.tokens;
+    }
     async getNewToken(userId, useragent, client) {
         var user = await this.findUserById(userId);
         var userToken = {
             access_token: utils.randomAccessToken(),
             grant_type: 'password',
-            useragent: useragent,
+            useragent: useragent.toString(),
             client: client,
             expires_at: Date.now() + AuthService.options.tokenExpireIn,
             expires_in: AuthService.options.tokenExpireIn,
             refresh_token: utils.randomAccessToken(),
             token_type: 'bearer',
             userId: user._id,
+            username: user.username,
             groups: user.groups || []
         };
         if (!user.tokens)
             user.tokens = [];
-        user.tokens.push(userToken);
+        user.tokens.unshift(userToken);
+        if (user.tokens.length > AuthService.options.maxTokenCount)
+            user.tokens.pop();
         await this.usersCollection.updateOne(user);
         return userToken;
     }
@@ -236,6 +245,8 @@ class AuthService {
         user.passwordChangedAt = Date.now();
         user.passwordChangedByIp = ip;
         user.passwordChangedByUseragent = useragent ? useragent.toString() : '';
+        // terminate current sessions
+        user.tokens = [];
         await this.usersCollection.updateOne(user);
     }
     async findClientById(clientId) {
