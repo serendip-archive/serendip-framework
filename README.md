@@ -1,9 +1,8 @@
-
-# :blush: [Documentation at Wiki](https://github.com/m-esm/serendip/wiki)
-
+![alt text](https://raw.githubusercontent.com/m-esm/serendip/master/readme_header.png "serendip_header")
 ___
 # SERENDIP Framework
-> It's a Node.js web framework it will provide you :
+
+> It's a Node.js web framework. it will provide you :
 
 | Service / feature | Description | status |
 |-|-|-|
