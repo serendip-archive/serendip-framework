@@ -234,9 +234,11 @@ export class Server {
 
         var serviceObject: ServerServiceInterface;
 
+        if (!servicesToStart[serviceName])
+          return reject(`"${serviceName}" not imported in start method. it's a dependency of another service.`);
+
         try {
           serviceObject = new servicesToStart[serviceName];
-
         } catch (e) {
           e.message = `Server Service Error in "${serviceName}"\n` + e.message;
           reject(e);

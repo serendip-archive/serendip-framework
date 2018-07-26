@@ -9,29 +9,17 @@ import { EmailService, SmsIrService } from "..";
 import { SmsServiceProviderInterface } from "../sms";
 
 export interface AuthServiceOptionsInterface {
-
     /**
      * in milliseconds
      */
     tokenExpireIn?: number;
-
-
     /**
     * maximum token count per user
     */
     maxTokenCount?: number;
-
-    /**
-     * login page path
-     */
-    loginPage?: string;
-
     mobileConfirmationRequired?: boolean;
     emailConfirmationRequired?: boolean;
-
     smsProvider?: string;
-
-
 }
 
 export class AuthService implements ServerServiceInterface {

@@ -123,6 +123,8 @@ class Server {
             function startService(index) {
                 var serviceName = sortedDependencies[index];
                 var serviceObject;
+                if (!servicesToStart[serviceName])
+                    return reject(`"${serviceName}" not imported in start method. it's a dependency of another service.`);
                 try {
                     serviceObject = new servicesToStart[serviceName];
                 }
