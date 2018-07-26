@@ -1,21 +1,22 @@
-export class ServerError {
+export class ServerError extends Error {
 
-    constructor(code: number, message: string, errorId?: string, more_info?: string) {
+    constructor(code: number, message: string, id?: string) {
+
+        super(message);
 
         this.code = code;
-        this.message = message;
-        
-        if (errorId)
-            this.errorId = errorId;
+        this.description = message;
+        this.stacktrace = this.stack;
+        if (id)
+            this.id = id;
 
-        if (more_info)
-            this.more_info = more_info;
     }
 
 
     public code: number;
-    public message: string;
-    public errorId: string ;
+    public description: string;
+    public stacktrace: string;
+    public id: string;
     public more_info: string;
 
 

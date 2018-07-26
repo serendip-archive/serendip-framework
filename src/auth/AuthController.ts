@@ -447,7 +447,7 @@ export class AuthController {
                 var model = await this.authService.getUserTokens(req.user._id);
 
                 res.json(model);
-                
+
             }
         ]
     };
@@ -475,6 +475,8 @@ export class AuthController {
         actions: [
             async (req, res, next, done) => {
 
+                if (req.body.grant_type != 'password')
+                    return next();
 
                 var user: UserModel = null;
 
@@ -513,6 +515,11 @@ export class AuthController {
 
                 res.json(userToken);
 
+
+            },
+            async (req, res, next, done) => {
+
+                
 
             }
 

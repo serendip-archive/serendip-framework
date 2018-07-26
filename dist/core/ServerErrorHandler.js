@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class ServerError {
-    constructor(code, message, errorId, more_info) {
+class ServerError extends Error {
+    constructor(code, message, id) {
+        super(message);
         this.code = code;
-        this.message = message;
-        if (errorId)
-            this.errorId = errorId;
-        if (more_info)
-            this.more_info = more_info;
+        this.description = message;
+        this.stacktrace = this.stack;
+        if (id)
+            this.id = id;
     }
 }
 exports.ServerError = ServerError;

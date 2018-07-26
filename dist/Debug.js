@@ -4,7 +4,8 @@ const Start_1 = require("./Start");
 const _1 = require(".");
 const path_1 = require("path");
 _1.AuthService.configure({
-    tokenExpireIn: 1000 * 60 * 60
+    tokenExpireIn: 1000 * 60 * 60,
+    smsProvider: 'SmsIrService'
 });
 _1.DbService.configure({
     mongoDb: 'serendipTests',
@@ -23,5 +24,6 @@ Start_1.start({
 }).then(() => {
     console.log('Server workers started successfully!');
 }).catch((err) => {
-    console.error(`Server start error : "${err}"`);
+    console.error(err);
+    process.exit();
 });

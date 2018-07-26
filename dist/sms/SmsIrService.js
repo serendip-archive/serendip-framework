@@ -2,6 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const request = require("request");
 class SmsIrService {
+    constructor() {
+        if (!SmsIrService.options.apiKey ||
+            !SmsIrService.options.lineNumber ||
+            !SmsIrService.options.secretKey)
+            throw new Error('Configure SmsIrService options.');
+    }
     static configure(options) {
         SmsIrService.options = options;
     }
@@ -127,4 +133,5 @@ class SmsIrService {
     }
 }
 SmsIrService.dependencies = ["DbService"];
+SmsIrService.options = { apiKey: '', lineNumber: '', secretKey: '' };
 exports.SmsIrService = SmsIrService;

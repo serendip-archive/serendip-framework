@@ -298,6 +298,8 @@ class AuthController {
             publicAccess: true,
             actions: [
                 async (req, res, next, done) => {
+                    if (req.body.grant_type != 'password')
+                        return next();
                     var user = null;
                     user = await this.authService.findUserByUsername(req.body.username);
                     if (!user)
@@ -318,6 +320,8 @@ class AuthController {
                     var userToken = await this.authService.getNewToken(user._id, req.useragent(), req.client());
                     userToken.username = user.username;
                     res.json(userToken);
+                },
+                async (req, res, next, done) => {
                 }
             ]
         };

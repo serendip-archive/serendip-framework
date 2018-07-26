@@ -5,15 +5,27 @@ import { EventEmitter } from 'events';
 
 export function start(opts?: ServerOptionsInterface) {
 
+    if (!opts.controllers)
+        opts.controllers = [];
+
+    if (!opts.services)
+        opts.services = [];
 
 
     var workerEmitter = new EventEmitter();
 
     return new Promise((resolve, reject) => {
 
-        var cpuCount = opts.cpuCores || cpus().length;
-        var stopForking = false;
+        var cpuCount = 1;
+        //opts.cpuCores || cpus().length
 
+        if (opts.cpuCores)
+            if (opts.cpuCores == 'max')
+                cpuCount = cpus().length;
+            else
+                cpuCount = parseInt(opts.cpuCores.toString());
+
+        var stopForking = false;
 
         // if this is process
         if (cluster.isMaster && cpuCount > 1) {

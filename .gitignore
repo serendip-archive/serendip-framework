@@ -1,5 +1,6 @@
 node_modules
 logs
-
+src/debug_ignore.ts
+dist/debug_ignore.js
 *.rar
 *.zip

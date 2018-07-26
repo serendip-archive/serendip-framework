@@ -9,10 +9,11 @@ class AuthService {
     constructor() {
         this.dbService = core_1.Server.services["DbService"];
         this.emailService = core_1.Server.services["EmailService"];
-        this.smsIrService = core_1.Server.services["SmsIrService"];
     }
     static configure(options) {
         AuthService.options = _.extend(AuthService.options, options);
+        if (options.smsProvider)
+            AuthService.dependencies.push(options.smsProvider);
     }
     async start() {
         this.clientsCollection = await this.dbService.collection("Clients");
@@ -42,7 +43,10 @@ class AuthService {
         });
     }
     sendVerifySms(userModel) {
-        return this.smsIrService.sendVerification(userModel.mobile, userModel.mobileVerificationCode);
+        if (AuthService.options.smsProvider)
+            return core_1.Server.services[AuthService.options.smsProvider].sendVerification(userModel.mobile, userModel.mobileVerificationCode);
+        else
+            throw new core_1.ServerError(500, "no sms provider");
     }
     async refreshRestrictions() {
         this.restrictions = await this.restrictionCollection.find({});
@@ -236,7 +240,10 @@ class AuthService {
         user.passwordResetTokenIssueAt = Date.now();
         await this.usersCollection.updateOne(user);
         if (user.mobile)
-            return this.smsIrService.sendVerification(user.mobile, user.passwordResetToken);
+            if (AuthService.options.smsProvider)
+                return core_1.Server.services[AuthService.options.smsProvider].sendVerification(user.mobile, user.passwordResetToken);
+            else
+                throw new Error("no sms provider");
     }
     async setNewPassword(userId, newPass, ip, useragent) {
         var user = await this.findUserById(userId);
@@ -292,8 +299,8 @@ class AuthService {
             return query[0];
     }
 }
-AuthService.dependencies = ["DbService", "SmsIrService", "EmailService"];
 AuthService.options = {
     tokenExpireIn: 1000 * 60 * 60 * 2
 };
+AuthService.dependencies = ["DbService", "EmailService"];
 exports.AuthService = AuthService;

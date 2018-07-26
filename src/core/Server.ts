@@ -20,6 +20,7 @@ import {
 } from '.';
 
 import * as fs from 'fs'
+import * as _ from 'underscore'
 
 import * as topoSort from 'toposort'
 
@@ -29,7 +30,7 @@ import { AuthService } from '../auth';
 import { EmailService } from '../email';
 import { ServerRequestInterface } from './interfaces/ServerRequestInterface';
 import { ServerError } from './ServerErrorHandler';
-
+import { ServerResponseInterface } from './interfaces/ServerResponseInterface'
 
 /**
  *  Will contain everything that we need from server
@@ -80,20 +81,40 @@ export class Server {
 
     };
 
-    ServerRouter.routeIt(req, res).then(() => {
-      // Request successfully responded
+    ServerRouter.routeIt(req, res).then((data) => {
+
+      // Request gone through all middlewares and actions for matched route
+
+      if (!res.finished)
+        if (data)
+          res.json(data);
+        else
+          res.end();
+
       if (req.method.toLowerCase() != "options")
         console.info(`${logString()}`);
 
     }).catch((e: any) => {
 
       if (e.code == 404 && Server.staticPath) {
-        ServerRouter.processRequestToStatic(req, res);
+
+        ServerRouter.processRequestToStatic(req, res, (code, filePath) => {
+
+          if (code == 200)
+            console.error(`${logString()} => Download started [${filePath}]`);
+
+
+        });
+
       } else {
         res.statusCode = e.code || 500;
         res.statusMessage = e.message;
-        res.json(e);
-        console.error(`${logString()} => ${e.message}`);
+        res.json(_.pick(e, 'code', 'description'));
+
+        if (Server.opts.devMode)
+          console.error(`${logString()} [Error]\n`, e);
+        else
+          console.error(`${logString()} [Error]\n`, e.message);
       }
 
     });
@@ -151,7 +172,7 @@ export class Server {
             Server.httpsServer.on('request', Server.processRequest);
           Server.httpServer.on('request', Server.processRequest);
         }
-  
+
         Server.httpServer.listen(httpPort, () => {
           console.log(`worker ${worker.id} running http server at port ${httpPort}`);
           if (!Server.httpsServer)
@@ -216,8 +237,9 @@ export class Server {
         try {
           serviceObject = new servicesToStart[serviceName];
 
-        } catch{
-          reject(`${serviceName} not imported in server start.`);
+        } catch (e) {
+          e.message = `Server Service Error in "${serviceName}"\n` + e.message;
+          reject(e);
         }
 
         Server.services[serviceName] = serviceObject;

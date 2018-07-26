@@ -10,7 +10,8 @@ import {
 import { join } from 'path';
 
 AuthService.configure({
-    tokenExpireIn: 1000 * 60 * 60
+    tokenExpireIn: 1000 * 60 * 60,
+    smsProvider : 'SmsIrService'
 });
 
 DbService.configure({
@@ -33,7 +34,7 @@ start({
 
 }).catch((err) => {
 
-    console.error(`Server start error : "${err}"`);
-
+    console.error(err);
+    process.exit();
 
 });

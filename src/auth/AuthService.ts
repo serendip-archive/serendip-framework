@@ -6,6 +6,7 @@ import { UserModel, UserTokenModel, RestrictionModel, ClientModel } from "./mode
 import { UserRegisterRequestInterface, AccessTokenRequestInterface } from "./interfaces";
 import * as _ from 'underscore';
 import { EmailService, SmsIrService } from "..";
+import { SmsServiceProviderInterface } from "../sms";
 
 export interface AuthServiceOptionsInterface {
 
@@ -28,6 +29,8 @@ export interface AuthServiceOptionsInterface {
     mobileConfirmationRequired?: boolean;
     emailConfirmationRequired?: boolean;
 
+    smsProvider?: string;
+
 
 }
 
@@ -37,19 +40,21 @@ export class AuthService implements ServerServiceInterface {
 
     static configure(options: AuthServiceOptionsInterface): void {
         AuthService.options = _.extend(AuthService.options, options);
+        if (options.smsProvider)
+            AuthService.dependencies.push(options.smsProvider);
     }
 
-
-    static dependencies = ["DbService", "SmsIrService", "EmailService"];
 
     static options: AuthServiceOptionsInterface = {
         tokenExpireIn: 1000 * 60 * 60 * 2
     };
 
+    static dependencies = ["DbService", "EmailService"];
+
+
 
     private dbService: DbService;
     private emailService: EmailService;
-    private smsIrService: SmsIrService;
 
     public usersCollection: DbCollection<UserModel>;
     public clientsCollection: DbCollection<ClientModel>;
@@ -61,7 +66,6 @@ export class AuthService implements ServerServiceInterface {
     constructor() {
         this.dbService = Server.services["DbService"];
         this.emailService = Server.services["EmailService"];
-        this.smsIrService = Server.services["SmsIrService"];
     }
 
     async start() {
@@ -109,8 +113,10 @@ export class AuthService implements ServerServiceInterface {
 
     public sendVerifySms(userModel: UserModel): Promise<any> {
 
-        return this.smsIrService.sendVerification(userModel.mobile, userModel.mobileVerificationCode);
-
+        if (AuthService.options.smsProvider)
+            return Server.services[AuthService.options.smsProvider].sendVerification(userModel.mobile, userModel.mobileVerificationCode);
+        else
+            throw new ServerError(500,"no sms provider");
     }
 
     public async refreshRestrictions() {
@@ -353,7 +359,7 @@ export class AuthService implements ServerServiceInterface {
     }
 
 
-    
+
     public async getUserTokens(userId: string): Promise<UserTokenModel[]> {
 
         var user = await this.findUserById(userId);
@@ -407,7 +413,10 @@ export class AuthService implements ServerServiceInterface {
         await this.usersCollection.updateOne(user);
 
         if (user.mobile)
-            return this.smsIrService.sendVerification(user.mobile, user.passwordResetToken);
+            if (AuthService.options.smsProvider)
+                return Server.services[AuthService.options.smsProvider].sendVerification(user.mobile, user.passwordResetToken);
+            else
+                throw new Error("no sms provider");
 
     }
 

@@ -18,11 +18,18 @@ export class SmsIrService implements ServerServiceInterface, SmsServiceProviderI
     static dependencies = ["DbService"];
 
 
-    static options: SmsIrServiceOptionsInterface;
+    static options: SmsIrServiceOptionsInterface = { apiKey: '', lineNumber: '', secretKey: '' };
 
 
     static configure(options: SmsIrServiceOptionsInterface): void {
         SmsIrService.options = options;
+    }
+
+    constructor() {
+        if (!SmsIrService.options.apiKey ||
+            !SmsIrService.options.lineNumber ||
+            !SmsIrService.options.secretKey)
+            throw new Error('Configure SmsIrService options.')
     }
 
     private token: string;

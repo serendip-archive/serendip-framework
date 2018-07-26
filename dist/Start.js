@@ -5,9 +5,19 @@ const cluster = require("cluster");
 const os_1 = require("os");
 const events_1 = require("events");
 function start(opts) {
+    if (!opts.controllers)
+        opts.controllers = [];
+    if (!opts.services)
+        opts.services = [];
     var workerEmitter = new events_1.EventEmitter();
     return new Promise((resolve, reject) => {
-        var cpuCount = opts.cpuCores || os_1.cpus().length;
+        var cpuCount = 1;
+        //opts.cpuCores || cpus().length
+        if (opts.cpuCores)
+            if (opts.cpuCores == 'max')
+                cpuCount = os_1.cpus().length;
+            else
+                cpuCount = parseInt(opts.cpuCores.toString());
         var stopForking = false;
         // if this is process
         if (cluster.isMaster && cpuCount > 1) {

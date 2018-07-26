@@ -1,5 +1,7 @@
 
-[Documentation at Wiki](https://github.com/m-esm/serendip/wiki)
+# :blush: [Documentation at Wiki](https://github.com/m-esm/serendip/wiki)
+
+___
 # SERENDIP Framework
 > It's a Node.js web framework it will provide you :
 
@@ -24,103 +26,10 @@
 ## Installing
 using npm : 
 ```
-npm install serendip
+npm install serendip 
 ```
 
-
----
-
-## Examples
-### TypeScript Example :
-#### 1. Hello world :
-```javascript
-import * as serendip from 'serendip'
-
-class fooController {
-    constructor() {
-
-    }
-
-    /**
-     * GET /api/foo/hi
-     */
-    hi: serendip.ServerEndpointInterface = {
-        method: 'get',
-        public : true,
-        actions: [
-            (req, res, next, done) => {
-                res.write('<h1>Hello</h1>');
-                next();
-
-            },
-            (req, res, next, done) => {
-
-                res.write('<h2>World</h2>');
-                done();
-
-            }
-        ]
-    }
-
-}
-
-serendip.start({
-
-    controllers: [ fooController ],
-    cpuCores: 1,
-    httpPort: 3000
-
-});
-
-```
-### Javascript Example :
-#### 1. Hello world :
-```javascript
-var serendip = require('serendip');
- 
-// GET /api/foo/(endpoint)
-class fooController {
- 
-    constructor() {
- 
-        //  GET /api/foo/hi
-        this.hi = {
-			public:true,
-            method: 'get',
-            // action to be executed in series
-            actions: [
-                (req, res, next, done) => {
- 
-                    // send model with next callback
-                    next({ message: 'hello world !' })
- 
-                },
-                (req, res, next, done, model) => {
- 
-                    res.json(model);
-                    done();
-                }
-            ]
-        }
-    }
- 
-}
- 
- 
-// starting application
-serendip.start({
-    // controllers who are responsible to api requests
-
-    controllers: [ fooController ],
-    // Specify or by default all cores will be used
-    cpuCores: 1,
-    // port to listen on
-    httpPort: 3000
-}).then(()=>{}).catch((e)=>{console.error(e)});
-
-```
-
-
+> ### :information_source: more information at [Wiki](https://github.com/m-esm/serendip/wiki)
 
 * collaboration, issue reporting kindly accepted
 * Contact m-esm@hotmail.com 

@@ -18,17 +18,19 @@ export class ServerRouter {
     }
 
 
-    static processRequestToStatic(req: http.IncomingMessage, res: http.ServerResponse): void {
-
+    static processRequestToStatic(req: http.IncomingMessage, res: http.ServerResponse, callback): void {
 
         var filePath = path.join(Server.staticPath, req.url.split('?')[0]);
+
         fs.stat(filePath, (err, stat) => {
 
             if (err) {
                 res.writeHead(404);
                 res.end();
 
-                return;
+
+
+                return callback(404);
 
             }
 
@@ -45,11 +47,13 @@ export class ServerRouter {
 
                     var readStream = fs.createReadStream(filePath);
                     readStream.pipe(res);
+                    callback(200,filePath);
 
                 } else {
 
                     res.writeHead(404);
                     res.end();
+                    return callback(404);
 
                 }
 
@@ -145,7 +149,7 @@ export class ServerRouter {
                         actionIndex++;
 
                         if (actions.length == actionIndex)
-                            return resolve(actionIndex);
+                            return resolve(model);
 
 
                         executeActions(model);
@@ -155,7 +159,7 @@ export class ServerRouter {
                         res.statusCode = statusCode || 200;
                         res.statusMessage = statusMessage;
                         res.end();
-                        resolve(actionIndex);
+                        resolve();
                     },
                         passedModel);
 
@@ -178,7 +182,7 @@ export class ServerRouter {
         });
     }
 
-    static routeIt(req: ServerRequestInterface, res: ServerResponseInterface): Promise<void> {
+    static routeIt(req: ServerRequestInterface, res: ServerResponseInterface): Promise<any> {
 
         return new Promise((resolve, reject) => {
 
@@ -236,8 +240,8 @@ export class ServerRouter {
 
                     authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint, srvRoute.publicAccess).then(() => {
 
-                        ServerRouter.executeRoute(srvRoute, req, res).then(() => {
-                            resolve();
+                        ServerRouter.executeRoute(srvRoute, req, res).then((data) => {
+                            resolve(data);
                         }).catch(e => {
                             reject(e);
                         });

@@ -10,13 +10,13 @@ const mime = require("mime-types");
 class ServerRouter {
     constructor() {
     }
-    static processRequestToStatic(req, res) {
+    static processRequestToStatic(req, res, callback) {
         var filePath = path.join(_1.Server.staticPath, req.url.split('?')[0]);
         fs.stat(filePath, (err, stat) => {
             if (err) {
                 res.writeHead(404);
                 res.end();
-                return;
+                return callback(404);
             }
             if (stat.isDirectory())
                 filePath = path.join(filePath, 'index.html');
@@ -27,10 +27,12 @@ class ServerRouter {
                     });
                     var readStream = fs.createReadStream(filePath);
                     readStream.pipe(res);
+                    callback(200, filePath);
                 }
                 else {
                     res.writeHead(404);
                     res.end();
+                    return callback(404);
                 }
             });
         });
@@ -78,13 +80,13 @@ class ServerRouter {
                         // Execute next
                         actionIndex++;
                         if (actions.length == actionIndex)
-                            return resolve(actionIndex);
+                            return resolve(model);
                         executeActions(model);
                     }, function _done(statusCode, statusMessage) {
                         res.statusCode = statusCode || 200;
                         res.statusMessage = statusMessage;
                         res.end();
-                        resolve(actionIndex);
+                        resolve();
                     }, passedModel);
                     if (action)
                         if (action.then)
@@ -135,8 +137,8 @@ class ServerRouter {
                         res.setHeader('Access-Control-Allow-Origin', clientUrl.protocol + '//' + clientUrl.host);
                     }
                     authService.authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint, srvRoute.publicAccess).then(() => {
-                        ServerRouter.executeRoute(srvRoute, req, res).then(() => {
-                            resolve();
+                        ServerRouter.executeRoute(srvRoute, req, res).then((data) => {
+                            resolve(data);
                         }).catch(e => {
                             reject(e);
                         });

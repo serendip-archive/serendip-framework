@@ -24,12 +24,19 @@ var run = function () {
         if (server.kill)
             server.kill();
 
-    server = child.spawn('node', ['./dist/debug.js']);
+    server = child.spawn('node', ['./dist/debug_ignore.js']);
 
     server.stdout.on('data', function (chunk) {
 
         serverLog.write(chunk.toString());
         console.info(chunk.toString());
+
+    });
+
+    server.on('exit', function (data) {
+
+        console.log('application exited/terminated with code : ', data);
+        //process.exit();
 
     });
 

@@ -25,7 +25,12 @@ class DbService {
         this.db = mongoClient.db(DbService.options.mongoDb);
     }
     async start() {
-        await this.connect();
+        try {
+            await this.connect();
+        }
+        catch (error) {
+            throw new Error('Unable to connect to MongoDb. ' + error.message);
+        }
         var mongoCollectionObjects = await this.db.collections();
         mongoCollectionObjects.map((obj) => {
             this.mongoCollections.push(obj.collectionName);
