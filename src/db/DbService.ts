@@ -44,7 +44,7 @@ export class DbService implements ServerServiceInterface {
     public async connect() {
 
         // Creating mongoDB client from mongoUrl
-        var mongoClient = await MongoClient.connect(DbService.options.mongoUrl);
+        var mongoClient = await MongoClient.connect(DbService.options.mongoUrl, { useNewUrlParser: true });
 
         this.db = mongoClient.db(DbService.options.mongoDb);
 

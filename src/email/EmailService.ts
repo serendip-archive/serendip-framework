@@ -121,8 +121,6 @@ export class EmailService implements ServerServiceInterface {
                 this.outboxCollection.insertOne(emailModel);
 
                 resolve(info);
-
-
             });
 
 

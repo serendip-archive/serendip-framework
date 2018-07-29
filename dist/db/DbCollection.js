@@ -43,7 +43,7 @@ class DbCollection {
         });
     }
     count(query) {
-        return this._collection.count(query);
+        return this._collection.find(query).count();
     }
     aggregate(pipeline) {
         return this._collection.aggregate(pipeline);

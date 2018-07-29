@@ -65,7 +65,7 @@ export class DbCollection<T>{
     }
 
     public count(query): Promise<Number> {
-        return this._collection.count(query);
+        return this._collection.find(query).count();
     }
 
 
