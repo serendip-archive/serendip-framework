@@ -9,6 +9,7 @@ export interface ServerRouteInterface {
     controllerName: string;
     endpoint: string;
     publicAccess:boolean;
+    isStream : boolean;
   
   }
   

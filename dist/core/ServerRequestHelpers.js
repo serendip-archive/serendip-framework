@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ua = require("useragent");
 function ServerRequestHelpers(req) {
     req.useragent = () => {
+        if (!req.headers["user-agent"])
+            return '';
         return ua.parse(req.headers["user-agent"].toString());
     };
     req.client = () => {

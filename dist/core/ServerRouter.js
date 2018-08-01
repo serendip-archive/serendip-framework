@@ -7,6 +7,7 @@ const qs = require("qs");
 const path = require("path");
 const fs = require("fs");
 const mime = require("mime-types");
+const _ = require("underscore");
 class ServerRouter {
     constructor() {
     }
@@ -61,22 +62,25 @@ class ServerRouter {
             // creating object from controllerClass 
             // Reason : basically because we need to run constructor
             var controllerObject = srvRoute.controllerObject;
-            var actions = (controllerObject[srvRoute.endpoint].actions);
+            var actions = _.clone((controllerObject[srvRoute.endpoint].actions));
             if (controllerObject["onRequest"])
                 actions.unshift(controllerObject["onRequest"]);
             _1.Server.middlewares.forEach((middle) => actions.unshift(middle));
             // starting from first action
             var actionIndex = 0;
+            console.log(actions);
             res.on('finish', () => resolve(actionIndex));
             var executeActions = function (passedModel) {
+                var action;
                 try {
-                    var action = actions[actionIndex](req, res, function _next(model) {
+                    action = actions[actionIndex](req, res, function _next(model) {
                         if (model)
                             if (model.constructor)
                                 if (model.constructor.name == "ServerError") {
                                     reject(model);
                                     return;
                                 }
+                        console.log(model, actions.length, actionIndex);
                         // Execute next
                         actionIndex++;
                         if (actions.length == actionIndex)
@@ -88,22 +92,20 @@ class ServerRouter {
                         res.end();
                         resolve();
                     }, passedModel);
-                    if (action)
-                        if (action.then)
-                            action.then(() => {
-                                resolve();
-                            }).catch((e) => {
-                                reject(new _1.ServerError(500, e.message));
-                            });
                 }
                 catch (error) {
                     reject(error);
                 }
+                if (action)
+                    action.then((data) => {
+                    }).catch((e) => {
+                        reject(new _1.ServerError(500, e.message));
+                    });
             };
             executeActions(null);
         });
     }
-    static routeIt(req, res) {
+    static routeIt(req, res, srvRoute) {
         return new Promise((resolve, reject) => {
             if (_1.Server.opts.cors)
                 res.setHeader('Access-Control-Allow-Origin', _1.Server.opts.cors);
@@ -116,8 +118,6 @@ class ServerRouter {
                 resolve();
                 return;
             }
-            // finding controller by path
-            var srvRoute = ServerRouter.findSrvRoute(req);
             // Check if controller exist and requested method matches 
             if (!srvRoute) {
                 var err = new _1.ServerError(404, `[${req.method.toUpperCase()} ${req.url}] route not found !`);
@@ -125,8 +125,8 @@ class ServerRouter {
             }
             var authService = _1.Server.services["AuthService"];
             if (!authService)
-                ServerRouter.executeRoute(srvRoute, req, res).then(() => {
-                    resolve();
+                ServerRouter.executeRoute(srvRoute, req, res).then((data) => {
+                    resolve(data);
                 }).catch(e => {
                     reject(e);
                 });

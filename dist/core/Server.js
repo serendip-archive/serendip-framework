@@ -66,18 +66,22 @@ class Server {
         var requestReceived = Date.now();
         req = _1.ServerRequestHelpers(req);
         res = _1.ServerResponseHelpers(res);
+        // finding controller by path
+        var srvRoute = ServerRouter_1.ServerRouter.findSrvRoute(req);
         var logString = () => {
             return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : 'unauthorized'}  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
         };
-        ServerRouter_1.ServerRouter.routeIt(req, res).then((data) => {
+        ServerRouter_1.ServerRouter.routeIt(req, res, srvRoute).then((data) => {
             // Request gone through all middlewares and actions for matched route
-            if (!res.finished)
-                if (data)
-                    res.json(data);
-                else
-                    res.end();
-            if (req.method.toLowerCase() != "options")
-                console.info(`${logString()}`);
+            if (req.method.toLowerCase() != "options" && srvRoute) {
+                if (!srvRoute.isStream)
+                    if (!res.finished)
+                        if (data)
+                            res.json(data);
+                        else
+                            res.end();
+                console.info(`${logString()} ${srvRoute.isStream ? ' stream started!' : ''}`);
+            }
         }).catch((e) => {
             if (e.code == 404 && Server.staticPath) {
                 ServerRouter_1.ServerRouter.processRequestToStatic(req, res, (code, filePath) => {
@@ -173,6 +177,7 @@ class Server {
                         endpoint.route = '/' + endpoint.route;
                 var serverRoute = {
                     route: endpoint.route || controllerUrl,
+                    isStream: endpoint.isStream,
                     method: endpoint.method,
                     publicAccess: endpoint.publicAccess || false,
                     endpoint: controllerEndpointName,

@@ -75,24 +75,31 @@ export class Server {
     req = ServerRequestHelpers(req);
     res = ServerResponseHelpers(res);
 
+
+    // finding controller by path
+    var srvRoute = ServerRouter.findSrvRoute(req);
+
     var logString = () => {
 
       return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : 'unauthorized'}  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
 
     };
 
-    ServerRouter.routeIt(req, res).then((data) => {
+
+
+    ServerRouter.routeIt(req, res, srvRoute).then((data) => {
 
       // Request gone through all middlewares and actions for matched route
+      if (req.method.toLowerCase() != "options" && srvRoute) {
+        if (!srvRoute.isStream)
+          if (!res.finished)
+            if (data)
+              res.json(data);
+            else
+              res.end();
 
-      if (!res.finished)
-        if (data)
-          res.json(data);
-        else
-          res.end();
-
-      if (req.method.toLowerCase() != "options")
-        console.info(`${logString()}`);
+        console.info(`${logString()} ${srvRoute.isStream ? ' stream started!' : ''}`);
+      }
 
     }).catch((e: any) => {
 
@@ -311,6 +318,7 @@ export class Server {
 
         var serverRoute: ServerRouteInterface = {
           route: endpoint.route || controllerUrl,
+          isStream: endpoint.isStream,
           method: endpoint.method,
           publicAccess: endpoint.publicAccess || false,
           endpoint: controllerEndpointName,

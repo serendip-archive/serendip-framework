@@ -7,6 +7,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as http from 'http'
 import * as mime from 'mime-types'
+import * as _ from 'underscore'
 
 export class ServerRouter {
 
@@ -47,7 +48,7 @@ export class ServerRouter {
 
                     var readStream = fs.createReadStream(filePath);
                     readStream.pipe(res);
-                    callback(200,filePath);
+                    callback(200, filePath);
 
                 } else {
 
@@ -115,7 +116,7 @@ export class ServerRouter {
             // Reason : basically because we need to run constructor
             var controllerObject = srvRoute.controllerObject;
 
-            var actions: ServerEndpointActionInterface[] = (controllerObject[srvRoute.endpoint].actions);
+            var actions: ServerEndpointActionInterface[] = _.clone((controllerObject[srvRoute.endpoint].actions));
 
             if (controllerObject["onRequest"])
                 actions.unshift(controllerObject["onRequest"]);
@@ -125,15 +126,17 @@ export class ServerRouter {
 
             // starting from first action
             var actionIndex = 0;
+            console.log(actions);
+
 
             res.on('finish', () => resolve(actionIndex));
 
 
             var executeActions = function (passedModel) {
-
+                var action;
                 try {
 
-                    var action = actions[actionIndex](req, res, function _next(model) {
+                    action = actions[actionIndex](req, res, function _next(model) {
 
 
                         if (model)
@@ -145,15 +148,16 @@ export class ServerRouter {
 
                                 }
 
+                        console.log(model, actions.length, actionIndex);
+
                         // Execute next
                         actionIndex++;
+
 
                         if (actions.length == actionIndex)
                             return resolve(model);
 
-
                         executeActions(model);
-
 
                     }, function _done(statusCode?: number, statusMessage?: string) {
                         res.statusCode = statusCode || 200;
@@ -163,17 +167,19 @@ export class ServerRouter {
                     },
                         passedModel);
 
-                    if (action)
-                        if (action.then)
-                            action.then(() => {
-                                resolve();
-                            }).catch((e: Error) => {
-                                reject(new ServerError(500, e.message));
-                            });
-
                 } catch (error) {
                     reject(error);
                 }
+
+
+                if (action)
+                    action.then((data) => {
+
+                    }).catch((e: Error) => {
+                        reject(new ServerError(500, e.message));
+                    });
+
+
 
             };
 
@@ -182,7 +188,7 @@ export class ServerRouter {
         });
     }
 
-    static routeIt(req: ServerRequestInterface, res: ServerResponseInterface): Promise<any> {
+    static routeIt(req: ServerRequestInterface, res: ServerResponseInterface, srvRoute: ServerRouteInterface): Promise<any> {
 
         return new Promise((resolve, reject) => {
 
@@ -206,9 +212,6 @@ export class ServerRouter {
             }
 
 
-            // finding controller by path
-            var srvRoute = ServerRouter.findSrvRoute(req);
-
             // Check if controller exist and requested method matches 
             if (!srvRoute) {
 
@@ -222,9 +225,9 @@ export class ServerRouter {
             var authService: AuthService = Server.services["AuthService"];
 
             if (!authService)
-                ServerRouter.executeRoute(srvRoute, req, res).then(() => {
+                ServerRouter.executeRoute(srvRoute, req, res).then((data) => {
 
-                    resolve();
+                    resolve(data);
                 }).catch(e => {
                     reject(e);
                 });
