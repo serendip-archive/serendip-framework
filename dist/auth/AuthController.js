@@ -297,6 +297,11 @@ class AuthController {
             method: 'post',
             publicAccess: true,
             actions: [
+                (req, res, next) => {
+                    if (!req.body.grant_type)
+                        req.body.grant_type = 'password';
+                    next();
+                },
                 async (req, res, next, done) => {
                     if (req.body.grant_type != 'password')
                         return next();

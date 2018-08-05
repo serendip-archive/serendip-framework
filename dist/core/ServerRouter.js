@@ -68,7 +68,6 @@ class ServerRouter {
             _1.Server.middlewares.forEach((middle) => actions.unshift(middle));
             // starting from first action
             var actionIndex = 0;
-            console.log(actions);
             res.on('finish', () => resolve(actionIndex));
             var executeActions = function (passedModel) {
                 var action;
@@ -80,11 +79,11 @@ class ServerRouter {
                                     reject(model);
                                     return;
                                 }
-                        console.log(model, actions.length, actionIndex);
                         // Execute next
                         actionIndex++;
-                        if (actions.length == actionIndex)
+                        if (actions.length == actionIndex) {
                             return resolve(model);
+                        }
                         executeActions(model);
                     }, function _done(statusCode, statusMessage) {
                         res.statusCode = statusCode || 200;

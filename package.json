@@ -35,9 +35,11 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
+    "@types/chalk": "^2.2.0",
     "async": "^2.6.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
+    "chalk": "^2.4.1",
     "deep-diff": "^0.3.8",
     "glob": "^7.1.2",
     "mime-types": "^2.1.19",

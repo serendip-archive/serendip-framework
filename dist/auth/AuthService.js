@@ -117,6 +117,8 @@ class AuthService {
         if (model.email)
             model.email = model.email.toLowerCase();
         var userModel = new models_1.UserModel();
+        if (model.extra)
+            userModel.extra = model.extra;
         userModel.username = model.username;
         userModel.registeredAt = Date.now();
         userModel.registeredByIp = ip;

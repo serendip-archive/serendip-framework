@@ -5,4 +5,7 @@ export interface UserRegisterRequestInterface {
     mobile?: string;
     email?: string;
 
+    extra?: any;
+
+
 }

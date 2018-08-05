@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bodyParser = require("body-parser");
 const http = require("http");
 const https = require("https");
+const chalk_1 = require("chalk");
 const _1 = require(".");
 const fs = require("fs");
 const _ = require("underscore");
@@ -45,12 +46,12 @@ class Server {
                     Server.httpServer.on('request', Server.processRequest);
                 }
                 Server.httpServer.listen(httpPort, () => {
-                    console.log(`worker ${worker.id} running http server at port ${httpPort}`);
+                    console.log(chalk_1.default.cyan(`worker ${worker.id} running http server at port ${httpPort}`));
                     if (!Server.httpsServer)
                         return serverStartCallback();
                     else
                         Server.httpsServer.listen(httpsPort, () => {
-                            console.log(`worker ${worker.id} running https server at port ${httpsPort}`);
+                            console.log(chalk_1.default.cyan(`worker ${worker.id} running https server at port ${httpsPort}`));
                             if (serverStartCallback)
                                 serverStartCallback();
                         });
@@ -94,9 +95,9 @@ class Server {
                 res.statusMessage = e.message;
                 res.json(_.pick(e, 'code', 'description'));
                 if (Server.opts.devMode)
-                    console.error(`${logString()} [Error]\n`, e);
+                    console.error(`${logString()}`, chalk_1.default.red(JSON.stringify(e)));
                 else
-                    console.error(`${logString()} [Error]\n`, e.message);
+                    console.error(`${logString()}`, chalk_1.default.red('\n[Error] ' + e.message));
             }
         });
     }
@@ -124,16 +125,17 @@ class Server {
         });
         var sortedDependencies = topoSort(dependenciesToSort).reverse();
         return new Promise((resolve, reject) => {
+            console.log(chalk_1.default.cyan `Starting server services...`);
             function startService(index) {
                 var serviceName = sortedDependencies[index];
                 var serviceObject;
                 if (!servicesToStart[serviceName])
-                    return reject(`"${serviceName}" not imported in start method. it's a dependency of another service.`);
+                    return reject(chalk_1.default.red `"${serviceName}" not imported in start method. it's a dependency of another service.`);
                 try {
                     serviceObject = new servicesToStart[serviceName];
                 }
                 catch (e) {
-                    e.message = `Server Service Error in "${serviceName}"\n` + e.message;
+                    e.message = chalk_1.default.red `Server Service Error in "${serviceName}"\n` + e.message;
                     reject(e);
                 }
                 Server.services[serviceName] = serviceObject;
@@ -141,7 +143,7 @@ class Server {
                     startService(index + 1);
                 else
                     serviceObject.start().then(() => {
-                        console.log(`☑ ${serviceName}`);
+                        console.log(chalk_1.default `{green ☑} ${serviceName}`);
                         if (sortedDependencies.length > index + 1)
                             startService(index + 1);
                         else
@@ -160,6 +162,7 @@ class Server {
     * Notice : controller methods should start with requested method ex : get,post,put,delete
     */
     async addRoutes(controllersToRegister) {
+        console.log(chalk_1.default.blueBright `Registering controller routes...`);
         // iterating trough controller classes
         controllersToRegister.forEach(function (controller) {
             var objToRegister = new controller;
@@ -186,7 +189,7 @@ class Server {
                 };
                 serverRoute.route = serverRoute.route.toLowerCase();
                 serverRoute.method = serverRoute.method.toLowerCase();
-                console.log(`☑ [${serverRoute.method.toUpperCase()}] ${serverRoute.route} | ${serverRoute.controllerName} > ${serverRoute.endpoint}`);
+                console.log(chalk_1.default `{green ☑}  [${serverRoute.method.toUpperCase()}] {magenta ${serverRoute.route}} | {gray ${serverRoute.controllerName} > ${serverRoute.endpoint}}`);
                 Server.routes.push(serverRoute);
             });
         });

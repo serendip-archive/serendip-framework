@@ -126,11 +126,9 @@ export class ServerRouter {
 
             // starting from first action
             var actionIndex = 0;
-            console.log(actions);
 
 
             res.on('finish', () => resolve(actionIndex));
-
 
             var executeActions = function (passedModel) {
                 var action;
@@ -148,14 +146,14 @@ export class ServerRouter {
 
                                 }
 
-                        console.log(model, actions.length, actionIndex);
 
                         // Execute next
                         actionIndex++;
 
 
-                        if (actions.length == actionIndex)
+                        if (actions.length == actionIndex) {
                             return resolve(model);
+                        }
 
                         executeActions(model);
 

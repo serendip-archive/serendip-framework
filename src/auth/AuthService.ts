@@ -104,7 +104,7 @@ export class AuthService implements ServerServiceInterface {
         if (AuthService.options.smsProvider)
             return Server.services[AuthService.options.smsProvider].sendVerification(userModel.mobile, userModel.mobileVerificationCode);
         else
-            throw new ServerError(500,"no sms provider");
+            throw new ServerError(500, "no sms provider");
     }
 
     public async refreshRestrictions() {
@@ -212,7 +212,8 @@ export class AuthService implements ServerServiceInterface {
 
         var userModel = new UserModel();
 
-
+        if (model.extra)
+            userModel.extra = model.extra;
 
         userModel.username = model.username;
 
