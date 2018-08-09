@@ -91,9 +91,11 @@ class Server {
                 });
             }
             else {
-                res.statusCode = e.code || 500;
-                res.statusMessage = e.message;
-                res.json(_.pick(e, 'code', 'description'));
+                if (!res.finished) {
+                    res.statusCode = e.code || 500;
+                    res.statusMessage = e.message;
+                    res.json(_.pick(e, 'code', 'description'));
+                }
                 if (Server.opts.devMode)
                     console.error(`${logString()}`, chalk_1.default.red(JSON.stringify(e)));
                 else

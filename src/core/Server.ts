@@ -114,14 +114,18 @@ export class Server {
         });
 
       } else {
-        res.statusCode = e.code || 500;
-        res.statusMessage = e.message;
-        res.json(_.pick(e, 'code', 'description'));
+
+        if (!res.finished) {
+          res.statusCode = e.code || 500;
+          res.statusMessage = e.message;
+          res.json(_.pick(e, 'code', 'description'));
+        }
 
         if (Server.opts.devMode)
           console.error(`${logString()}`, chalk.red(JSON.stringify(e)));
         else
           console.error(`${logString()}`, chalk.red('\n[Error] ' + e.message));
+          
       }
 
     });
