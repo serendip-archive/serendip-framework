@@ -99,6 +99,13 @@ class AuthService {
             }
         });
     }
+    async changeUserMobile(userId, newMobile) {
+        var user = await this.findUserById(userId);
+        user.mobile = newMobile;
+        user.mobileVerified = false;
+        user.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
+        await this.usersCollection.updateOne(user);
+    }
     async VerifyUserMobile(mobile, code) {
         var user = await this.findUserByMobile(mobile);
         user.mobileVerified = user.mobileVerificationCode == code;

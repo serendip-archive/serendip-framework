@@ -186,9 +186,21 @@ export class AuthService implements ServerServiceInterface {
 
         });
 
+    }
 
+    public async changeUserMobile(userId: string, newMobile: string) {
+
+        var user = await this.findUserById(userId);
+        
+        user.mobile = newMobile;
+        user.mobileVerified = false;
+        user.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
+
+        await this.usersCollection.updateOne(user);
 
     }
+
+
     public async VerifyUserMobile(mobile: string, code: string) {
         var user = await this.findUserByMobile(mobile);
         user.mobileVerified = user.mobileVerificationCode == code;
