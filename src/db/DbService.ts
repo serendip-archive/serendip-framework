@@ -1,4 +1,4 @@
-import { MongoClient, Db, ObjectID, Collection, IndexOptions } from 'mongodb'
+import { MongoClient, Db, ObjectID, Collection, IndexOptions, MongoClientOptions } from 'mongodb'
 import { ServerServiceInterface } from '../core';
 import { DbCollection, EntityChangeModel } from '.';
 import * as _ from 'underscore';
@@ -44,7 +44,7 @@ export class DbService implements ServerServiceInterface {
     public async connect() {
 
         // Creating mongoDB client from mongoUrl
-        var mongoClient = await MongoClient.connect(DbService.options.mongoUrl, { useNewUrlParser: true });
+        var mongoClient = await MongoClient.connect(DbService.options.mongoUrl);
 
         this.db = mongoClient.db(DbService.options.mongoDb);
 

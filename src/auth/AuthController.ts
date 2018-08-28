@@ -150,7 +150,6 @@ export class AuthController {
         ]
     };
 
-
     public deleteUserFromGroup: ServerEndpointInterface = {
         method: 'post',
         publicAccess: false,

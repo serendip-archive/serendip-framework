@@ -9,7 +9,7 @@ class fooController {
         */
         this.hi = {
             method: 'get',
-            public: true,
+            publicAccess: true,
             actions: [
                 (req, res, next, done) => {
                     res.write('<h1>Hello</h1>');

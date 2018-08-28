@@ -74,12 +74,6 @@ class AuthService {
             user.groups = [];
         if (user.groups.indexOf("blocked") != -1)
             throw new core_1.ServerError(401, "user access is blocked");
-        if (user.groups.indexOf("emailNotConfirmed") != -1)
-            throw new core_1.ServerError(401, "user email needs to get confirmed");
-        if (user.groups.indexOf("mobileNotConfirmed") != -1)
-            throw new core_1.ServerError(401, "user mobile needs to get confirmed");
-        if (user.groups.indexOf("notConfirmed") != -1)
-            throw new core_1.ServerError(401, "user needs to get confirmed");
         var rules = [
             // global
             _.findWhere(this.restrictions, { controllerName: '', endpoint: '' }),
@@ -197,6 +191,8 @@ class AuthService {
         var user = await this.findUserById(userId);
         if (user.groups.indexOf(group) == -1)
             user.groups.push(group);
+        // User need to do login again
+        user.tokens = [];
         await this.usersCollection.updateOne(user);
     }
     async deleteUserFromGroup(userId, group) {
@@ -205,6 +201,8 @@ class AuthService {
             user.groups = _.filter(user.groups, (item) => {
                 return item != group;
             });
+        // User need to do login again
+        user.tokens = [];
         await this.usersCollection.updateOne(user);
     }
     async getUsersInGroup(group) {

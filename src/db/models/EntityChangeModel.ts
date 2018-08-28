@@ -1,4 +1,4 @@
-import { ObjectId } from "../../../../serendip-crm-api/node_modules/@types/bson";
+import { ObjectId } from "bson";
 
 export enum entityChangeType {
 

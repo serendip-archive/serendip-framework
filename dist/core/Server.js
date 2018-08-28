@@ -23,8 +23,8 @@ class Server {
         Server.worker = worker;
         Server.middlewares = opts.middlewares || [];
         // adding basic middlewares to begging of middlewares array
-        Server.middlewares.unshift(bodyParser.json());
-        Server.middlewares.unshift(bodyParser.urlencoded({ extended: false }));
+        Server.middlewares.unshift(bodyParser.json({ limit: '50mb' }));
+        Server.middlewares.unshift(bodyParser.urlencoded({ limit: '50mb', extended: false }));
         if (!opts.services)
             opts.services = [];
         this.addServices(opts.services).then(() => {

@@ -21,7 +21,7 @@ class DbService {
      */
     async connect() {
         // Creating mongoDB client from mongoUrl
-        var mongoClient = await mongodb_1.MongoClient.connect(DbService.options.mongoUrl, { useNewUrlParser: true });
+        var mongoClient = await mongodb_1.MongoClient.connect(DbService.options.mongoUrl);
         this.db = mongoClient.db(DbService.options.mongoDb);
     }
     async start() {

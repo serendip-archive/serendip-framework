@@ -148,17 +148,6 @@ export class AuthService implements ServerServiceInterface {
         if (user.groups.indexOf("blocked") != -1)
             throw new ServerError(401, "user access is blocked");
 
-        if (user.groups.indexOf("emailNotConfirmed") != -1)
-            throw new ServerError(401, "user email needs to get confirmed");
-
-
-        if (user.groups.indexOf("mobileNotConfirmed") != -1)
-            throw new ServerError(401, "user mobile needs to get confirmed");
-
-        if (user.groups.indexOf("notConfirmed") != -1)
-            throw new ServerError(401, "user needs to get confirmed");
-
-
         var rules = [
             // global
             _.findWhere(this.restrictions, { controllerName: '', endpoint: '' }),
@@ -191,7 +180,7 @@ export class AuthService implements ServerServiceInterface {
     public async changeUserMobile(userId: string, newMobile: string) {
 
         var user = await this.findUserById(userId);
-        
+
         user.mobile = newMobile;
         user.mobileVerified = false;
         user.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
@@ -331,6 +320,10 @@ export class AuthService implements ServerServiceInterface {
         if (user.groups.indexOf(group) == -1)
             user.groups.push(group);
 
+
+        // User need to do login again
+        user.tokens = [];
+
         await this.usersCollection.updateOne(user);
 
     }
@@ -344,6 +337,9 @@ export class AuthService implements ServerServiceInterface {
             user.groups = _.filter(user.groups, (item: string) => {
                 return item != group
             });
+
+        // User need to do login again
+        user.tokens = [];
 
         await this.usersCollection.updateOne(user);
 
