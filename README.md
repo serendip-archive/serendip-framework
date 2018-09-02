@@ -1,4 +1,5 @@
 ![alt text](https://raw.githubusercontent.com/m-esm/serendip/master/readme_header.png "serendip_header")
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fm-esm%2Fserendip.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fm-esm%2Fserendip?ref=badge_shield)
 ___
 # SERENDIP Framework
 
@@ -32,3 +33,7 @@ npm install serendip
 
 * collaboration, issue reporting kindly accepted
 * Contact m-esm@hotmail.com 
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fm-esm%2Fserendip.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fm-esm%2Fserendip?ref=badge_large)
