@@ -104,7 +104,7 @@ class SmsIrService {
             this.getToken().then(token => {
                 request({
                     method: 'POST',
-                    url: 'http://RestfulSms.com/api/VerificationCode',
+                    url: 'http://RestfulSms.com/api/MessageSend',
                     headers: {
                         'Cache-Control': 'no-cache',
                         'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ class SmsIrService {
                         MobileNumbers: mobileNumbers,
                         LineNumber: SmsIrService.options.lineNumber,
                         SendDateTime: '',
-                        CanContinueInCaseOfError: 'false'
+                        CanContinueInCaseOfError: 'true'
                     },
                     json: true
                 }, function (error, response, body) {

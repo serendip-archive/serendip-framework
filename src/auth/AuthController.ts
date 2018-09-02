@@ -27,8 +27,6 @@ export class AuthController {
                 var model: UserRegisterRequestInterface = req.body;
 
 
-
-
                 if (!model.username || !model.password)
                     return next(new ServerError(400, 'username or password missing'));
 
@@ -123,6 +121,7 @@ export class AuthController {
 
 
                 await this.authService.sendPasswordResetToken(user._id);
+
                 done();
 
 
@@ -233,8 +232,8 @@ export class AuthController {
                 if (!user)
                     return next(new ServerError(400, 'user not found'));
 
-
                 await this.authService.setNewPassword(user._id, req.body.password, req.ip(), req.useragent());
+
                 done(202, "password changed");
 
             }

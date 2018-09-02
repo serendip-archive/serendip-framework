@@ -98,7 +98,7 @@ class ServerRouter {
                 if (action)
                     action.then((data) => {
                     }).catch((e) => {
-                        reject(new _1.ServerError(500, e.message));
+                        reject(new _1.ServerError(500, e ? e.message : ''));
                     });
             };
             executeActions(null);
