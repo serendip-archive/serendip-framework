@@ -200,6 +200,8 @@ class AuthController {
                     this.authService.findUserByMobile(req.body.mobile).then((user) => {
                         if (!user)
                             return next(new core_1.ServerError(400, 'no user found with this mobile'));
+                        if (user.mobileVerificationCode != req.body.code)
+                            return next(new core_1.ServerError(400, 'invalid code'));
                         this.authService.VerifyUserMobile(req.body.mobile, req.body.code)
                             .then(() => {
                             done(202, "mobile verified");
@@ -258,7 +260,7 @@ class AuthController {
                         token = await this.authService.findToken(req.body.access_token);
                     }
                     catch (err) {
-                        return next(new core_1.ServerError(500, err.message));
+                        return next(new core_1.ServerError(err.code || 500, err.message));
                     }
                     if (token)
                         if (token.refresh_token == req.body.refresh_token)

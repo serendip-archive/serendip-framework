@@ -322,6 +322,11 @@ export class AuthController {
                     if (!user)
                         return next(new ServerError(400, 'no user found with this mobile'))
 
+                    if (user.mobileVerificationCode != req.body.code)
+                        return next(new ServerError(400, 'invalid code'))
+
+
+
                     this.authService.VerifyUserMobile(req.body.mobile, req.body.code)
                         .then(() => {
 
@@ -412,7 +417,7 @@ export class AuthController {
                 try {
                     token = await this.authService.findToken(req.body.access_token);
                 } catch (err) {
-                    return next(new ServerError(500, err.message));
+                    return next(new ServerError(err.code || 500, err.message));
                 }
 
                 if (token)
