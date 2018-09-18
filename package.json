@@ -1,10 +1,10 @@
 {
   "name": "serendip",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "A Node.js framework",
   "main": "index.js",
   "scripts": {
-    "start" : "node dist/debug_ignore.js",
+    "start": "node dist/debug_ignore.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

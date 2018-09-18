@@ -29,7 +29,7 @@ class DbService {
             await this.connect();
         }
         catch (error) {
-            throw new Error('Unable to connect to MongoDb. ' + error.message);
+            throw new Error('\n\nUnable to connect to MongoDb. Error details: \n' + error.message);
         }
         var mongoCollectionObjects = await this.db.collections();
         mongoCollectionObjects.map((obj) => {
