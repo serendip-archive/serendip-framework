@@ -135,11 +135,9 @@ export class SmsIrService implements ServerServiceInterface, SmsServiceProviderI
                     json: true
                 }, function (error, response, body) {
 
-
                     if (error) {
                         console.error('SmsIrService sendVerification Error =>', error);
                         return reject(error);
-
                     }
 
                     console.log('SmsIrService sendVerification =>', body);
@@ -162,7 +160,7 @@ export class SmsIrService implements ServerServiceInterface, SmsServiceProviderI
 
                 request({
                     method: 'POST',
-                    url: 'http://RestfulSms.com/api/VerificationCode',
+                    url: 'http://RestfulSms.com/api/MessageSend',
                     headers:
                     {
                         'Cache-Control': 'no-cache',
@@ -174,7 +172,7 @@ export class SmsIrService implements ServerServiceInterface, SmsServiceProviderI
                         MobileNumbers: mobileNumbers,
                         LineNumber: SmsIrService.options.lineNumber,
                         SendDateTime: '',
-                        CanContinueInCaseOfError: 'false'
+                        CanContinueInCaseOfError: 'true'
                     },
                     json: true
                 }, function (error, response, body) {

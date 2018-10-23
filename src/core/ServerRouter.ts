@@ -174,7 +174,7 @@ export class ServerRouter {
                     action.then((data) => {
 
                     }).catch((e: Error) => {
-                        reject(new ServerError(500, e.message));
+                        reject(new ServerError(500, e ? e.message : ''));
                     });
 
 

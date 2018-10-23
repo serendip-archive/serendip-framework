@@ -4,3 +4,5 @@ src/debug_ignore.ts
 dist/debug_ignore.js
 *.rar
 *.zip
+
+.vscode

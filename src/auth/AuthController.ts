@@ -27,8 +27,6 @@ export class AuthController {
                 var model: UserRegisterRequestInterface = req.body;
 
 
-
-
                 if (!model.username || !model.password)
                     return next(new ServerError(400, 'username or password missing'));
 
@@ -123,6 +121,7 @@ export class AuthController {
 
 
                 await this.authService.sendPasswordResetToken(user._id);
+
                 done();
 
 
@@ -233,8 +232,8 @@ export class AuthController {
                 if (!user)
                     return next(new ServerError(400, 'user not found'));
 
-
                 await this.authService.setNewPassword(user._id, req.body.password, req.ip(), req.useragent());
+
                 done(202, "password changed");
 
             }
@@ -322,6 +321,11 @@ export class AuthController {
                 this.authService.findUserByMobile(req.body.mobile).then((user) => {
                     if (!user)
                         return next(new ServerError(400, 'no user found with this mobile'))
+
+                    if (user.mobileVerificationCode != req.body.code)
+                        return next(new ServerError(400, 'invalid code'))
+
+
 
                     this.authService.VerifyUserMobile(req.body.mobile, req.body.code)
                         .then(() => {
@@ -413,7 +417,7 @@ export class AuthController {
                 try {
                     token = await this.authService.findToken(req.body.access_token);
                 } catch (err) {
-                    return next(new ServerError(500, err.message));
+                    return next(new ServerError(err.code || 500, err.message));
                 }
 
                 if (token)
