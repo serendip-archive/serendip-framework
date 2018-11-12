@@ -12,8 +12,8 @@ class EmailService {
     }
     loadTemplates() {
         return new Promise((resolve, reject) => {
-            glob(path.join(EmailService.options.templatesPath, '*.html'), (err, templates) => {
-                templates.forEach((tmp) => {
+            glob(path.join(EmailService.options.templatesPath, "*.html"), (err, templates) => {
+                templates.forEach(tmp => {
                     EmailService.emailTemplates.push({
                         name: path.parse(tmp).name.toLowerCase(),
                         source: fs.readFileSync(tmp).toString()
@@ -23,7 +23,6 @@ class EmailService {
             });
         });
     }
-    ;
     async start() {
         this._dbService = __1.Server.services["DbService"];
         this._viewEngineService = __1.Server.services["ViewEngineService"];
@@ -44,17 +43,17 @@ class EmailService {
             });
             if (!emailModel.attachments)
                 emailModel.attachments = [];
-            if (emailModel.template) {
-                var templateName = emailModel.template.name;
-                if (emailModel.template.culture)
-                    templateName += "." + emailModel.template.culture.toLowerCase();
-                var template = _.findWhere(EmailService.emailTemplates, {
-                    name: templateName
-                });
+            if (emailModel.template && emailModel.template.name) {
+                if (!emailModel.template.source)
+                    emailModel.template.source = _.findWhere(EmailService.emailTemplates, {
+                        name: emailModel.template.name
+                    });
                 if (!emailModel.template.data)
                     emailModel.template.data = {};
-                if (template)
-                    emailModel.html = this._viewEngineService.renderMustache(template.source, emailModel.template.data);
+                if (emailModel.template.source)
+                    emailModel.html = this._viewEngineService.renderMustache(emailModel.template.source, emailModel.template.data);
+                else
+                    reject("no template source");
             }
             transporter.sendMail(emailModel, (err, info) => {
                 if (err)
@@ -65,7 +64,7 @@ class EmailService {
         });
     }
 }
-EmailService.dependencies = ['DbService', 'ViewEngineService'];
+EmailService.dependencies = ["DbService", "ViewEngineService"];
 EmailService.options = {};
 EmailService.emailTemplates = [];
 exports.EmailService = EmailService;

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/debug_ignore.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -25,9 +25,11 @@
     "@types/node-cron": "^1.2.0",
     "@types/nodemailer": "^4.6.2",
     "@types/request": "^2.47.1",
+    "@types/toposort": "^2.0.1",
     "@types/underscore": "^1.8.8",
     "@types/useragent": "^2.1.1",
     "@types/ws": "^6.0.1",
+    "assert": "^1.4.1",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.4.0",
     "gulp-deploy-ftp": "^1.0.1",
@@ -37,7 +39,6 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "@types/chalk": "^2.2.0",
     "async": "^2.6.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
@@ -51,6 +52,7 @@
     "node-cron": "^1.2.1",
     "nodemailer": "^4.6.7",
     "path-match": "^1.2.4",
+    "promise-serial": "^0.1.5",
     "qs": "^6.5.2",
     "request": "^2.87.0",
     "toposort": "^1.0.7",

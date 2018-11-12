@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const bodyParser = require("body-parser");
+const chalk_1 = require("chalk");
+const fs = require("fs");
 const http = require("http");
 const https = require("https");
-const chalk_1 = require("chalk");
-const _1 = require(".");
-const fs = require("fs");
-const ws = require("ws");
-const _ = require("underscore");
 const topoSort = require("toposort");
+const _ = require("underscore");
+const ws = require("ws");
+const _1 = require(".");
 const ServerRouter_1 = require("./ServerRouter");
 /**
  *  Will contain everything that we need from server
@@ -58,12 +58,14 @@ class Server {
                             });
                         });
                     }
-                    console.log(chalk_1.default.cyan(`worker ${worker.id} running http server at port ${httpPort}`));
+                    if (Server.opts.logging == "info")
+                        console.log(chalk_1.default.cyan(`worker ${worker.id} running http server at port ${httpPort}`));
                     if (!Server.httpsServer)
                         return serverStartCallback();
                     else
                         Server.httpsServer.listen(httpsPort, () => {
-                            console.log(chalk_1.default.cyan(`worker ${worker.id} running https server at port ${httpsPort}`));
+                            if (Server.opts.logging == "info")
+                                console.log(chalk_1.default.cyan(`worker ${worker.id} running https server at port ${httpsPort}`));
                             if (serverStartCallback)
                                 serverStartCallback();
                         });
@@ -96,14 +98,16 @@ class Server {
                             res.json(data);
                         else
                             res.end();
-                console.info(`${logString()} ${srvRoute.isStream ? " stream started!" : ""}`);
+                if (Server.opts.logging == "info")
+                    console.info(`${logString()} ${srvRoute.isStream ? " stream started!" : ""}`);
             }
         })
             .catch((e) => {
             if (e.code == 404 && Server.staticPath) {
                 ServerRouter_1.ServerRouter.processRequestToStatic(req, res, (code, filePath) => {
                     if (code == 200)
-                        console.error(`${logString()} => Download started [${filePath}]`);
+                        if (Server.opts.logging != "silent")
+                            console.error(`${logString()} => Download started [${filePath}]`);
                 });
             }
             else {
@@ -112,9 +116,9 @@ class Server {
                     res.statusMessage = e.message;
                     res.json(_.pick(e, "code", "description"));
                 }
-                if (Server.opts.devMode)
+                if (Server.opts.logging == "info")
                     console.error(`${logString()}`, chalk_1.default.red(JSON.stringify(e)));
-                else
+                else if (Server.opts.logging != "silent")
                     console.error(`${logString()}`, chalk_1.default.red("\n[Error] " + e.message));
             }
         });
@@ -141,17 +145,24 @@ class Server {
         servicesToRegister.forEach(sv => {
             if (!sv)
                 return;
-            if (sv.dependencies)
+            if (typeof sv.dependencies !== "undefined" && sv.dependencies.length)
                 sv.dependencies.forEach(val => {
                     dependenciesToSort.push([sv.name, val]);
                 });
             servicesToStart[sv.name] = sv;
         });
         var sortedDependencies = topoSort(dependenciesToSort).reverse();
+        if (sortedDependencies.length == 0) {
+            if (servicesToRegister[0])
+                sortedDependencies.push(servicesToRegister[0].name);
+        }
         return new Promise((resolve, reject) => {
-            console.log(chalk_1.default.cyan `Starting server services...`);
+            if (Server.opts.logging == "info")
+                console.log(chalk_1.default.cyan `Starting server services...`);
             function startService(index) {
                 var serviceName = sortedDependencies[index];
+                if (!serviceName)
+                    resolve();
                 var serviceObject;
                 if (!servicesToStart[serviceName])
                     return reject(chalk_1.default.red `"${serviceName}" not imported in start method. it's a dependency of another service.`);
@@ -170,7 +181,8 @@ class Server {
                     serviceObject
                         .start()
                         .then(() => {
-                        console.log(chalk_1.default `{green ☑} ${serviceName}`);
+                        if (Server.opts.logging == "info")
+                            console.log(chalk_1.default `{green ☑} ${serviceName}`);
                         if (sortedDependencies.length > index + 1)
                             startService(index + 1);
                         else
@@ -180,7 +192,7 @@ class Server {
                         reject(err);
                     });
             }
-            if (sortedDependencies.length > 0)
+            if (servicesToRegister.length > 0)
                 startService(0);
         });
     }
@@ -190,7 +202,8 @@ class Server {
      * Notice : controller methods should start with requested method ex : get,post,put,delete
      */
     async addRoutes(controllersToRegister) {
-        console.log(chalk_1.default.blueBright `Registering controller routes...`);
+        if (Server.opts.logging == "info")
+            console.log(chalk_1.default.blueBright `Registering controller routes...`);
         // iterating trough controller classes
         controllersToRegister.forEach(function (controller) {
             var objToRegister = new controller();
@@ -217,7 +230,8 @@ class Server {
                 };
                 serverRoute.route = serverRoute.route.toLowerCase();
                 serverRoute.method = serverRoute.method.toLowerCase();
-                console.log(chalk_1.default `{green ☑}  [${serverRoute.method.toUpperCase()}] {magenta ${serverRoute.route}} | {gray ${serverRoute.controllerName} > ${serverRoute.endpoint}}`);
+                if (Server.opts.logging == "info")
+                    console.log(chalk_1.default `{green ☑}  [${serverRoute.method.toUpperCase()}] {magenta ${serverRoute.route}} | {gray ${serverRoute.controllerName} > ${serverRoute.endpoint}}`);
                 Server.routes.push(serverRoute);
             });
         });

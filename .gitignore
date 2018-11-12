@@ -6,3 +6,5 @@ dist/debug_ignore.js
 *.zip
 
 .vscode
+.sonarlint
+.nyc_output

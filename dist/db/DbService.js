@@ -5,7 +5,7 @@ const _1 = require(".");
 const _ = require("underscore");
 /**
  * Every functionality thats use database should use it trough this service
-*/
+ */
 class DbService {
     constructor() {
         this.mongoCollections = [];
@@ -21,7 +21,7 @@ class DbService {
      */
     async connect() {
         // Creating mongoDB client from mongoUrl
-        var mongoClient = await mongodb_1.MongoClient.connect(DbService.options.mongoUrl);
+        var mongoClient = await mongodb_1.MongoClient.connect(DbService.options.mongoUrl, { useNewUrlParser: true });
         this.db = mongoClient.db(DbService.options.mongoDb);
     }
     async start() {
@@ -29,13 +29,13 @@ class DbService {
             await this.connect();
         }
         catch (error) {
-            throw new Error('\n\nUnable to connect to MongoDb. Error details: \n' + error.message);
+            throw new Error("\n\nUnable to connect to MongoDb. Error details: \n" + error.message);
         }
         var mongoCollectionObjects = await this.db.collections();
-        mongoCollectionObjects.map((obj) => {
+        mongoCollectionObjects.map(obj => {
             this.mongoCollections.push(obj.collectionName);
         });
-        this.entityCollection = await this.collection('EntityChanges', false);
+        this.entityCollection = await this.collection("EntityChanges", false);
     }
     async collection(collectionName, track) {
         collectionName = collectionName.trim();
