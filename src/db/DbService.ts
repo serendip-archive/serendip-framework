@@ -6,7 +6,7 @@ import {
   IndexOptions,
   MongoClientOptions
 } from "mongodb";
-import { ServerServiceInterface } from "../core";
+import { ServerServiceInterface, Server } from "../core";
 import { DbCollection, EntityChangeModel } from ".";
 import * as _ from "underscore";
 
@@ -85,7 +85,9 @@ export class DbService implements ServerServiceInterface {
     if (this.mongoCollections.indexOf(collectionName) === -1) {
       await this.db.createCollection(collectionName);
       this.mongoCollections.push(collectionName);
-      console.log(`☑ collection ${collectionName} created .`);
+
+      if (Server.opts.logging == "info")
+        console.log(`☑ collection ${collectionName} created .`);
     }
 
     return new DbCollection<T>(this.db.collection<T>(collectionName), track);

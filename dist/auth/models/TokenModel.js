@@ -1,5 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class UserTokenModel {
+class TokenModel {
 }
-exports.UserTokenModel = UserTokenModel;
+exports.TokenModel = TokenModel;

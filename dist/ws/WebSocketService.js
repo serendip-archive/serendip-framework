@@ -18,8 +18,8 @@ class WebSocketService {
      *
      */
     async sendToUser(userId, path, model) {
-        var user = await this.authService.findUserById(userId);
-        user.tokens.map(token => {
+        var tokens = await this.authService.findTokensByUserId(userId);
+        tokens.map(token => {
             return new Promise((resolve, reject) => {
                 __1.Server.wsServer.clients.forEach((client) => {
                     if (client.token.access_token == token.access_token)
@@ -43,7 +43,7 @@ class WebSocketService {
                 // });
                 if (!ws.token)
                     try {
-                        ws.token = await this.authService.checkToken(msg.toString());
+                        ws.token = await this.authService.findTokenByAccessToken(msg.toString());
                         ws.path = req.url;
                         console.log(chalk_1.default.blue(`\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
                             `new socket at ${req.url} user:${ws.token.username} ip:${req.connection.remoteAddress}\n`));

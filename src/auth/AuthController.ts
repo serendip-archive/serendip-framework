@@ -1,8 +1,6 @@
 import { Server, ServerEndpointInterface, ServerError } from "../core";
-import { Collection } from "mongodb";
 import { Validator } from "../utils";
 import { AuthService, UserRegisterRequestInterface, UserModel } from ".";
-import { UserTokenModel } from "./models/UserTokenModel";
 import * as _ from "underscore";
 
 /**
@@ -148,6 +146,38 @@ export class AuthController {
         this.authService.deleteUserFromGroup(req.body.user, req.body.group);
 
         done(202, "removed from group");
+      }
+    ]
+  };
+
+  public changeSecret: ServerEndpointInterface = {
+    method: "post",
+    publicAccess: false,
+    actions: [
+      async (req, res, next, done) => {
+        var userId = req.user._id.toString();
+
+        if (!req.body.secret)
+          return next(new ServerError(400, "secret is missing"));
+
+        if (!req.body.clientId)
+          return next(new ServerError(400, "clientId is missing"));
+
+        var client = await this.authService.findClientById(req.body.clientId);
+
+        if (!client) return next(new ServerError(400, "client not found"));
+
+        if (client.owner != userId)
+          return next(
+            new ServerError(
+              400,
+              "you need to be owner of client to change it's secret"
+            )
+          );
+
+        await this.authService.setClientSecret(userId, req.body.secret);
+
+        done(202, "secret changed");
       }
     ]
   };
@@ -338,23 +368,28 @@ export class AuthController {
 
   public clientToken: ServerEndpointInterface = {
     method: "post",
-    publicAccess: false,
+    publicAccess: true,
     actions: [
       async (req, res, next, done) => {
         var client = await this.authService.findClientById(req.body.clientId);
 
         if (!client) return next(new ServerError(400, "client not found"));
 
+        if (!this.authService.clientMatchSecret(client, req.body.clientSecret))
+          return next(new ServerError(400, "client secret mismatch"));
+
         this.authService
-          .getNewToken(req.user._id, req.useragent(), client._id.toString())
+          .insertToken({
+            userId: req.user._id.toString(),
+            useragent: req.useragent().toString(),
+            clientId: client._id.toString(),
+            grant_type: "client_credentials"
+          })
           .then(token => {
-            res.json({
-              url: client.url,
-              access_token: token.access_token
-            });
+            res.json(token);
           })
           .catch(e => {
-            return next(new ServerError(400, e.message));
+            return next(new ServerError(500, e.message));
           });
       }
     ]
@@ -365,13 +400,12 @@ export class AuthController {
     publicAccess: true,
     actions: [
       async (req, res, next, done) => {
-        var client = await this.authService.findClientById(req.client());
-        var clientId = null;
-        if (client) clientId = client._id.toString();
         var token = undefined;
 
         try {
-          token = await this.authService.findToken(req.body.access_token);
+          token = await this.authService.findTokenByAccessToken(
+            req.body.access_token
+          );
         } catch (err) {
           return next(new ServerError(err.code || 500, err.message));
         }
@@ -379,7 +413,11 @@ export class AuthController {
         if (token)
           if (token.refresh_token == req.body.refresh_token)
             this.authService
-              .getNewToken(token.userId, req.useragent(), clientId)
+              .insertToken({
+                userId: token.userId,
+                useragent: req.useragent().toString(),
+                grant_type: "password"
+              })
               .then(token => {
                 return res.json(token);
               })
@@ -397,7 +435,9 @@ export class AuthController {
     publicAccess: false,
     actions: [
       async (req, res, next, done) => {
-        var model = await this.authService.getUserTokens(req.user._id);
+        var model = await this.authService.findTokensByUserId(
+          req.user._id.toString()
+        );
 
         res.json(model);
       }
@@ -455,11 +495,11 @@ export class AuthController {
           if (!user.emailVerified)
             return next(new ServerError(403, "email not confirmed"));
 
-        var userToken = await this.authService.getNewToken(
-          user._id,
-          req.useragent(),
-          req.client()
-        );
+        var userToken = await this.authService.insertToken({
+          userId: user._id.toString(),
+          useragent: req.useragent(),
+          grant_type: "password"
+        });
 
         userToken.username = user.username;
 

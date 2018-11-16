@@ -5,11 +5,11 @@ const chalk_1 = require("chalk");
 const fs = require("fs");
 const http = require("http");
 const https = require("https");
-const topoSort = require("toposort");
 const _ = require("underscore");
 const ws = require("ws");
 const _1 = require(".");
 const ServerRouter_1 = require("./ServerRouter");
+const utils_1 = require("../utils");
 /**
  *  Will contain everything that we need from server
  */
@@ -135,6 +135,7 @@ class Server {
             res.end();
         };
     }
+    // FIXME: needs refactor
     async addServices(servicesToRegister) {
         if (!servicesToRegister)
             return;
@@ -151,7 +152,8 @@ class Server {
                 });
             servicesToStart[sv.name] = sv;
         });
-        var sortedDependencies = topoSort(dependenciesToSort).reverse();
+        // TODO: replace toposort module with code :)
+        var sortedDependencies = utils_1.toposort(dependenciesToSort).reverse();
         if (sortedDependencies.length == 0) {
             if (servicesToRegister[0])
                 sortedDependencies.push(servicesToRegister[0].name);

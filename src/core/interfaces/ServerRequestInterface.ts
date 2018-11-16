@@ -1,17 +1,16 @@
-import * as http from 'http'
-import { UserModel, UserTokenModel } from '../..';
+import * as http from "http";
+import { TokenModel, ClientModel, UserModel } from "../../auth";
 
 /**
- * ServerRequest 
+ * ServerRequest
  */
 export interface ServerRequestInterface extends http.IncomingMessage {
-
-    query: any;
-    body: any;
-    params: any;
-    useragent();
-    ip();
-    client();
-    user?: UserModel;
-    userToken?: UserTokenModel;
+  query: any;
+  body: any;
+  params: any;
+  useragent(): string;
+  ip(): string;
+  client?: ClientModel;
+  user?: UserModel;
+  userToken?: TokenModel;
 }

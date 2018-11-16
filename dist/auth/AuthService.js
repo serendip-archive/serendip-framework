@@ -18,10 +18,11 @@ class AuthService {
     async start() {
         this.clientsCollection = await this.dbService.collection("Clients");
         this.usersCollection = await this.dbService.collection("Users");
+        this.tokenCollection = await this.dbService.collection("Tokens");
         this.usersCollection.createIndex({ username: 1 }, { unique: true });
         this.usersCollection.createIndex({ mobile: 1 }, {});
         this.usersCollection.createIndex({ email: 1 }, {});
-        this.usersCollection.createIndex({ "tokens.access_token": 1 }, {});
+        //   this.usersCollection.createIndex({ "tokens.access_token": 1 }, {});
         this.restrictionCollection = await this.dbService.collection("Restrictions");
         await this.refreshRestrictions();
     }
@@ -38,7 +39,7 @@ class AuthService {
                     name: userModel.username,
                     code: userModel.emailVerificationCode
                 },
-                name: 'verify_email'
+                name: "verify_email"
             }
         });
     }
@@ -60,11 +61,11 @@ class AuthService {
         if (req.body.access_token)
             access_token = req.body.access_token;
         else
-            access_token = req.headers.authorization.toString().split(' ')[1];
+            access_token = req.headers.authorization.toString().split(" ")[1];
         var userToken;
         var user;
         try {
-            userToken = req.userToken = await this.checkToken(access_token);
+            userToken = req.userToken = await this.findTokenByAccessToken(access_token);
             user = req.user = await this.findUserById(userToken.userId);
         }
         catch (error) {
@@ -76,18 +77,26 @@ class AuthService {
             throw new core_1.ServerError(401, "user access is blocked");
         var rules = [
             // global
-            _.findWhere(this.restrictions, { controllerName: '', endpoint: '' }),
+            _.findWhere(this.restrictions, { controllerName: "", endpoint: "" }),
             // controller
-            _.findWhere(this.restrictions, { controllerName: controllerName, endpoint: '' }),
+            _.findWhere(this.restrictions, {
+                controllerName: controllerName,
+                endpoint: ""
+            }),
             // endpoint
-            _.findWhere(this.restrictions, { controllerName: controllerName, endpoint: endpoint })
+            _.findWhere(this.restrictions, {
+                controllerName: controllerName,
+                endpoint: endpoint
+            })
         ];
         rules.forEach(rule => {
             if (rule) {
-                if (rule.allowAll && rule.groups.length != _.difference(rule.groups, user.groups).length)
+                if (rule.allowAll &&
+                    rule.groups.length != _.difference(rule.groups, user.groups).length)
                     if (rule.users.indexOf(user._id) == -1)
                         throw new core_1.ServerError(401, "user group access is denied");
-                if (!rule.allowAll && rule.groups.length == _.difference(rule.groups, user.groups).length)
+                if (!rule.allowAll &&
+                    rule.groups.length == _.difference(rule.groups, user.groups).length)
                     if (rule.users.indexOf(user._id) == -1)
                         throw new core_1.ServerError(401, "user group access is denied");
             }
@@ -123,15 +132,16 @@ class AuthService {
         userModel.username = model.username;
         userModel.registeredAt = Date.now();
         userModel.registeredByIp = ip;
-        userModel.registeredByUseragent = useragent ? useragent.toString() : '';
+        userModel.registeredByUseragent = useragent ? useragent.toString() : "";
         userModel.emailVerificationCode = utils.randomNumberString(6).toLowerCase();
-        userModel.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
+        userModel.mobileVerificationCode = utils
+            .randomNumberString(6)
+            .toLowerCase();
         userModel.mobile = model.mobile;
         userModel.email = model.email;
         userModel.emailVerified = confirmed;
         userModel.mobileVerified = confirmed;
         userModel.groups = [];
-        userModel.tokens = [];
         if (userModel.email) {
             var userByEmail = await this.findUserByEmail(userModel.email);
             if (userByEmail)
@@ -155,44 +165,40 @@ class AuthService {
     userMatchPassword(user, password) {
         return utils.bcryptCompare(password + user.passwordSalt, user.password);
     }
-    async findToken(access_token) {
-        var tokenQuery = await this.usersCollection.find({
-            tokens: {
-                $elemMatch: { 'access_token': access_token }
-            }
+    clientMatchSecret(client, secret) {
+        return utils.bcryptCompare(secret + client.secretSalt, client.secret);
+    }
+    async findTokenByAccessToken(access_token) {
+        var tokenQuery = await this.tokenCollection.find({
+            access_token: access_token
         });
-        if (tokenQuery.length == 0)
+        if (tokenQuery.length != 1)
             throw new core_1.ServerError(401, "access_token invalid");
         else {
-            var foundedToken = _.findWhere(tokenQuery[0].tokens, { access_token: access_token });
-            foundedToken.userId = tokenQuery[0]._id;
-            foundedToken.username = tokenQuery[0].username;
-            return foundedToken;
+            return tokenQuery[0];
         }
     }
-    async checkToken(access_token) {
-        var tokenQuery = await this.usersCollection.find({
-            tokens: {
-                $elemMatch: { 'access_token': access_token }
-            }
-        });
-        if (tokenQuery.length == 0)
-            throw new core_1.ServerError(401, "access_token invalid");
-        else {
-            var foundedToken = _.findWhere(tokenQuery[0].tokens, { access_token: access_token });
-            foundedToken.userId = tokenQuery[0]._id;
-            foundedToken.username = tokenQuery[0].username;
-            if (foundedToken.expires_at < Date.now())
-                throw new core_1.ServerError(401, "access_token expired");
-            return foundedToken;
-        }
+    async findTokensByUserId(userId) {
+        return this.tokenCollection.find({ userId: userId });
+    }
+    async findTokensByClientId(clientId) {
+        return this.tokenCollection.find({ clientId: clientId });
+    }
+    async deleteUserTokens(userId) {
+        return Promise.all(_.map(await this.findTokensByUserId(userId), (item) => {
+            return this.tokenCollection.deleteOne(item._id);
+        }));
+    }
+    async deleteClientTokens(clientId) {
+        return Promise.all(_.map(await this.findTokensByClientId(clientId), (item) => {
+            return this.tokenCollection.deleteOne(item._id);
+        }));
     }
     async addUserToGroup(userId, group) {
         var user = await this.findUserById(userId);
         if (user.groups.indexOf(group) == -1)
             user.groups.push(group);
-        // User need to do login again
-        user.tokens = [];
+        await this.deleteUserTokens(userId);
         await this.usersCollection.updateOne(user);
     }
     async deleteUserFromGroup(userId, group) {
@@ -202,7 +208,7 @@ class AuthService {
                 return item != group;
             });
         // User need to do login again
-        user.tokens = [];
+        await this.deleteUserTokens(userId);
         await this.usersCollection.updateOne(user);
     }
     async getUsersInGroup(group) {
@@ -213,37 +219,37 @@ class AuthService {
         });
         return users;
     }
-    async getUserTokens(userId) {
-        var user = await this.findUserById(userId);
-        return user.tokens;
-    }
-    async getNewToken(userId, useragent, client) {
-        var user = await this.findUserById(userId);
-        var userToken = {
+    async insertToken(opts) {
+        var newToken = {
+            issue_at: Date.now(),
             access_token: utils.randomAccessToken(),
-            grant_type: 'password',
-            useragent: useragent.toString(),
-            client: client,
+            grant_type: opts.grant_type,
+            useragent: opts.useragent,
             expires_at: Date.now() + AuthService.options.tokenExpireIn,
             expires_in: AuthService.options.tokenExpireIn,
             refresh_token: utils.randomAccessToken(),
-            token_type: 'bearer',
-            userId: user._id,
-            username: user.username,
-            groups: user.groups || []
+            token_type: "bearer",
+            userId: opts.userId,
+            clientId: opts.clientId
         };
-        if (!user.tokens)
-            user.tokens = [];
-        user.tokens.unshift(userToken);
-        if (user.tokens.length > AuthService.options.maxTokenCount)
-            user.tokens.pop();
-        await this.usersCollection.updateOne(user);
-        return userToken;
+        if (opts.userId) {
+            var user = await this.findUserById(opts.userId);
+            if (user) {
+                newToken.username = user.username;
+                newToken.groups = user.groups;
+            }
+            else {
+                throw new Error("user not found");
+            }
+        }
+        var model = await this.tokenCollection.insertOne(newToken);
+        return model;
     }
     async sendPasswordResetToken(userId) {
         var user = await this.findUserById(userId);
         user.passwordResetToken = utils.randomNumberString(6).toLowerCase();
-        user.passwordResetTokenExpireAt = Date.now() + AuthService.options.tokenExpireIn;
+        user.passwordResetTokenExpireAt =
+            Date.now() + AuthService.options.tokenExpireIn;
         user.passwordResetTokenIssueAt = Date.now();
         await this.usersCollection.updateOne(user);
         if (user.mobile)
@@ -258,20 +264,28 @@ class AuthService {
         user.password = utils.bcryptHash(newPass + user.passwordSalt);
         user.passwordChangedAt = Date.now();
         user.passwordChangedByIp = ip;
-        user.passwordChangedByUseragent = useragent ? useragent.toString() : '';
+        user.passwordChangedByUseragent = useragent ? useragent.toString() : "";
         // terminate current sessions
-        user.tokens = [];
+        await this.deleteUserTokens(userId);
         await this.usersCollection.updateOne(user);
     }
-    async findClientById(clientId) {
-        var query = await this.clientsCollection.find({ clientId: clientId });
-        if (query.length == 0)
-            return undefined;
-        else
-            return query[0];
+    async setClientSecret(clientId, newSecret) {
+        var clientQuery = await this.clientsCollection.find({
+            _id: new mongodb_1.ObjectId(clientId)
+        });
+        if (!clientQuery[0])
+            throw new Error("client not found");
+        var client = clientQuery[0];
+        client.secretSalt = utils.randomAsciiString(6);
+        client.secret = utils.bcryptHash(newSecret + client.secretSalt);
+        // terminate current sessions
+        await this.deleteClientTokens(client._id);
+        await this.clientsCollection.updateOne(client);
     }
-    async getClientById(clientId) {
-        var query = await this.clientsCollection.find({ clientId: clientId });
+    async findClientById(clientId) {
+        var query = await this.clientsCollection.find({
+            _id: new mongodb_1.ObjectId(clientId)
+        });
         if (query.length == 0)
             return undefined;
         else
@@ -285,14 +299,18 @@ class AuthService {
             return query[0];
     }
     async findUserByMobile(mobile) {
-        var query = await this.usersCollection.find({ mobile: mobile.toLowerCase() });
+        var query = await this.usersCollection.find({
+            mobile: mobile.toLowerCase()
+        });
         if (query.length == 0)
             return undefined;
         else
             return query[0];
     }
     async findUserByUsername(username) {
-        var query = await this.usersCollection.find({ username: username.toLowerCase() });
+        var query = await this.usersCollection.find({
+            username: username.toLowerCase()
+        });
         if (query.length == 0)
             return undefined;
         else

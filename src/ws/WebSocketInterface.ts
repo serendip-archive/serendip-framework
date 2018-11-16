@@ -1,7 +1,7 @@
 import * as WS from "ws";
-import { UserTokenModel } from "../auth";
+import { TokenModel } from "../auth";
 
 export interface WebSocketInterface extends WS {
-  token?: UserTokenModel;
+  token?: TokenModel;
   path?: string;
 }

@@ -37,8 +37,8 @@ export class WebSocketService implements ServerServiceInterface {
    *
    */
   async sendToUser(userId: string, path: string, model: string) {
-    var user = await this.authService.findUserById(userId);
-    user.tokens.map(token => {
+    var tokens = await this.authService.findTokensByUserId(userId);
+    tokens.map(token => {
       return new Promise((resolve, reject) => {
         Server.wsServer.clients.forEach((client: WebSocketInterface) => {
           if (client.token.access_token == token.access_token)
@@ -66,7 +66,9 @@ export class WebSocketService implements ServerServiceInterface {
 
           if (!ws.token)
             try {
-              ws.token = await this.authService.checkToken(msg.toString());
+              ws.token = await this.authService.findTokenByAccessToken(
+                msg.toString()
+              );
               ws.path = req.url;
 
               console.log(

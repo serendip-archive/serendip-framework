@@ -4,7 +4,6 @@ import * as cluster from "cluster";
 import * as fs from "fs";
 import * as http from "http";
 import * as https from "https";
-import topoSort from "toposort";
 import * as _ from "underscore";
 import * as ws from "ws";
 
@@ -18,6 +17,7 @@ import {
 } from ".";
 import { WebSocketService } from "../ws/WebSocketService";
 import { ServerRouter } from "./ServerRouter";
+import { toposort } from "../utils";
 
 /**
  *  Will contain everything that we need from server
@@ -220,7 +220,6 @@ export class Server {
       .catch(e => serverStartCallback(e));
   }
 
-
   // FIXME: needs refactor
   private async addServices(servicesToRegister) {
     if (!servicesToRegister) return;
@@ -240,9 +239,10 @@ export class Server {
       servicesToStart[sv.name] = sv;
     });
 
-
     // TODO: replace toposort module with code :)
-    var sortedDependencies: string[] = (topoSort(dependenciesToSort) as any).reverse();
+    var sortedDependencies: string[] = (toposort(
+      dependenciesToSort
+    ) as any).reverse();
 
     if (sortedDependencies.length == 0) {
       if (servicesToRegister[0])

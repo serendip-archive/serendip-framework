@@ -5,7 +5,8 @@ export interface AccessTokenRequestInterface {
     username?: string;
     password?: string;
 
-    client: string;
+    clientId?: string;
+    clientSecret?: string;
     useragent: string;
 
 

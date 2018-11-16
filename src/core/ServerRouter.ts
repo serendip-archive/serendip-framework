@@ -206,37 +206,24 @@ export class ServerRouter {
           });
       else
         authService
-          .findClientById(req.client())
-          .then(client => {
-            if (client) {
-              var clientUrl = url.parse(client.url);
-              res.setHeader(
-                "Access-Control-Allow-Origin",
-                clientUrl.protocol + "//" + clientUrl.host
-              );
-            }
-
-            authService
-              .authorizeRequest(
-                req,
-                srvRoute.controllerName,
-                srvRoute.endpoint,
-                srvRoute.publicAccess
-              )
-              .then(() => {
-                ServerRouter.executeRoute(srvRoute, req, res)
-                  .then(data => {
-                    resolve(data);
-                  })
-                  .catch(e => {
-                    reject(e);
-                  });
+          .authorizeRequest(
+            req,
+            srvRoute.controllerName,
+            srvRoute.endpoint,
+            srvRoute.publicAccess
+          )
+          .then(() => {
+            ServerRouter.executeRoute(srvRoute, req, res)
+              .then(data => {
+                resolve(data);
               })
               .catch(e => {
                 reject(e);
               });
           })
-          .catch(e => {});
-    });
+          .catch(e => {
+            reject(e);
+          });
+    }).catch(e => {});
   }
 }
