@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongodb_1 = require("mongodb");
+const core_1 = require("../core");
 const _1 = require(".");
 const _ = require("underscore");
 /**
@@ -42,7 +43,8 @@ class DbService {
         if (this.mongoCollections.indexOf(collectionName) === -1) {
             await this.db.createCollection(collectionName);
             this.mongoCollections.push(collectionName);
-            console.log(`☑ collection ${collectionName} created .`);
+            if (core_1.Server.opts.logging == "info")
+                console.log(`☑ collection ${collectionName} created .`);
         }
         return new _1.DbCollection(this.db.collection(collectionName), track);
     }

@@ -84,7 +84,27 @@ class Server {
         req = _1.ServerRequestHelpers(req);
         res = _1.ServerResponseHelpers(res);
         // finding controller by path
-        var srvRoute = ServerRouter_1.ServerRouter.findSrvRoute(req);
+        var srvRoute = ServerRouter_1.ServerRouter.findSrvRoute(req, true);
+        res.setHeader("Access-Control-Allow-Origin", Server.opts.cors);
+        res.setHeader("Access-Control-Allow-Headers", "clientid, Authorization , Content-Type, Accept");
+        res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+        if (req.method === "OPTIONS") {
+            if (ServerRouter_1.ServerRouter.findSrvRoute(req, false)) {
+                res.statusCode = 200;
+                res.end();
+                return;
+            }
+            else {
+                res.statusCode = 200;
+                res.end();
+                return;
+            }
+        }
+        else if (!srvRoute) {
+            res.statusCode = 404;
+            res.end();
+            return;
+        }
         var logString = () => {
             return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : "unauthorized"}  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
         };
@@ -113,13 +133,13 @@ class Server {
             else {
                 if (!res.finished) {
                     res.statusCode = e.code || 500;
-                    res.statusMessage = e.message;
+                    res.statusMessage = e.message || e.Message;
                     res.json(_.pick(e, "code", "description"));
                 }
                 if (Server.opts.logging == "info")
                     console.error(`${logString()}`, chalk_1.default.red(JSON.stringify(e)));
                 else if (Server.opts.logging != "silent")
-                    console.error(`${logString()}`, chalk_1.default.red("\n[Error] " + e.message));
+                    console.error(`${logString()}`, chalk_1.default.red("\n[Error] " + (e.message || e.Message)));
             }
         });
     }

@@ -1,6 +1,4 @@
 export interface SmsServiceProviderInterface {
-
-    sendVerification(mobileNumber: string, code: string);
-    send(mobileNumbers: string[], message);
-
+  sendAuthCode(mobileNumber: string, code: string);
+  send(mobileNumbers: string[], message);
 }

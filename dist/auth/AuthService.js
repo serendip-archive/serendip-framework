@@ -43,9 +43,14 @@ class AuthService {
             }
         });
     }
-    sendVerifySms(userModel) {
+    sendVerifySms(userModel, useragent, ip) {
         if (AuthService.options.smsProvider)
-            return core_1.Server.services[AuthService.options.smsProvider].sendVerification(userModel.mobile, userModel.mobileVerificationCode);
+            return new Promise((resolve, reject) => {
+                core_1.Server.services[AuthService.options.smsProvider]
+                    .sendVerification(userModel.mobile, userModel.mobileVerificationCode, useragent, ip)
+                    .then(body => resolve(body))
+                    .catch(err => reject(new core_1.ServerError(500, err)));
+            });
         else
             throw new core_1.ServerError(500, "no sms provider");
     }
@@ -123,7 +128,9 @@ class AuthService {
         if (model.username)
             model.username = model.username.toLowerCase();
         if (model.mobile)
-            model.mobile = model.mobile.toLowerCase();
+            model.mobile = parseInt(model.mobile).toString();
+        if (model.mobileCountryCode)
+            model.mobileCountryCode = parseInt(model.mobileCountryCode).toString();
         if (model.email)
             model.email = model.email.toLowerCase();
         var userModel = new models_1.UserModel();
@@ -155,15 +162,36 @@ class AuthService {
         var registeredUser = await this.usersCollection.insertOne(userModel);
         await this.setNewPassword(registeredUser._id, model.password, ip, useragent);
         if (!confirmed) {
-            if (userModel.email)
-                this.sendVerifyEmail(userModel);
-            if (userModel.mobile)
-                this.sendVerifySms(userModel);
+            try {
+                if (userModel.email)
+                    this.sendVerifyEmail(userModel);
+            }
+            catch (error) {
+                if (core_1.Server.opts.logging != "silent")
+                    console.log("error in register email verification send", error);
+            }
+            try {
+                if (userModel.mobile)
+                    this.sendVerifySms(userModel, useragent, ip);
+            }
+            catch (error) {
+                if (core_1.Server.opts.logging != "silent")
+                    console.log("error in register sms verification send", error);
+            }
         }
         return registeredUser;
     }
+    async resetMobileVerifyCode(userId) {
+        var user = await this.findUserById(userId);
+        user.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
+        user.mobileVerified = false;
+        await this.usersCollection.updateOne(user, userId);
+    }
     userMatchPassword(user, password) {
         return utils.bcryptCompare(password + user.passwordSalt, user.password);
+    }
+    userMatchOneTimePassword(user, oneTimePassword) {
+        return utils.bcryptCompare(oneTimePassword + user.oneTimePasswordSalt, user.oneTimePassword);
     }
     clientMatchSecret(client, secret) {
         return utils.bcryptCompare(secret + client.secretSalt, client.secret);
@@ -245,7 +273,20 @@ class AuthService {
         var model = await this.tokenCollection.insertOne(newToken);
         return model;
     }
-    async sendPasswordResetToken(userId) {
+    async sendOneTimePassword(userId, useragent, ip) {
+        var user = await this.findUserById(userId);
+        var code = utils.randomNumberString(6).toLowerCase();
+        user.oneTimePasswordSalt = utils.randomAsciiString(6);
+        user.oneTimePasswordResetAt = Date.now();
+        user.oneTimePassword = utils.bcryptHash(code + user.oneTimePasswordSalt);
+        await this.usersCollection.updateOne(user);
+        if (user.mobile)
+            if (AuthService.options.smsProvider)
+                return core_1.Server.services[AuthService.options.smsProvider].sendAuthCode(user.mobile, code, useragent, ip);
+            else
+                throw new Error("no sms provider");
+    }
+    async sendPasswordResetToken(userId, useragent, ip) {
         var user = await this.findUserById(userId);
         user.passwordResetToken = utils.randomNumberString(6).toLowerCase();
         user.passwordResetTokenExpireAt =
@@ -254,7 +295,7 @@ class AuthService {
         await this.usersCollection.updateOne(user);
         if (user.mobile)
             if (AuthService.options.smsProvider)
-                return core_1.Server.services[AuthService.options.smsProvider].sendVerification(user.mobile, user.passwordResetToken);
+                return core_1.Server.services[AuthService.options.smsProvider].sendAuthCode(user.mobile, user.passwordResetToken, useragent, ip);
             else
                 throw new Error("no sms provider");
     }
@@ -292,6 +333,8 @@ class AuthService {
             return query[0];
     }
     async findUserByEmail(email) {
+        if (!email)
+            return undefined;
         var query = await this.usersCollection.find({ email: email.toLowerCase() });
         if (query.length == 0)
             return undefined;
@@ -299,17 +342,33 @@ class AuthService {
             return query[0];
     }
     async findUserByMobile(mobile) {
-        var query = await this.usersCollection.find({
-            mobile: mobile.toLowerCase()
-        });
+        if (!mobile)
+            return undefined;
+        var query = await this.usersCollection
+            .aggregate([])
+            .match({
+            $or: [
+                {
+                    mobile: mobile
+                },
+                {
+                    mobile: "0" + mobile
+                }
+            ]
+        })
+            .toArray();
         if (query.length == 0)
             return undefined;
         else
             return query[0];
     }
     async findUserByUsername(username) {
+        if (username)
+            username = username.toLowerCase();
+        else
+            return undefined;
         var query = await this.usersCollection.find({
-            username: username.toLowerCase()
+            username: username
         });
         if (query.length == 0)
             return undefined;

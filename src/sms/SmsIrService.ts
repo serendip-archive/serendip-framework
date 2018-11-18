@@ -1,197 +1,209 @@
 import { ServerServiceInterface } from "../core";
-import * as request from 'request';
+import * as request from "request";
+import * as _ from "underscore";
 import { SmsServiceProviderInterface } from ".";
 
-
 export interface SmsIrServiceOptionsInterface {
+  lineNumber: string;
+  apiKey: string;
+  secretKey: string;
 
-    lineNumber: string;
-    apiKey: string;
-    secretKey: string;
-
-
+  verifyTemplateWithIpAndUseragent?: number;
+  verifyTemplate?: number;
 }
 
+export class SmsIrService
+  implements ServerServiceInterface, SmsServiceProviderInterface {
+  static dependencies = ["DbService"];
 
-export class SmsIrService implements ServerServiceInterface, SmsServiceProviderInterface {
+  static options: SmsIrServiceOptionsInterface = {
+    apiKey: "",
+    lineNumber: "",
+    secretKey: "",
+    verifyTemplate: 5405,
+    verifyTemplateWithIpAndUseragent: 5406
+  };
 
-    static dependencies = ["DbService"];
+  static configure(options: SmsIrServiceOptionsInterface): void {
+    SmsIrService.options = _.extend(SmsIrService.options, options);
+  }
 
+  constructor() {
+    if (
+      !SmsIrService.options.apiKey ||
+      !SmsIrService.options.lineNumber ||
+      !SmsIrService.options.secretKey
+    )
+      throw new Error("Configure SmsIrService options.");
+  }
 
-    static options: SmsIrServiceOptionsInterface = { apiKey: '', lineNumber: '', secretKey: '' };
+  private token: string;
+  private tokenIssueAt: number;
 
+  getToken() {
+    return new Promise((resolve, reject) => {
+      if (this.tokenIssueAt)
+        if (Date.now() - this.tokenIssueAt < 1000 * 60 * 29)
+          return resolve(this.token);
 
-    static configure(options: SmsIrServiceOptionsInterface): void {
-        SmsIrService.options = options;
-    }
+      request(
+        {
+          method: "POST",
+          url: "http://RestfulSms.com/api/Token",
+          headers: {
+            "Cache-Control": "no-cache",
+            "Content-Type": "application/json"
+          },
+          body: {
+            UserApiKey: SmsIrService.options.apiKey,
+            SecretKey: SmsIrService.options.secretKey
+          },
+          json: true
+        },
+        (error, response, body) => {
+          if (error) {
+            console.log("SmsIrService getToken =>", error);
+            return reject(error);
+          }
+          if (body.TokenKey) {
+            this.token = body.TokenKey;
+            this.tokenIssueAt = Date.now();
 
-    constructor() {
-        if (!SmsIrService.options.apiKey ||
-            !SmsIrService.options.lineNumber ||
-            !SmsIrService.options.secretKey)
-            throw new Error('Configure SmsIrService options.')
-    }
+            console.log("SmsIrService getToken =>", body);
 
-    private token: string;
-    private tokenIssueAt: number
+            resolve(this.token);
+          } else reject();
+        }
+      );
+    });
+  }
 
-    getToken() {
-        return new Promise((resolve, reject) => {
+  credit() {
+    return new Promise((resolve, reject) => {
+      this.getToken().then(token => {
+        request(
+          {
+            method: "GET",
+            url: "http://RestfulSms.com/api/credit",
+            headers: {
+              "Cache-Control": "no-cache",
+              "Content-Type": "application/json",
+              "x-sms-ir-secure-token": token
+            },
+            json: true
+          },
+          (error, response, body) => {
+            if (error) return reject(error);
 
+            if (body.Credit) {
+              resolve(body.Credit);
+            } else reject();
+          }
+        );
+      });
+    });
+  }
 
-            if (this.tokenIssueAt)
-                if (Date.now() - this.tokenIssueAt < 1000 * 60 * 29)
-                    return resolve(this.token);
+  sendAuthCode(
+    mobileNumber: string,
+    code: string,
+    useragent?: string,
+    ip?: string
+  ) {
+    return new Promise((resolve, reject) => {
+      console.log("SmsIrService sendVerification =>", mobileNumber, code);
 
-            request({
-                method: 'POST',
-                url: 'http://RestfulSms.com/api/Token',
-                headers:
-                {
-                    'Cache-Control': 'no-cache',
-                    'Content-Type': 'application/json'
-                },
-                body:
-                {
-                    UserApiKey: SmsIrService.options.apiKey,
-                    SecretKey: SmsIrService.options.secretKey
-                },
-                json: true
-            }, (error, response, body) => {
-                if (error) {
-                    console.log('SmsIrService getToken =>', error);
-                    return reject(error);
-                }
-                if (body.TokenKey) {
-                    this.token = body.TokenKey;
-                    this.tokenIssueAt = Date.now();
+      var smsPayload = {
+        ParameterArray: [
+          { Parameter: "VerificationCode", ParameterValue: code }
+        ],
+        Mobile: mobileNumber,
+        TemplateId:
+          ip && useragent
+            ? SmsIrService.options.verifyTemplateWithIpAndUseragent
+            : SmsIrService.options.verifyTemplate
+      };
 
-                    console.log('SmsIrService getToken =>', body);
-
-                    resolve(this.token);
-
-                }
-                else
-                    reject();
-
-
-            });
-
+      if (ip)
+        smsPayload.ParameterArray.push({
+          Parameter: "ip",
+          ParameterValue: "IP: " + (ip == "::1" ? "127.0.0.1" : ip)
         });
 
-    }
-
-    credit() {
-        return new Promise((resolve, reject) => {
-
-            this.getToken().then(token => {
-
-                request({
-                    method: 'GET',
-                    url: 'http://RestfulSms.com/api/credit',
-                    headers:
-                    {
-                        'Cache-Control': 'no-cache',
-                        'Content-Type': 'application/json',
-                        'x-sms-ir-secure-token': token
-                    },
-                    json: true
-                }, (error, response, body) => {
-                    if (error)
-                        return reject(error);
-
-                    if (body.Credit) {
-                        resolve(body.Credit);
-                    }
-                    else
-                        reject();
-                });
-
-            });
+      if (useragent)
+        smsPayload.ParameterArray.push({
+          Parameter: "useragent",
+          ParameterValue: useragent
         });
 
-    }
+      this.getToken()
+        .then(token => {
+          request(
+            {
+              method: "POST",
+              url: "http://RestfulSms.com/api/UltraFastSend",
+              headers: {
+                "Cache-Control": "no-cache",
+                "Content-Type": "application/json",
+                "x-sms-ir-secure-token": token
+              },
+              body: smsPayload,
+              json: true
+            },
+            function(error, response, body) {
+              if (error) {
+                console.error("SmsIrService sendVerification Error =>", error);
+                return reject(error);
+              }
 
-    sendVerification(mobileNumber: string, code: string) {
-        return new Promise((resolve, reject) => {
-
-            console.log('SmsIrService sendVerification =>', mobileNumber, code);
-
-            this.getToken().then(token => {
-
-                request({
-                    method: 'POST',
-                    url: 'http://RestfulSms.com/api/VerificationCode',
-                    headers:
-                    {
-                        'Cache-Control': 'no-cache',
-                        'Content-Type': 'application/json',
-                        'x-sms-ir-secure-token': token
-                    },
-                    body: {
-                        Code: code,
-                        MobileNumber: mobileNumber
-                    },
-                    json: true
-                }, function (error, response, body) {
-
-                    if (error) {
-                        console.error('SmsIrService sendVerification Error =>', error);
-                        return reject(error);
-                    }
-
-                    console.log('SmsIrService sendVerification =>', body);
-
-                    resolve(body);
-
-                });
-            }).catch((e) => {
-                console.error(e);
-                reject(e);
-            });
-
+              if (!body.IsSuccessful) {
+                return reject(body);
+              } else {
+                resolve(body);
+              }
+            }
+          );
+        })
+        .catch(e => {
+          console.error(e);
+          reject(e);
         });
-    }
+    });
+  }
 
-    send(mobileNumbers: string[], message) {
-        return new Promise((resolve, reject) => {
+  send(mobileNumbers: string[], message) {
+    return new Promise((resolve, reject) => {
+      this.getToken()
+        .then(token => {
+          request(
+            {
+              method: "POST",
+              url: "http://RestfulSms.com/api/MessageSend",
+              headers: {
+                "Cache-Control": "no-cache",
+                "Content-Type": "application/json",
+                "x-sms-ir-secure-token": token
+              },
+              body: {
+                Messages: [message],
+                MobileNumbers: mobileNumbers,
+                LineNumber: SmsIrService.options.lineNumber,
+                SendDateTime: "",
+                CanContinueInCaseOfError: "true"
+              },
+              json: true
+            },
+            function(error, response, body) {
+              if (error) return reject(error);
 
-            this.getToken().then(token => {
+              if (body.IsSuccessful) resolve(body);
+              else reject(body);
+            }
+          );
+        })
+        .catch(reject);
+    });
+  }
 
-                request({
-                    method: 'POST',
-                    url: 'http://RestfulSms.com/api/MessageSend',
-                    headers:
-                    {
-                        'Cache-Control': 'no-cache',
-                        'Content-Type': 'application/json',
-                        'x-sms-ir-secure-token': token
-                    },
-                    body: {
-                        Messages: [message],
-                        MobileNumbers: mobileNumbers,
-                        LineNumber: SmsIrService.options.lineNumber,
-                        SendDateTime: '',
-                        CanContinueInCaseOfError: 'true'
-                    },
-                    json: true
-                }, function (error, response, body) {
-                    if (error)
-                        return reject(error);
-
-                    if (body.IsSuccessful)
-                        resolve(body);
-                    else
-                        reject(body);
-                });
-            }).catch(reject);
-
-        });
-    }
-
-    async start() {
-
-
-    }
-
+  async start() {}
 }

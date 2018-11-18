@@ -64,7 +64,34 @@ export class Server {
     res = ServerResponseHelpers(res);
 
     // finding controller by path
-    var srvRoute = ServerRouter.findSrvRoute(req);
+    var srvRoute = ServerRouter.findSrvRoute(req, true);
+
+    res.setHeader("Access-Control-Allow-Origin", Server.opts.cors);
+
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "clientid, Authorization , Content-Type, Accept"
+    );
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "POST, GET, PUT, DELETE, OPTIONS"
+    );
+
+    if (req.method === "OPTIONS") {
+      if (ServerRouter.findSrvRoute(req, false)) {
+        res.statusCode = 200;
+        res.end();
+        return;
+      } else {
+        res.statusCode = 200;
+        res.end();
+        return;
+      }
+    } else if (!srvRoute) {
+      res.statusCode = 404;
+      res.end();
+      return;
+    }
 
     var logString = () => {
       return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
@@ -101,7 +128,7 @@ export class Server {
         } else {
           if (!res.finished) {
             res.statusCode = e.code || 500;
-            res.statusMessage = e.message;
+            res.statusMessage = e.message || e.Message;
             res.json(_.pick(e, "code", "description"));
           }
 
@@ -110,7 +137,7 @@ export class Server {
           else if (Server.opts.logging != "silent")
             console.error(
               `${logString()}`,
-              chalk.red("\n[Error] " + e.message)
+              chalk.red("\n[Error] " + (e.message || e.Message))
             );
         }
       });

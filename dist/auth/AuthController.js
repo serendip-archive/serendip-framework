@@ -76,7 +76,7 @@ class AuthController {
                     if (user.passwordResetTokenIssueAt)
                         if (Date.now() - user.passwordResetTokenIssueAt < 1000 * 60)
                             return next(new core_1.ServerError(400, "minimum interval between reset password request is 60 seconds"));
-                    await this.authService.sendPasswordResetToken(user._id);
+                    await this.authService.sendPasswordResetToken(user._id, req.useragent().toString(), req.ip().toString());
                     done();
                 }
             ]
@@ -206,8 +206,12 @@ class AuthController {
                         .then(user => {
                         if (!user)
                             return next(new core_1.ServerError(400, "no user found with this mobile"));
-                        this.authService.sendVerifySms(user);
-                        done(200);
+                        this.authService
+                            .sendVerifySms(user, req.useragent().toString(), req.ip().toString())
+                            .then(() => {
+                            done(200);
+                        })
+                            .catch(err => next(err));
                         // .then((info) => {
                         //     res.json(info);
                         // }).catch((e) => {
@@ -340,6 +344,37 @@ class AuthController {
                 }
             ]
         };
+        this.oneTimePassword = {
+            method: "post",
+            publicAccess: true,
+            actions: [
+                async (req, res, next, done) => {
+                    var mobile = req.body.mobile;
+                    if (!mobile)
+                        return next(new core_1.ServerError(400, "mobile required"));
+                    if (core_1.Server.opts.logging == "info")
+                        var user = await this.authService.findUserByMobile(mobile);
+                    if (!user) {
+                        user = await this.authService.usersCollection.insertOne({
+                            registeredAt: Date.now(),
+                            mobile: parseInt(mobile).toString(),
+                            mobileCountryCode: req.body.mobileCountryCode || "+98",
+                            mobileVerified: false,
+                            username: parseInt(mobile).toString(),
+                            registeredByIp: req.ip().toString(),
+                            registeredByUseragent: req.useragent().toString(),
+                            groups: []
+                        });
+                    }
+                    this.authService
+                        .sendOneTimePassword(user._id, req.useragent().toString(), req.ip().toString())
+                        .then(() => done(200, "one-time password sent"))
+                        .catch(e => {
+                        next(new core_1.ServerError(500, e));
+                    });
+                }
+            ]
+        };
         this.token = {
             method: "post",
             publicAccess: true,
@@ -352,32 +387,55 @@ class AuthController {
                 async (req, res, next, done) => {
                     if (req.body.grant_type != "password")
                         return next();
+                    console.log(req.body);
                     var user = null;
                     user = await this.authService.findUserByUsername(req.body.username);
+                    console.log(user);
                     if (!user)
                         user = await this.authService.findUserByEmail(req.body.username);
+                    console.log(user);
+                    if (!user && req.body.mobile)
+                        user = await this.authService.findUserByMobile(parseInt(req.body.mobile).toString());
+                    console.log(user);
                     if (!user)
-                        user = await this.authService.findUserByMobile(req.body.username);
+                        user = await this.authService.findUserByMobile(parseInt(req.body.username).toString());
+                    console.log(user);
                     if (!user)
                         return next(new core_1.ServerError(400, "user/password invalid"));
+                    console.log(user);
                     var userMatchPassword = this.authService.userMatchPassword(user, req.body.password);
-                    if (!userMatchPassword)
-                        return next(new core_1.ServerError(400, "user/password invalid"));
-                    if (_1.AuthService.options.mobileConfirmationRequired)
-                        if (!user.mobileVerified)
-                            return next(new core_1.ServerError(403, "mobile not confirmed"));
-                    if (_1.AuthService.options.emailConfirmationRequired)
-                        if (!user.emailVerified)
-                            return next(new core_1.ServerError(403, "email not confirmed"));
+                    var userMatchOneTimePassword = this.authService.userMatchOneTimePassword(user, req.body.oneTimePassword);
+                    if (user.twoFactorEnabled) {
+                        if (!req.body.password)
+                            return next(new core_1.ServerError(400, "include password"));
+                        if (!userMatchPassword || !userMatchOneTimePassword)
+                            return next(new core_1.ServerError(400, "user/password invalid"));
+                    }
+                    else {
+                        if (!userMatchPassword && !userMatchOneTimePassword)
+                            return next(new core_1.ServerError(400, "user/password invalid"));
+                    }
+                    if (userMatchOneTimePassword) {
+                        user.mobileVerified = true;
+                        await this.authService.usersCollection.updateOne(user, user._id);
+                    }
+                    else {
+                        if (_1.AuthService.options.mobileConfirmationRequired)
+                            if (!user.mobileVerified)
+                                return next(new core_1.ServerError(403, "mobile not confirmed"));
+                        if (_1.AuthService.options.emailConfirmationRequired)
+                            if (!user.emailVerified)
+                                return next(new core_1.ServerError(403, "email not confirmed"));
+                    }
                     var userToken = await this.authService.insertToken({
                         userId: user._id.toString(),
                         useragent: req.useragent(),
                         grant_type: "password"
                     });
                     userToken.username = user.username;
+                    console.log(userToken);
                     res.json(userToken);
-                },
-                async (req, res, next, done) => { }
+                }
             ]
         };
         this.authService = core_1.Server.services["AuthService"];

@@ -2,6 +2,7 @@ import { Server, ServerEndpointInterface, ServerError } from "../core";
 import { Validator } from "../utils";
 import { AuthService, UserRegisterRequestInterface, UserModel } from ".";
 import * as _ from "underscore";
+import { reduce } from "async";
 
 /**
  * /api/auth/(endpoint)
@@ -113,7 +114,11 @@ export class AuthController {
               )
             );
 
-        await this.authService.sendPasswordResetToken(user._id);
+        await this.authService.sendPasswordResetToken(
+          user._id,
+          req.useragent().toString(),
+          req.ip().toString()
+        );
 
         done();
       }
@@ -296,9 +301,17 @@ export class AuthController {
                 new ServerError(400, "no user found with this mobile")
               );
 
-            this.authService.sendVerifySms(user);
+            this.authService
+              .sendVerifySms(
+                user,
+                req.useragent().toString(),
+                req.ip().toString()
+              )
+              .then(() => {
+                done(200);
+              })
+              .catch(err => next(err));
 
-            done(200);
             // .then((info) => {
             //     res.json(info);
             // }).catch((e) => {
@@ -454,6 +467,44 @@ export class AuthController {
     ]
   };
 
+  public oneTimePassword: ServerEndpointInterface = {
+    method: "post",
+    publicAccess: true,
+    actions: [
+      async (req, res, next, done) => {
+        var mobile = req.body.mobile;
+
+        if (!mobile) return next(new ServerError(400, "mobile required"));
+
+        if (Server.opts.logging == "info")
+          var user = await this.authService.findUserByMobile(mobile);
+
+        if (!user) {
+          user = await this.authService.usersCollection.insertOne({
+            registeredAt: Date.now(),
+            mobile: parseInt(mobile).toString(),
+            mobileCountryCode: req.body.mobileCountryCode || "+98",
+            mobileVerified: false,
+            username: parseInt(mobile).toString(),
+            registeredByIp: req.ip().toString(),
+            registeredByUseragent: req.useragent().toString(),
+            groups: []
+          });
+        }
+
+        this.authService
+          .sendOneTimePassword(
+            user._id,
+            req.useragent().toString(),
+            req.ip().toString()
+          )
+          .then(() => done(200, "one-time password sent"))
+          .catch(e => {
+            next(new ServerError(500, e));
+          });
+      }
+    ]
+  };
   public token: ServerEndpointInterface = {
     method: "post",
     publicAccess: true,
@@ -466,34 +517,65 @@ export class AuthController {
       },
       async (req, res, next, done) => {
         if (req.body.grant_type != "password") return next();
+        console.log(req.body);
 
         var user: UserModel = null;
 
         user = await this.authService.findUserByUsername(req.body.username);
-
+        console.log(user);
         if (!user)
           user = await this.authService.findUserByEmail(req.body.username);
+        console.log(user);
+
+        if (!user && req.body.mobile)
+          user = await this.authService.findUserByMobile(
+            parseInt(req.body.mobile).toString()
+          );
+        console.log(user);
 
         if (!user)
-          user = await this.authService.findUserByMobile(req.body.username);
+          user = await this.authService.findUserByMobile(
+            parseInt(req.body.username).toString()
+          );
+        console.log(user);
 
         if (!user) return next(new ServerError(400, "user/password invalid"));
+
+        console.log(user);
 
         var userMatchPassword = this.authService.userMatchPassword(
           user,
           req.body.password
         );
 
-        if (!userMatchPassword)
-          return next(new ServerError(400, "user/password invalid"));
+        var userMatchOneTimePassword = this.authService.userMatchOneTimePassword(
+          user,
+          req.body.oneTimePassword
+        );
 
-        if (AuthService.options.mobileConfirmationRequired)
-          if (!user.mobileVerified)
-            return next(new ServerError(403, "mobile not confirmed"));
+        if (user.twoFactorEnabled) {
+          if (!req.body.password)
+            return next(new ServerError(400, "include password"));
 
-        if (AuthService.options.emailConfirmationRequired)
-          if (!user.emailVerified)
-            return next(new ServerError(403, "email not confirmed"));
+          if (!userMatchPassword || !userMatchOneTimePassword)
+            return next(new ServerError(400, "user/password invalid"));
+        } else {
+          if (!userMatchPassword && !userMatchOneTimePassword)
+            return next(new ServerError(400, "user/password invalid"));
+        }
+
+        if (userMatchOneTimePassword) {
+          user.mobileVerified = true;
+          await this.authService.usersCollection.updateOne(user, user._id);
+        } else {
+          if (AuthService.options.mobileConfirmationRequired)
+            if (!user.mobileVerified)
+              return next(new ServerError(403, "mobile not confirmed"));
+
+          if (AuthService.options.emailConfirmationRequired)
+            if (!user.emailVerified)
+              return next(new ServerError(403, "email not confirmed"));
+        }
 
         var userToken = await this.authService.insertToken({
           userId: user._id.toString(),
@@ -503,9 +585,10 @@ export class AuthController {
 
         userToken.username = user.username;
 
+        console.log(userToken);
+
         res.json(userToken);
-      },
-      async (req, res, next, done) => {}
+      }
     ]
   };
 }

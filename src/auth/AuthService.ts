@@ -15,7 +15,6 @@ import {
 import * as _ from "underscore";
 import { EmailService, SmsIrService } from "..";
 import { SmsServiceProviderInterface } from "../sms";
-import { reject } from "async";
 
 export interface AuthServiceOptionsInterface {
   /**
@@ -99,12 +98,23 @@ export class AuthService implements ServerServiceInterface {
     });
   }
 
-  public sendVerifySms(userModel: UserModel): Promise<any> {
+  public sendVerifySms(
+    userModel: UserModel,
+    useragent?: string,
+    ip?: string
+  ): Promise<any> {
     if (AuthService.options.smsProvider)
-      return Server.services[AuthService.options.smsProvider].sendVerification(
-        userModel.mobile,
-        userModel.mobileVerificationCode
-      );
+      return new Promise((resolve, reject) => {
+        Server.services[AuthService.options.smsProvider]
+          .sendVerification(
+            userModel.mobile,
+            userModel.mobileVerificationCode,
+            useragent,
+            ip
+          )
+          .then(body => resolve(body))
+          .catch(err => reject(new ServerError(500, err)));
+      });
     else throw new ServerError(500, "no sms provider");
   }
 
@@ -210,7 +220,9 @@ export class AuthService implements ServerServiceInterface {
   ): Promise<UserModel> {
     if (model.username) model.username = model.username.toLowerCase();
 
-    if (model.mobile) model.mobile = model.mobile.toLowerCase();
+    if (model.mobile) model.mobile = parseInt(model.mobile).toString();
+    if (model.mobileCountryCode)
+      model.mobileCountryCode = parseInt(model.mobileCountryCode).toString();
 
     if (model.email) model.email = model.email.toLowerCase();
 
@@ -256,15 +268,42 @@ export class AuthService implements ServerServiceInterface {
     );
 
     if (!confirmed) {
-      if (userModel.email) this.sendVerifyEmail(userModel);
-      if (userModel.mobile) this.sendVerifySms(userModel);
+      try {
+        if (userModel.email) this.sendVerifyEmail(userModel);
+      } catch (error) {
+        if (Server.opts.logging != "silent")
+          console.log("error in register email verification send", error);
+      }
+
+      try {
+        if (userModel.mobile) this.sendVerifySms(userModel, useragent, ip);
+      } catch (error) {
+        if (Server.opts.logging != "silent")
+          console.log("error in register sms verification send", error);
+      }
     }
 
     return registeredUser;
   }
 
+  async resetMobileVerifyCode(userId) {
+    var user = await this.findUserById(userId);
+    user.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
+    user.mobileVerified = false;
+    await this.usersCollection.updateOne(user, userId);
+  }
   public userMatchPassword(user: UserModel, password: string): boolean {
     return utils.bcryptCompare(password + user.passwordSalt, user.password);
+  }
+
+  public userMatchOneTimePassword(
+    user: UserModel,
+    oneTimePassword: string
+  ): boolean {
+    return utils.bcryptCompare(
+      oneTimePassword + user.oneTimePasswordSalt,
+      user.oneTimePassword
+    );
   }
 
   public clientMatchSecret(client: ClientModel, secret: string): boolean {
@@ -380,7 +419,31 @@ export class AuthService implements ServerServiceInterface {
     return model;
   }
 
-  public async sendPasswordResetToken(userId: string): Promise<any> {
+  async sendOneTimePassword(userId, useragent, ip) {
+    var user: UserModel = await this.findUserById(userId);
+    var code = utils.randomNumberString(6).toLowerCase();
+
+    user.oneTimePasswordSalt = utils.randomAsciiString(6);
+    user.oneTimePasswordResetAt = Date.now();
+    user.oneTimePassword = utils.bcryptHash(code + user.oneTimePasswordSalt);
+
+    await this.usersCollection.updateOne(user);
+
+    if (user.mobile)
+      if (AuthService.options.smsProvider)
+        return Server.services[AuthService.options.smsProvider].sendAuthCode(
+          user.mobile,
+          code,
+          useragent,
+          ip
+        );
+      else throw new Error("no sms provider");
+  }
+  public async sendPasswordResetToken(
+    userId: string,
+    useragent?: string,
+    ip?: string
+  ): Promise<any> {
     var user: UserModel = await this.findUserById(userId);
 
     user.passwordResetToken = utils.randomNumberString(6).toLowerCase();
@@ -394,9 +457,12 @@ export class AuthService implements ServerServiceInterface {
 
     if (user.mobile)
       if (AuthService.options.smsProvider)
-        return Server.services[
-          AuthService.options.smsProvider
-        ].sendVerification(user.mobile, user.passwordResetToken);
+        return Server.services[AuthService.options.smsProvider].sendAuthCode(
+          user.mobile,
+          user.passwordResetToken,
+          useragent,
+          ip
+        );
       else throw new Error("no sms provider");
   }
 
@@ -448,6 +514,8 @@ export class AuthService implements ServerServiceInterface {
   }
 
   public async findUserByEmail(email: string): Promise<UserModel> {
+    if (!email) return undefined;
+
     var query = await this.usersCollection.find({ email: email.toLowerCase() });
 
     if (query.length == 0) return undefined;
@@ -455,17 +523,31 @@ export class AuthService implements ServerServiceInterface {
   }
 
   public async findUserByMobile(mobile: string): Promise<UserModel> {
-    var query = await this.usersCollection.find({
-      mobile: mobile.toLowerCase()
-    });
+    if (!mobile) return undefined;
+
+    var query = await this.usersCollection
+      .aggregate([])
+      .match({
+        $or: [
+          {
+            mobile: mobile
+          },
+          {
+            mobile: "0" + mobile
+          }
+        ]
+      })
+      .toArray();
 
     if (query.length == 0) return undefined;
     else return query[0];
   }
 
   public async findUserByUsername(username: string): Promise<UserModel> {
+    if (username) username = username.toLowerCase();
+    else return undefined;
     var query = await this.usersCollection.find({
-      username: username.toLowerCase()
+      username: username
     });
 
     if (query.length == 0) return undefined;

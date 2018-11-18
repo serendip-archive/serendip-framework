@@ -61,14 +61,17 @@ export class ServerRouter {
     end: false
   });
 
-  static findSrvRoute(req): ServerRouteInterface {
+  static findSrvRoute(req, matchMethod: boolean): ServerRouteInterface {
     var parsedUrl = url.parse(req.url);
     var path = parsedUrl.pathname;
 
     // finding controller by path
     var srvRoute: ServerRouteInterface = Server.routes.find(route => {
       // Check if controller exist and requested method matches
-      if (route.method.toLowerCase() != req.method.toLowerCase()) return false;
+
+      if (matchMethod)
+        if (route.method.toLowerCase() != req.method.toLowerCase())
+          return false;
 
       var matcher = ServerRouter.routerPathMatcher(route.route);
 
@@ -165,34 +168,15 @@ export class ServerRouter {
   ): Promise<any> {
     return new Promise((resolve, reject) => {
       if (Server.opts.cors)
-        res.setHeader("Access-Control-Allow-Origin", Server.opts.cors);
+        if (!srvRoute) {
+          // Check if controller exist and requested method matches
+          var err = new ServerError(
+            404,
+            `[${req.method.toUpperCase()} ${req.url}] route not found !`
+          );
 
-      res.setHeader(
-        "Access-Control-Allow-Headers",
-        "clientid, Authorization, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept"
-      );
-      res.setHeader(
-        "Access-Control-Allow-Methods",
-        "POST, GET, PUT, DELETE, OPTIONS"
-      );
-
-      if (req.method === "OPTIONS") {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        res.statusCode = 200;
-        res.end();
-        resolve();
-        return;
-      }
-
-      // Check if controller exist and requested method matches
-      if (!srvRoute) {
-        var err = new ServerError(
-          404,
-          `[${req.method.toUpperCase()} ${req.url}] route not found !`
-        );
-
-        return reject(err);
-      }
+          return reject(err);
+        }
 
       var authService: AuthService = Server.services["AuthService"];
 

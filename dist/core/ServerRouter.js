@@ -37,14 +37,15 @@ class ServerRouter {
             });
         });
     }
-    static findSrvRoute(req) {
+    static findSrvRoute(req, matchMethod) {
         var parsedUrl = url.parse(req.url);
         var path = parsedUrl.pathname;
         // finding controller by path
         var srvRoute = _1.Server.routes.find(route => {
             // Check if controller exist and requested method matches
-            if (route.method.toLowerCase() != req.method.toLowerCase())
-                return false;
+            if (matchMethod)
+                if (route.method.toLowerCase() != req.method.toLowerCase())
+                    return false;
             var matcher = ServerRouter.routerPathMatcher(route.route);
             var params = matcher(path);
             if (params !== false) {
@@ -108,21 +109,11 @@ class ServerRouter {
     static routeIt(req, res, srvRoute) {
         return new Promise((resolve, reject) => {
             if (_1.Server.opts.cors)
-                res.setHeader("Access-Control-Allow-Origin", _1.Server.opts.cors);
-            res.setHeader("Access-Control-Allow-Headers", "clientid, Authorization, X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept");
-            res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
-            if (req.method === "OPTIONS") {
-                res.setHeader("Access-Control-Allow-Origin", "*");
-                res.statusCode = 200;
-                res.end();
-                resolve();
-                return;
-            }
-            // Check if controller exist and requested method matches
-            if (!srvRoute) {
-                var err = new _1.ServerError(404, `[${req.method.toUpperCase()} ${req.url}] route not found !`);
-                return reject(err);
-            }
+                if (!srvRoute) {
+                    // Check if controller exist and requested method matches
+                    var err = new _1.ServerError(404, `[${req.method.toUpperCase()} ${req.url}] route not found !`);
+                    return reject(err);
+                }
             var authService = _1.Server.services["AuthService"];
             if (!authService)
                 ServerRouter.executeRoute(srvRoute, req, res)
