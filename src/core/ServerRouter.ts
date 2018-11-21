@@ -25,7 +25,6 @@ export class ServerRouter {
     callback
   ): void {
     var filePath = path.join(Server.staticPath, req.url.split("?")[0]);
-
     fs.stat(filePath, (err, stat) => {
       if (err) {
         res.writeHead(404);
@@ -167,16 +166,16 @@ export class ServerRouter {
     srvRoute: ServerRouteInterface
   ): Promise<any> {
     return new Promise((resolve, reject) => {
-      if (Server.opts.cors)
-        if (!srvRoute) {
-          // Check if controller exist and requested method matches
-          var err = new ServerError(
-            404,
-            `[${req.method.toUpperCase()} ${req.url}] route not found !`
-          );
+      if (!srvRoute) {
 
-          return reject(err);
-        }
+        // Check if controller exist and requested method matches
+        var err = new ServerError(
+          404,
+          `[${req.method.toUpperCase()} ${req.url}] route not found !`
+        );
+         reject(err);
+         return;
+      }
 
       var authService: AuthService = Server.services["AuthService"];
 
@@ -208,6 +207,6 @@ export class ServerRouter {
           .catch(e => {
             reject(e);
           });
-    }).catch(e => {});
+    });
   }
 }

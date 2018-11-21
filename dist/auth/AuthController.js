@@ -387,22 +387,16 @@ class AuthController {
                 async (req, res, next, done) => {
                     if (req.body.grant_type != "password")
                         return next();
-                    console.log(req.body);
                     var user = null;
                     user = await this.authService.findUserByUsername(req.body.username);
-                    console.log(user);
                     if (!user)
                         user = await this.authService.findUserByEmail(req.body.username);
-                    console.log(user);
                     if (!user && req.body.mobile)
                         user = await this.authService.findUserByMobile(parseInt(req.body.mobile).toString());
-                    console.log(user);
                     if (!user)
                         user = await this.authService.findUserByMobile(parseInt(req.body.username).toString());
-                    console.log(user);
                     if (!user)
                         return next(new core_1.ServerError(400, "user/password invalid"));
-                    console.log(user);
                     var userMatchPassword = this.authService.userMatchPassword(user, req.body.password);
                     var userMatchOneTimePassword = this.authService.userMatchOneTimePassword(user, req.body.oneTimePassword);
                     if (user.twoFactorEnabled) {

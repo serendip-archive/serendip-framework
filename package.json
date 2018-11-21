@@ -1,6 +1,6 @@
 {
   "name": "serendip",
-  "version": "1.0.22",
+  "version": "1.0.24",
   "description": "A Node.js framework",
   "main": "index.js",
   "scripts": {

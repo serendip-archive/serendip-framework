@@ -108,12 +108,12 @@ class ServerRouter {
     }
     static routeIt(req, res, srvRoute) {
         return new Promise((resolve, reject) => {
-            if (_1.Server.opts.cors)
-                if (!srvRoute) {
-                    // Check if controller exist and requested method matches
-                    var err = new _1.ServerError(404, `[${req.method.toUpperCase()} ${req.url}] route not found !`);
-                    return reject(err);
-                }
+            if (!srvRoute) {
+                // Check if controller exist and requested method matches
+                var err = new _1.ServerError(404, `[${req.method.toUpperCase()} ${req.url}] route not found !`);
+                reject(err);
+                return;
+            }
             var authService = _1.Server.services["AuthService"];
             if (!authService)
                 ServerRouter.executeRoute(srvRoute, req, res)
@@ -138,7 +138,7 @@ class ServerRouter {
                     .catch(e => {
                     reject(e);
                 });
-        }).catch(e => { });
+        });
     }
 }
 ServerRouter.routerPathMatcher = pathMatch({

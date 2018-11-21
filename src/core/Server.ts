@@ -57,16 +57,22 @@ export class Server {
     return new Server(opts, worker, serverStartCallback);
   }
 
-  private static async processRequest(req, res) {
+  private static async processRequest(req , res) {
+ 
     var requestReceived = Date.now();
 
     req = ServerRequestHelpers(req);
     res = ServerResponseHelpers(res);
 
+    if (Server.opts.logging == "info")
+    console.info(chalk.gray(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${ req.method }] "${req.url}" ${req.ip()}/${req.useragent()} process request started.`));
+
+
     // finding controller by path
     var srvRoute = ServerRouter.findSrvRoute(req, true);
 
-    res.setHeader("Access-Control-Allow-Origin", Server.opts.cors);
+    if (Server.opts.cors)
+      res.setHeader("Access-Control-Allow-Origin", Server.opts.cors);
 
     res.setHeader(
       "Access-Control-Allow-Headers",
@@ -87,10 +93,6 @@ export class Server {
         res.end();
         return;
       }
-    } else if (!srvRoute) {
-      res.statusCode = 404;
-      res.end();
-      return;
     }
 
     var logString = () => {

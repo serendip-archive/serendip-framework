@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Start_1 = require("./Start");
+const start_1 = require("./start");
 const _1 = require(".");
 const path_1 = require("path");
 _1.AuthService.configure({
@@ -11,7 +11,7 @@ _1.DbService.configure({
     mongoDb: 'serendipTests',
     mongoUrl: 'mongodb://localhost:27017'
 });
-Start_1.start({
+start_1.start({
     cert: path_1.join(__dirname, '..', 'localhost_cert.pem'),
     key: path_1.join(__dirname, '..', 'localhost_key.pem'),
     staticPath: __dirname,

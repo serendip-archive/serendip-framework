@@ -517,31 +517,25 @@ export class AuthController {
       },
       async (req, res, next, done) => {
         if (req.body.grant_type != "password") return next();
-        console.log(req.body);
 
         var user: UserModel = null;
 
         user = await this.authService.findUserByUsername(req.body.username);
-        console.log(user);
         if (!user)
           user = await this.authService.findUserByEmail(req.body.username);
-        console.log(user);
 
         if (!user && req.body.mobile)
           user = await this.authService.findUserByMobile(
             parseInt(req.body.mobile).toString()
           );
-        console.log(user);
 
         if (!user)
           user = await this.authService.findUserByMobile(
             parseInt(req.body.username).toString()
           );
-        console.log(user);
 
         if (!user) return next(new ServerError(400, "user/password invalid"));
 
-        console.log(user);
 
         var userMatchPassword = this.authService.userMatchPassword(
           user,

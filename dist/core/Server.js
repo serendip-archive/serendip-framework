@@ -83,9 +83,12 @@ class Server {
         var requestReceived = Date.now();
         req = _1.ServerRequestHelpers(req);
         res = _1.ServerResponseHelpers(res);
+        if (Server.opts.logging == "info")
+            console.info(chalk_1.default.gray(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.useragent()} process request started.`));
         // finding controller by path
         var srvRoute = ServerRouter_1.ServerRouter.findSrvRoute(req, true);
-        res.setHeader("Access-Control-Allow-Origin", Server.opts.cors);
+        if (Server.opts.cors)
+            res.setHeader("Access-Control-Allow-Origin", Server.opts.cors);
         res.setHeader("Access-Control-Allow-Headers", "clientid, Authorization , Content-Type, Accept");
         res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
         if (req.method === "OPTIONS") {
@@ -99,11 +102,6 @@ class Server {
                 res.end();
                 return;
             }
-        }
-        else if (!srvRoute) {
-            res.statusCode = 404;
-            res.end();
-            return;
         }
         var logString = () => {
             return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : "unauthorized"}  ${req.useragent()}  ${Date.now() - requestReceived}ms`;

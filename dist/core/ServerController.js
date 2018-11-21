@@ -4,8 +4,19 @@ const _1 = require(".");
 const _ = require("underscore");
 class ServerController {
     constructor() {
+        this.clusterTesting = {
+            publicAccess: true,
+            route: "/api/server/cluster-testing",
+            method: "get",
+            actions: [
+                (req, res, next, done) => {
+                    res.write("received in worker " + _1.Server.worker.id);
+                    res.end();
+                }
+            ]
+        };
         this.routes = {
-            method: 'get',
+            method: "get",
             actions: [
                 (req, res, next, done) => {
                     setTimeout(() => {
@@ -13,8 +24,8 @@ class ServerController {
                     }, 200);
                 },
                 (req, res, next, done) => {
-                    var model = _.map(_1.Server.routes, (route) => {
-                        route = _.omit(route, 'controllerObject');
+                    var model = _.map(_1.Server.routes, route => {
+                        route = _.omit(route, "controllerObject");
                         return route;
                     });
                     res.json(model);
@@ -22,7 +33,7 @@ class ServerController {
             ]
         };
         this.services = {
-            method: 'get',
+            method: "get",
             actions: [
                 (req, res, next, done) => {
                     var model = _.keys(_1.Server.services);
