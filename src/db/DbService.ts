@@ -21,7 +21,7 @@ export interface DbServiceOptionsInterface {
 export class DbService implements ServerServiceInterface {
   static dependencies = [];
 
-  public entityCollection: DbCollection<EntityChangeModel>;
+  public entityChangeCollection: DbCollection<EntityChangeModel>;
   private mongoCollections: string[] = [];
   /**
    * Instance of mongodb database
@@ -68,7 +68,7 @@ export class DbService implements ServerServiceInterface {
       this.mongoCollections.push(obj.collectionName);
     });
 
-    this.entityCollection = await this.collection<EntityChangeModel>(
+    this.entityChangeCollection = await this.collection<EntityChangeModel>(
       "EntityChanges",
       false
     );

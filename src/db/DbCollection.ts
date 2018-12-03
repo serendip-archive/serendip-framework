@@ -1,194 +1,155 @@
 import { Collection, IndexOptions, ObjectID, AggregationCursor } from "mongodb";
-import * as deep from 'deep-diff';
+import * as deep from "deep-diff";
 import { DbService, entityChangeType } from ".";
 import { Server } from "..";
 
+export class DbCollection<T> {
+  private _collection: Collection<T>;
+  private _track = false;
+  private _dbService: DbService;
 
-export class DbCollection<T>{
+  constructor(collection: Collection<T>, track: boolean) {
+    this._collection = collection;
 
-    private _collection: Collection<T>;
-    private _track = false;
-    private _dbService: DbService;
+    this._track = track;
 
-    constructor(collection: Collection<T>, track: boolean) {
+    this._dbService = Server.services["DbService"];
 
-        this._collection = collection;
+    if (this._collection.collectionName == "EntityChanges") this._track = false;
+  }
 
-        this._track = track;
+  public async createIndex(fieldOrSpec: any, options: IndexOptions) {
+    return this._collection.createIndex(fieldOrSpec, options);
+  }
 
-        this._dbService = Server.services["DbService"];
+  public find(query, skip?: any, limit?: any): Promise<T[]> {
+    if (skip) skip = parseInt(skip);
 
-        if (this._collection.collectionName == "EntityChanges")
-            this._track = false;
+    if (limit) limit = parseInt(limit);
 
-
-
-    }
-
-    public async createIndex(fieldOrSpec: any, options: IndexOptions) {
-
-        return this._collection.createIndex(fieldOrSpec, options);
-
-    };
-
-    public find(query, skip?: any, limit?: any): Promise<T[]> {
-
-        if (skip)
-            skip = parseInt(skip);
-
-        if (limit)
-            limit = parseInt(limit);
-
-        return new Promise((resolve, reject) => {
-
-
-            if (skip >= 0 && limit > 0)
-                this._collection.find<T>(query)
-                    .skip(skip)
-                    .limit(limit)
-                    .toArray((err, results) => {
-                        if (err)
-                            return reject(err);
-                        return resolve(results);
-                    });
-            else
-                this._collection
-                    .find<T>(query)
-                    .toArray((err, results) => {
-                        if (err)
-                            return reject(err);
-                        return resolve(results);
-                    });
-
+    return new Promise((resolve, reject) => {
+      if (skip >= 0 && limit > 0)
+        this._collection
+          .find<T>(query)
+          .skip(skip)
+          .limit(limit)
+          .toArray((err, results) => {
+            if (err) return reject(err);
+            return resolve(results);
+          });
+      else
+        this._collection.find<T>(query).toArray((err, results) => {
+          if (err) return reject(err);
+          return resolve(results);
         });
+    });
+  }
 
-    }
+  public count(query): Promise<Number> {
+    return this._collection.find(query).count();
+  }
 
-    public count(query): Promise<Number> {
-        return this._collection.find(query).count();
-    }
+  public aggregate(pipeline): AggregationCursor<T> {
+    return this._collection.aggregate(pipeline);
+  }
 
+  public updateOne(model: T, userId?: string): Promise<T> {
+    return new Promise((resolve, reject) => {
+      model["_id"] = new ObjectID(model["_id"]);
 
-    public aggregate(pipeline): AggregationCursor<T> {
-        return this._collection.aggregate(pipeline);
-    }
+      model["_vdate"] = Date.now();
 
-    public updateOne(model: T, userId?: string): Promise<T> {
+      this._collection.findOneAndUpdate(
+        { _id: model["_id"] },
+        { $set: model },
+        {
+          upsert: true,
+          returnOriginal: false
+        },
+        (err, result) => {
+          if (err) return reject(err);
 
+          resolve(result.value);
 
-        return new Promise((resolve, reject) => {
-
-            model["_id"] = new ObjectID(model["_id"]);
-
-            model["_vdate"] = Date.now();
-
-            this._collection.findOneAndUpdate(
-                { _id: model["_id"] },
-                { $set: model },
-                {
-                    upsert: true,
-                    returnOriginal: false
-                }, (err, result) => {
-
-                    if (err)
-                        return reject(err);
-
-                    resolve();
-
-                    if (this._track)
-                        this._dbService.entityCollection.insertOne({
-                            date: Date.now(),
-                            diff: deep.diff(result.value, model),
-                            type: entityChangeType.Update,
-                            userId: userId,
-                            collection: this._collection.collectionName,
-                            entityId: model["_id"]
-                        });
-
-
-                });
-
-        });
-
-    }
-
-    public deleteOne(_id: string | ObjectID, userId?: string): Promise<T> {
-
-        return new Promise(async (resolve, reject) => {
-
-            var model: any;
-
-            var modelQuery = await this.find({ _id: new ObjectID(_id) });
-            if (modelQuery && modelQuery[0])
-                model = modelQuery[0];
-            else
-                return reject('not found');
-
-            this._collection.deleteOne({ _id: new ObjectID(_id) }).then(async () => {
-
-
-                if (this._track) {
-                    await this._dbService.entityCollection.insertOne({
-                        date: Date.now(),
-                        diff: null,
-                        type: entityChangeType.Delete,
-                        userId: userId,
-                        collection: this._collection.collectionName,
-                        entityId: _id,
-                        model: model
-                    });
-
-                }
-
-                resolve(model);
-
-            }).catch((err) => {
-
-                console.error(`error in deleting ${_id} from ${this._collection.collectionName}`)
-                reject(err);
+          if (this._track)
+            this._dbService.entityChangeCollection.insertOne({
+              date: Date.now(),
+              model,
+              diff: deep.diff(result.value, model),
+              type: entityChangeType.Update,
+              userId: userId,
+              collection: this._collection.collectionName,
+              entityId: model["_id"]
             });
+        }
+      );
+    });
+  }
+
+  public deleteOne(_id: string | ObjectID, userId?: string): Promise<T> {
+    return new Promise(async (resolve, reject) => {
+      var model: any;
+
+      var modelQuery = await this.find({ _id: new ObjectID(_id) });
+      if (modelQuery && modelQuery[0]) model = modelQuery[0];
+      else return reject("not found");
+
+      this._collection
+        .deleteOne({ _id: new ObjectID(_id) })
+        .then(async () => {
+          if (this._track) {
+            await this._dbService.entityChangeCollection.insertOne({
+              date: Date.now(),
+              diff: null,
+              type: entityChangeType.Delete,
+              userId: userId,
+              collection: this._collection.collectionName,
+              entityId: _id,
+              model: model
+            });
+          }
+
+          resolve(model);
+        })
+        .catch(err => {
+          console.error(
+            `error in deleting ${_id} from ${this._collection.collectionName}`
+          );
+          reject(err);
         });
-    }
+    });
+  }
 
-    public insertOne(model: T, userId?: string): Promise<T> {
+  public insertOne(model: T, userId?: string): Promise<T> {
+    model["_vdate"] = Date.now();
 
-        model["_vdate"] = Date.now();
+    return new Promise((resolve, reject) => {
+      var objectId: ObjectID = new ObjectID();
 
+      var doc = this._collection.findOneAndUpdate(
+        { _id: objectId },
+        { $set: model },
+        {
+          upsert: true,
+          returnOriginal: false
+        },
+        (err, result) => {
+          if (err) return reject(err);
 
-        return new Promise((resolve, reject) => {
-            var objectId: ObjectID = new ObjectID();
+          resolve(result.value);
 
-            var doc = this._collection.findOneAndUpdate(
-                { _id: objectId },
-                { $set: model },
-                {
-
-                    upsert: true,
-                    returnOriginal: false
-
-                }, (err, result) => {
-
-                    if (err)
-                        return reject(err);
-
-                    resolve(result.value);
-
-                    if (this._track)
-                        this._dbService.entityCollection.insertOne({
-                            date: Date.now(),
-                            diff: deep.diff({}, result.value),
-                            type: entityChangeType.Create,
-                            userId: userId,
-                            collection: this._collection.collectionName,
-                            entityId: objectId
-                        });
-
-
-                });
-
-        });
-
-    }
-
-
+          if (this._track)
+            this._dbService.entityChangeCollection.insertOne({
+              date: Date.now(),
+              model: result.value,
+              diff: deep.diff({}, result.value),
+              type: entityChangeType.Create,
+              userId: userId,
+              collection: this._collection.collectionName,
+              entityId: objectId
+            });
+        }
+      );
+    });
+  }
 }

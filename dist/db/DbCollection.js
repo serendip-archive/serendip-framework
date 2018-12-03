@@ -16,7 +16,6 @@ class DbCollection {
     async createIndex(fieldOrSpec, options) {
         return this._collection.createIndex(fieldOrSpec, options);
     }
-    ;
     find(query, skip, limit) {
         if (skip)
             skip = parseInt(skip);
@@ -24,7 +23,8 @@ class DbCollection {
             limit = parseInt(limit);
         return new Promise((resolve, reject) => {
             if (skip >= 0 && limit > 0)
-                this._collection.find(query)
+                this._collection
+                    .find(query)
                     .skip(skip)
                     .limit(limit)
                     .toArray((err, results) => {
@@ -33,9 +33,7 @@ class DbCollection {
                     return resolve(results);
                 });
             else
-                this._collection
-                    .find(query)
-                    .toArray((err, results) => {
+                this._collection.find(query).toArray((err, results) => {
                     if (err)
                         return reject(err);
                     return resolve(results);
@@ -58,10 +56,11 @@ class DbCollection {
             }, (err, result) => {
                 if (err)
                     return reject(err);
-                resolve();
+                resolve(result.value);
                 if (this._track)
-                    this._dbService.entityCollection.insertOne({
+                    this._dbService.entityChangeCollection.insertOne({
                         date: Date.now(),
+                        model,
                         diff: deep.diff(result.value, model),
                         type: _1.entityChangeType.Update,
                         userId: userId,
@@ -78,10 +77,12 @@ class DbCollection {
             if (modelQuery && modelQuery[0])
                 model = modelQuery[0];
             else
-                return reject('not found');
-            this._collection.deleteOne({ _id: new mongodb_1.ObjectID(_id) }).then(async () => {
+                return reject("not found");
+            this._collection
+                .deleteOne({ _id: new mongodb_1.ObjectID(_id) })
+                .then(async () => {
                 if (this._track) {
-                    await this._dbService.entityCollection.insertOne({
+                    await this._dbService.entityChangeCollection.insertOne({
                         date: Date.now(),
                         diff: null,
                         type: _1.entityChangeType.Delete,
@@ -92,7 +93,8 @@ class DbCollection {
                     });
                 }
                 resolve(model);
-            }).catch((err) => {
+            })
+                .catch(err => {
                 console.error(`error in deleting ${_id} from ${this._collection.collectionName}`);
                 reject(err);
             });
@@ -110,8 +112,9 @@ class DbCollection {
                     return reject(err);
                 resolve(result.value);
                 if (this._track)
-                    this._dbService.entityCollection.insertOne({
+                    this._dbService.entityChangeCollection.insertOne({
                         date: Date.now(),
+                        model: result.value,
                         diff: deep.diff({}, result.value),
                         type: _1.entityChangeType.Create,
                         userId: userId,

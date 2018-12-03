@@ -41,6 +41,8 @@ export class WebSocketService implements ServerServiceInterface {
     tokens.map(token => {
       return new Promise((resolve, reject) => {
         Server.wsServer.clients.forEach((client: WebSocketInterface) => {
+
+          if(client.token)
           if (client.token.access_token == token.access_token)
             client.send(model, (err?) => {
               resolve({
@@ -59,7 +61,7 @@ export class WebSocketService implements ServerServiceInterface {
       "connection",
       (ws: WebSocketInterface, req: IncomingMessage) => {
         ws.on("message", async msg => {
-          // console.log(Server.wsServer.clients.size, msg.toString());
+          
           // Server.wsServer.clients.forEach((client: WebSocketInterface) => {
           //   console.log(client.path, client.token);
           // });

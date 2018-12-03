@@ -36,7 +36,7 @@ class DbService {
         mongoCollectionObjects.map(obj => {
             this.mongoCollections.push(obj.collectionName);
         });
-        this.entityCollection = await this.collection("EntityChanges", false);
+        this.entityChangeCollection = await this.collection("EntityChanges", false);
     }
     async collection(collectionName, track) {
         collectionName = collectionName.trim();

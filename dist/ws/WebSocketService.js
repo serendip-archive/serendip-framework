@@ -22,14 +22,15 @@ class WebSocketService {
         tokens.map(token => {
             return new Promise((resolve, reject) => {
                 __1.Server.wsServer.clients.forEach((client) => {
-                    if (client.token.access_token == token.access_token)
-                        client.send(model, (err) => {
-                            resolve({
-                                username: token.username,
-                                access_token: token.access_token,
-                                result: err || "success"
+                    if (client.token)
+                        if (client.token.access_token == token.access_token)
+                            client.send(model, (err) => {
+                                resolve({
+                                    username: token.username,
+                                    access_token: token.access_token,
+                                    result: err || "success"
+                                });
                             });
-                        });
                 });
             });
         });
@@ -37,7 +38,7 @@ class WebSocketService {
     async start() {
         this.connectionEmitter.on("connection", (ws, req) => {
             ws.on("message", async (msg) => {
-                // console.log(Server.wsServer.clients.size, msg.toString());
+                
                 // Server.wsServer.clients.forEach((client: WebSocketInterface) => {
                 //   console.log(client.path, client.token);
                 // });
