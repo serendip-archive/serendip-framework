@@ -13,6 +13,10 @@ import * as _ from "underscore";
 export interface DbServiceOptionsInterface {
   mongoUrl?: string;
   mongoDb?: string;
+
+  authSource?: string;
+  user?: string;
+  password?: string;
 }
 
 /**
@@ -45,9 +49,25 @@ export class DbService implements ServerServiceInterface {
    */
   public async connect() {
     // Creating mongoDB client from mongoUrl
+
+    let connectOptions: MongoClientOptions = {
+      useNewUrlParser: true
+    };
+
+    if (DbService.options.authSource) {
+      connectOptions.authSource = DbService.options.authSource;
+    }
+
+    if (DbService.options.user && DbService.options.password) {
+      connectOptions.auth = {
+        user: DbService.options.user,
+        password: DbService.options.password
+      };
+    }
+
     var mongoClient = await MongoClient.connect(
       DbService.options.mongoUrl,
-      { useNewUrlParser: true }
+      connectOptions
     );
 
     this.db = mongoClient.db(DbService.options.mongoDb);

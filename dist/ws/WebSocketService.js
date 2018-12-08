@@ -38,7 +38,6 @@ class WebSocketService {
     async start() {
         this.connectionEmitter.on("connection", (ws, req) => {
             ws.on("message", async (msg) => {
-                
                 // Server.wsServer.clients.forEach((client: WebSocketInterface) => {
                 //   console.log(client.path, client.token);
                 // });

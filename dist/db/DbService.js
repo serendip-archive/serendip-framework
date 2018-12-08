@@ -22,7 +22,19 @@ class DbService {
      */
     async connect() {
         // Creating mongoDB client from mongoUrl
-        var mongoClient = await mongodb_1.MongoClient.connect(DbService.options.mongoUrl, { useNewUrlParser: true });
+        let connectOptions = {
+            useNewUrlParser: true
+        };
+        if (DbService.options.authSource) {
+            connectOptions.authSource = DbService.options.authSource;
+        }
+        if (DbService.options.user && DbService.options.password) {
+            connectOptions.auth = {
+                user: DbService.options.user,
+                password: DbService.options.password
+            };
+        }
+        var mongoClient = await mongodb_1.MongoClient.connect(DbService.options.mongoUrl, connectOptions);
         this.db = mongoClient.db(DbService.options.mongoDb);
     }
     async start() {
