@@ -61,18 +61,24 @@ export class SmsIrService
           json: true
         },
         (error, response, body) => {
+          if (body)
+            if (body.TokenKey) {
+              this.token = body.TokenKey;
+              this.tokenIssueAt = Date.now();
+
+              console.log("SmsIrService getToken success =>", body);
+
+              resolve(this.token);
+              return;
+            } else {
+              reject();
+              return;
+            }
           if (error) {
-            console.log("SmsIrService getToken =>", error);
-            return reject(error);
+            console.log("SmsIrService getToken error =>", error);
+            reject(error);
+            return;
           }
-          if (body.TokenKey) {
-            this.token = body.TokenKey;
-            this.tokenIssueAt = Date.now();
-
-            console.log("SmsIrService getToken =>", body);
-
-            resolve(this.token);
-          } else reject();
         }
       );
     });

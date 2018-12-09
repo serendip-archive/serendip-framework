@@ -536,16 +536,21 @@ export class AuthController {
 
         if (!user) return next(new ServerError(400, "user/password invalid"));
 
+        var userMatchPassword = false;
 
-        var userMatchPassword = this.authService.userMatchPassword(
-          user,
-          req.body.password
-        );
+        if (req.body.password)
+          userMatchPassword = this.authService.userMatchPassword(
+            user,
+            req.body.password
+          );
 
-        var userMatchOneTimePassword = this.authService.userMatchOneTimePassword(
-          user,
-          req.body.oneTimePassword
-        );
+        var userMatchOneTimePassword = false;
+
+        if (req.body.oneTimePassword)
+          userMatchOneTimePassword = this.authService.userMatchOneTimePassword(
+            user,
+            req.body.oneTimePassword
+          );
 
         if (user.twoFactorEnabled) {
           if (!req.body.password)

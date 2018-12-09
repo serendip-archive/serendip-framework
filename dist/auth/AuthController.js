@@ -397,8 +397,12 @@ class AuthController {
                         user = await this.authService.findUserByMobile(parseInt(req.body.username).toString());
                     if (!user)
                         return next(new core_1.ServerError(400, "user/password invalid"));
-                    var userMatchPassword = this.authService.userMatchPassword(user, req.body.password);
-                    var userMatchOneTimePassword = this.authService.userMatchOneTimePassword(user, req.body.oneTimePassword);
+                    var userMatchPassword = false;
+                    if (req.body.password)
+                        userMatchPassword = this.authService.userMatchPassword(user, req.body.password);
+                    var userMatchOneTimePassword = false;
+                    if (req.body.oneTimePassword)
+                        userMatchOneTimePassword = this.authService.userMatchOneTimePassword(user, req.body.oneTimePassword);
                     if (user.twoFactorEnabled) {
                         if (!req.body.password)
                             return next(new core_1.ServerError(400, "include password"));
