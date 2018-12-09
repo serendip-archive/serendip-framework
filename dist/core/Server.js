@@ -124,7 +124,7 @@ class Server {
             if (e.code == 404 && Server.staticPath) {
                 ServerRouter_1.ServerRouter.processRequestToStatic(req, res, (code, filePath) => {
                     if (code == 200)
-                        if (Server.opts.logging != "silent")
+                        if (Server.opts.logging == "info")
                             console.error(`${logString()} => Download started [${filePath}]`);
                 });
             }

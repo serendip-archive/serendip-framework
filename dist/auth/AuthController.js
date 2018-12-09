@@ -352,8 +352,7 @@ class AuthController {
                     var mobile = req.body.mobile;
                     if (!mobile)
                         return next(new core_1.ServerError(400, "mobile required"));
-                    if (core_1.Server.opts.logging == "info")
-                        var user = await this.authService.findUserByMobile(mobile);
+                    var user = await this.authService.findUserByMobile(mobile);
                     if (!user) {
                         user = await this.authService.usersCollection.insertOne({
                             registeredAt: Date.now(),

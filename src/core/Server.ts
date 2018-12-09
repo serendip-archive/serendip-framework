@@ -57,16 +57,22 @@ export class Server {
     return new Server(opts, worker, serverStartCallback);
   }
 
-  private static async processRequest(req , res) {
- 
+  private static async processRequest(req, res) {
     var requestReceived = Date.now();
 
     req = ServerRequestHelpers(req);
     res = ServerResponseHelpers(res);
 
     if (Server.opts.logging == "info")
-    console.info(chalk.gray(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${ req.method }] "${req.url}" ${req.ip()}/${req.useragent()} process request started.`));
-
+      console.info(
+        chalk.gray(
+          `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
+            req.method
+          }] "${
+            req.url
+          }" ${req.ip()}/${req.useragent()} process request started.`
+        )
+      );
 
     // finding controller by path
     var srvRoute = ServerRouter.findSrvRoute(req, true);
@@ -122,7 +128,7 @@ export class Server {
         if (e.code == 404 && Server.staticPath) {
           ServerRouter.processRequestToStatic(req, res, (code, filePath) => {
             if (code == 200)
-              if (Server.opts.logging != "silent")
+              if (Server.opts.logging == "info")
                 console.error(
                   `${logString()} => Download started [${filePath}]`
                 );

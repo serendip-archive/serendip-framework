@@ -476,8 +476,7 @@ export class AuthController {
 
         if (!mobile) return next(new ServerError(400, "mobile required"));
 
-        if (Server.opts.logging == "info")
-          var user = await this.authService.findUserByMobile(mobile);
+        var user = await this.authService.findUserByMobile(mobile);
 
         if (!user) {
           user = await this.authService.usersCollection.insertOne({
