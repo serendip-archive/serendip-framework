@@ -10,8 +10,8 @@ const mime = require("mime-types");
 const _ = require("underscore");
 class ServerRouter {
     constructor() { }
-    static processRequestToStatic(req, res, callback) {
-        var filePath = path.join(_1.Server.staticPath, req.url.split("?")[0]);
+    static processRequestToStatic(req, res, callback, staticPath) {
+        var filePath = path.join(staticPath || _1.Server.staticPath, req.url.split("?")[0]);
         fs.stat(filePath, (err, stat) => {
             if (err) {
                 res.writeHead(404);

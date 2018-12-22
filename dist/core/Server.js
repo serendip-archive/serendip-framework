@@ -83,6 +83,9 @@ class Server {
         var requestReceived = Date.now();
         req = _1.ServerRequestHelpers(req);
         res = _1.ServerResponseHelpers(res);
+        var logString = () => {
+            return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : "unauthorized"}  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
+        };
         if (Server.opts.beforeMiddlewares && Server.opts.beforeMiddlewares.length > 0) {
             await ServerRouter_1.ServerRouter.executeActions(req, res, null, Server.opts.beforeMiddlewares, 0);
             if (res.finished)
@@ -110,15 +113,22 @@ class Server {
         }
         else {
             if (!srvRoute) {
-                res.statusCode = 404;
-                res.statusMessage = req.url + ' not found';
-                res.end();
-                return;
+                if (Server.staticPath) {
+                    ServerRouter_1.ServerRouter.processRequestToStatic(req, res, (code, filePath) => {
+                        if (code == 200)
+                            if (Server.opts.logging == "info")
+                                console.info(`${logString()} => Download started [${filePath}]`);
+                    });
+                    return;
+                }
+                else {
+                    res.statusCode = 404;
+                    res.statusMessage = req.url + ' not found';
+                    res.end();
+                    return;
+                }
             }
         }
-        var logString = () => {
-            return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : "unauthorized"}  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
-        };
         ServerRouter_1.ServerRouter.routeIt(req, res, srvRoute)
             .then(data => {
             // Request gone through all middlewares and actions for matched route
@@ -134,24 +144,15 @@ class Server {
             }
         })
             .catch((e) => {
-            if (e.code == 404 && Server.staticPath) {
-                ServerRouter_1.ServerRouter.processRequestToStatic(req, res, (code, filePath) => {
-                    if (code == 200)
-                        if (Server.opts.logging == "info")
-                            console.error(`${logString()} => Download started [${filePath}]`);
-                });
+            if (!res.finished) {
+                res.statusCode = e.code || 500;
+                res.statusMessage = e.message || e.Message;
+                res.json(_.pick(e, "code", "description"));
             }
-            else {
-                if (!res.finished) {
-                    res.statusCode = e.code || 500;
-                    res.statusMessage = e.message || e.Message;
-                    res.json(_.pick(e, "code", "description"));
-                }
-                if (Server.opts.logging == "info")
-                    console.error(`${logString()}`, chalk_1.default.red(JSON.stringify(e)));
-                else if (Server.opts.logging != "silent")
-                    console.error(`${logString()}`, chalk_1.default.red("\n[Error] " + (e.message || e.Message)));
-            }
+            if (Server.opts.logging == "info")
+                console.error(`${logString()}`, chalk_1.default.red(JSON.stringify(e)));
+            else if (Server.opts.logging != "silent")
+                console.error(`${logString()}`, chalk_1.default.red("\n[Error] " + (e.message || e.Message)));
         });
     }
     static redirectToHttps(httpPort, httpsPort) {

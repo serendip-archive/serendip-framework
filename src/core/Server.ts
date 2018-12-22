@@ -58,10 +58,20 @@ export class Server {
   }
 
   private static async processRequest(req, res) {
+
+   
     var requestReceived = Date.now();
 
     req = ServerRequestHelpers(req);
     res = ServerResponseHelpers(res);
+
+    var logString = () => {
+      return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
+        req.method
+        }] "${req.url}" ${req.ip()}/${
+        req.user ? req.user.username : "unauthorized"
+        }  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
+    };
 
 
     if (Server.opts.beforeMiddlewares && Server.opts.beforeMiddlewares.length > 0) {
@@ -110,23 +120,28 @@ export class Server {
       }
     } else {
 
-
       if (!srvRoute) {
-        res.statusCode = 404;
-        res.statusMessage = req.url + ' not found';
-        res.end();
-        return;
+        if (Server.staticPath) {
+          ServerRouter.processRequestToStatic(req, res, (code, filePath) => {
+            if (code == 200)
+              if (Server.opts.logging == "info")
+                console.info(
+                  `${logString()} => Download started [${filePath}]`
+                );
+          });
+          return;
+        } else {
+
+          res.statusCode = 404;
+          res.statusMessage = req.url + ' not found';
+          res.end();
+          return;
+        }
       }
     }
 
 
-    var logString = () => {
-      return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
-        req.method
-        }] "${req.url}" ${req.ip()}/${
-        req.user ? req.user.username : "unauthorized"
-        }  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
-    };
+
 
     ServerRouter.routeIt(req, res, srvRoute)
       .then(data => {
@@ -144,29 +159,21 @@ export class Server {
         }
       })
       .catch((e: any) => {
-        if (e.code == 404 && Server.staticPath) {
-          ServerRouter.processRequestToStatic(req, res, (code, filePath) => {
-            if (code == 200)
-              if (Server.opts.logging == "info")
-                console.error(
-                  `${logString()} => Download started [${filePath}]`
-                );
-          });
-        } else {
-          if (!res.finished) {
-            res.statusCode = e.code || 500;
-            res.statusMessage = e.message || e.Message;
-            res.json(_.pick(e, "code", "description"));
-          }
 
-          if (Server.opts.logging == "info")
-            console.error(`${logString()}`, chalk.red(JSON.stringify(e)));
-          else if (Server.opts.logging != "silent")
-            console.error(
-              `${logString()}`,
-              chalk.red("\n[Error] " + (e.message || e.Message))
-            );
+        if (!res.finished) {
+          res.statusCode = e.code || 500;
+          res.statusMessage = e.message || e.Message;
+          res.json(_.pick(e, "code", "description"));
         }
+
+        if (Server.opts.logging == "info")
+          console.error(`${logString()}`, chalk.red(JSON.stringify(e)));
+        else if (Server.opts.logging != "silent")
+          console.error(
+            `${logString()}`,
+            chalk.red("\n[Error] " + (e.message || e.Message))
+          );
+
       });
   }
 

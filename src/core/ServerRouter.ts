@@ -22,9 +22,10 @@ export class ServerRouter {
   static processRequestToStatic(
     req: http.IncomingMessage,
     res: http.ServerResponse,
-    callback
+    callback,
+    staticPath?,
   ): void {
-    var filePath = path.join(Server.staticPath, req.url.split("?")[0]);
+    var filePath = path.join(staticPath || Server.staticPath, req.url.split("?")[0]);
     fs.stat(filePath, (err, stat) => {
       if (err) {
         res.writeHead(404);
