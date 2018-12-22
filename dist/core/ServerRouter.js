@@ -43,14 +43,15 @@ class ServerRouter {
         // finding controller by path
         var srvRoute = _1.Server.routes.find(route => {
             // Check if controller exist and requested method matches
-            if (matchMethod)
-                if (route.method.toLowerCase() != req.method.toLowerCase())
-                    return false;
             var matcher = ServerRouter.routerPathMatcher(route.route);
             var params = matcher(path);
             if (params !== false) {
                 req.query = qs.parse(parsedUrl.query);
                 req.params = params;
+                if (matchMethod) {
+                    if (route.method.toLowerCase() != req.method.toLowerCase())
+                        return false;
+                }
                 return true;
             }
             return false;
@@ -59,51 +60,50 @@ class ServerRouter {
     }
     // FIXME: needs refactor
     static executeRoute(srvRoute, req, res) {
+        // creating object from controllerClass
+        // Reason : basically because we need to run constructor
+        var controllerObject = srvRoute.controllerObject;
+        var actions = _.clone(controllerObject[srvRoute.endpoint].actions);
+        if (controllerObject["onRequest"])
+            actions.unshift(controllerObject["onRequest"]);
+        _1.Server.middlewares.forEach(middle => actions.unshift(middle));
+        // starting from first action
+        return ServerRouter.executeActions(req, res, null, actions, 0);
+    }
+    static executeActions(req, res, passedModel, actions, actionIndex) {
         return new Promise((resolve, reject) => {
-            // creating object from controllerClass
-            // Reason : basically because we need to run constructor
-            var controllerObject = srvRoute.controllerObject;
-            var actions = _.clone(controllerObject[srvRoute.endpoint].actions);
-            if (controllerObject["onRequest"])
-                actions.unshift(controllerObject["onRequest"]);
-            _1.Server.middlewares.forEach(middle => actions.unshift(middle));
-            // starting from first action
-            var actionIndex = 0;
-            res.on("finish", () => resolve(actionIndex));
-            var executeActions = function (passedModel) {
-                var action;
-                try {
-                    action = actions[actionIndex](req, res, function _next(model) {
-                        if (model)
-                            if (model.constructor)
-                                if (model.constructor.name == "ServerError") {
-                                    reject(model);
-                                    return;
-                                }
-                        // Execute next
-                        actionIndex++;
-                        if (actions.length == actionIndex) {
-                            return resolve(model);
-                        }
-                        executeActions(model);
-                    }, function _done(statusCode, statusMessage) {
-                        res.statusCode = statusCode || 200;
-                        res.statusMessage = statusMessage;
-                        res.end();
-                        resolve();
-                    }, passedModel);
-                }
-                catch (error) {
-                    reject(error);
-                }
-                if (action)
-                    action
-                        .then(data => { })
-                        .catch((e) => {
-                        reject(new _1.ServerError(500, e ? e.message : ""));
-                    });
-            };
-            executeActions(null);
+            res.on("finish", () => resolve());
+            var action;
+            try {
+                action = actions[actionIndex](req, res, function _next(model) {
+                    if (model)
+                        if (model.constructor)
+                            if (model.constructor.name == "ServerError") {
+                                reject(model);
+                                return;
+                            }
+                    // Execute next
+                    actionIndex++;
+                    if (actions.length == actionIndex) {
+                        return resolve(model);
+                    }
+                    ServerRouter.executeActions(req, res, model, actions, actionIndex);
+                }, function _done(statusCode, statusMessage) {
+                    res.statusCode = statusCode || 200;
+                    res.statusMessage = statusMessage;
+                    res.end();
+                    resolve();
+                }, passedModel);
+            }
+            catch (error) {
+                reject(error);
+            }
+            if (action && action.then)
+                action
+                    .then(data => { })
+                    .catch((e) => {
+                    reject(new _1.ServerError(500, e ? e.message : ""));
+                });
         });
     }
     static routeIt(req, res, srvRoute) {

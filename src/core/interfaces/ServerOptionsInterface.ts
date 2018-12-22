@@ -4,6 +4,8 @@ import { ServerServiceInterface } from "..";
 export interface ServerOptionsInterface {
   services?: any;
   controllers?: any;
+
+  beforeMiddlewares?: [ServerMiddlewareInterface];
   middlewares?: [ServerMiddlewareInterface];
   httpPort?: number;
   httpsPort?: number;

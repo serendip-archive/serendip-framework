@@ -83,14 +83,19 @@ class Server {
         var requestReceived = Date.now();
         req = _1.ServerRequestHelpers(req);
         res = _1.ServerResponseHelpers(res);
+        if (Server.opts.beforeMiddlewares && Server.opts.beforeMiddlewares.length > 0) {
+            await ServerRouter_1.ServerRouter.executeActions(req, res, null, Server.opts.beforeMiddlewares, 0);
+            if (res.finished)
+                return;
+        }
         if (Server.opts.logging == "info")
             console.info(chalk_1.default.gray(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.useragent()} process request started.`));
         // finding controller by path
-        var srvRoute = ServerRouter_1.ServerRouter.findSrvRoute(req, true);
         if (Server.opts.cors)
             res.setHeader("Access-Control-Allow-Origin", Server.opts.cors);
         res.setHeader("Access-Control-Allow-Headers", "clientid, Authorization , Content-Type, Accept");
         res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+        var srvRoute = ServerRouter_1.ServerRouter.findSrvRoute(req, true);
         if (req.method === "OPTIONS") {
             if (ServerRouter_1.ServerRouter.findSrvRoute(req, false)) {
                 res.statusCode = 200;
@@ -98,7 +103,15 @@ class Server {
                 return;
             }
             else {
-                res.statusCode = 200;
+                res.statusCode = 400;
+                res.end();
+                return;
+            }
+        }
+        else {
+            if (!srvRoute) {
+                res.statusCode = 404;
+                res.statusMessage = req.url + ' not found';
                 res.end();
                 return;
             }

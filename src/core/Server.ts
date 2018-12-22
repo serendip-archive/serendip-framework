@@ -63,19 +63,26 @@ export class Server {
     req = ServerRequestHelpers(req);
     res = ServerResponseHelpers(res);
 
+
+    if (Server.opts.beforeMiddlewares && Server.opts.beforeMiddlewares.length > 0) {
+      await ServerRouter.executeActions(req, res, null, Server.opts.beforeMiddlewares, 0);
+      if (res.finished)
+        return;
+    }
+
     if (Server.opts.logging == "info")
       console.info(
         chalk.gray(
           `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
-            req.method
+          req.method
           }] "${
-            req.url
+          req.url
           }" ${req.ip()}/${req.useragent()} process request started.`
         )
       );
 
     // finding controller by path
-    var srvRoute = ServerRouter.findSrvRoute(req, true);
+
 
     if (Server.opts.cors)
       res.setHeader("Access-Control-Allow-Origin", Server.opts.cors);
@@ -89,24 +96,36 @@ export class Server {
       "POST, GET, PUT, DELETE, OPTIONS"
     );
 
+
+    var srvRoute = ServerRouter.findSrvRoute(req, true);
     if (req.method === "OPTIONS") {
       if (ServerRouter.findSrvRoute(req, false)) {
         res.statusCode = 200;
         res.end();
         return;
       } else {
-        res.statusCode = 200;
+        res.statusCode = 400;
+        res.end();
+        return;
+      }
+    } else {
+
+
+      if (!srvRoute) {
+        res.statusCode = 404;
+        res.statusMessage = req.url + ' not found';
         res.end();
         return;
       }
     }
 
+
     var logString = () => {
       return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
         req.method
-      }] "${req.url}" ${req.ip()}/${
+        }] "${req.url}" ${req.ip()}/${
         req.user ? req.user.username : "unauthorized"
-      }  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
+        }  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
     };
 
     ServerRouter.routeIt(req, res, srvRoute)
@@ -231,7 +250,7 @@ export class Server {
                 console.log(
                   chalk.cyan(
                     `worker ${
-                      worker.id
+                    worker.id
                     } running http server at port ${httpPort}`
                   )
                 );
@@ -242,7 +261,7 @@ export class Server {
                     console.log(
                       chalk.cyan(
                         `worker ${
-                          worker.id
+                        worker.id
                         } running https server at port ${httpsPort}`
                       )
                     );
@@ -340,11 +359,11 @@ export class Server {
     if (Server.opts.logging == "info")
       console.log(chalk.blueBright`Registering controller routes...`);
     // iterating trough controller classes
-    controllersToRegister.forEach(function(controller) {
+    controllersToRegister.forEach(function (controller) {
       var objToRegister = new controller();
 
       // iterating trough controller endpoint in class
-      Object.getOwnPropertyNames(objToRegister).forEach(function(
+      Object.getOwnPropertyNames(objToRegister).forEach(function (
         controllerEndpointName
       ) {
         var endpoint: ServerEndpointInterface =
@@ -357,10 +376,10 @@ export class Server {
         // Defining controllerUrl for this controllerMethod
         var controllerUrl = `/api/${
           controller.apiPrefix ? controller.apiPrefix + "/" : ""
-        }${controller.name.replace(
-          "Controller",
-          ""
-        )}/${controllerEndpointName}`.toLowerCase();
+          }${controller.name.replace(
+            "Controller",
+            ""
+          )}/${controllerEndpointName}`.toLowerCase();
 
         if (endpoint.route)
           if (!endpoint.route.startsWith("/"))
@@ -383,7 +402,7 @@ export class Server {
           console.log(
             chalk`{green ☑}  [${serverRoute.method.toUpperCase()}] {magenta ${
               serverRoute.route
-            }} | {gray ${serverRoute.controllerName} > ${serverRoute.endpoint}}`
+              }} | {gray ${serverRoute.controllerName} > ${serverRoute.endpoint}}`
           );
 
         Server.routes.push(serverRoute);

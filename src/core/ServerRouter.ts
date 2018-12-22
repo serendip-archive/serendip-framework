@@ -17,7 +17,7 @@ import * as mime from "mime-types";
 import * as _ from "underscore";
 
 export class ServerRouter {
-  constructor() {}
+  constructor() { }
 
   static processRequestToStatic(
     req: http.IncomingMessage,
@@ -68,9 +68,6 @@ export class ServerRouter {
     var srvRoute: ServerRouteInterface = Server.routes.find(route => {
       // Check if controller exist and requested method matches
 
-      if (matchMethod)
-        if (route.method.toLowerCase() != req.method.toLowerCase())
-          return false;
 
       var matcher = ServerRouter.routerPathMatcher(route.route);
 
@@ -79,10 +76,17 @@ export class ServerRouter {
       if (params !== false) {
         req.query = qs.parse(parsedUrl.query);
         req.params = params;
+
+        if (matchMethod) {
+          if (route.method.toLowerCase() != req.method.toLowerCase())
+            return false;
+        }
+
         return true;
       }
 
       return false;
+
     });
 
     return srvRoute;
@@ -93,70 +97,66 @@ export class ServerRouter {
     srvRoute: ServerRouteInterface,
     req: ServerRequestInterface,
     res: ServerResponseInterface
-  ): Promise<number> {
+  ): Promise<any> {
+    // creating object from controllerClass
+    // Reason : basically because we need to run constructor
+    var controllerObject = srvRoute.controllerObject;
+
+    var actions: ServerEndpointActionInterface[] = _.clone(
+      controllerObject[srvRoute.endpoint].actions
+    );
+
+    if (controllerObject["onRequest"])
+      actions.unshift(controllerObject["onRequest"]);
+
+    Server.middlewares.forEach(middle => actions.unshift(middle));
+
+    // starting from first action
+    return ServerRouter.executeActions(req, res, null, actions, 0);
+
+  }
+  static executeActions(req, res, passedModel, actions, actionIndex) {
     return new Promise((resolve, reject) => {
-      // creating object from controllerClass
-      // Reason : basically because we need to run constructor
-      var controllerObject = srvRoute.controllerObject;
+      res.on("finish", () => resolve());
+      var action;
+      try {
+        action = actions[actionIndex](
+          req,
+          res,
+          function _next(model) {
+            if (model)
+              if (model.constructor)
+                if (model.constructor.name == "ServerError") {
+                  reject(model);
+                  return;
+                }
 
-      var actions: ServerEndpointActionInterface[] = _.clone(
-        controllerObject[srvRoute.endpoint].actions
-      );
+            // Execute next
+            actionIndex++;
 
-      if (controllerObject["onRequest"])
-        actions.unshift(controllerObject["onRequest"]);
+            if (actions.length == actionIndex) {
+              return resolve(model);
+            }
 
-      Server.middlewares.forEach(middle => actions.unshift(middle));
-
-      // starting from first action
-      var actionIndex = 0;
-
-      res.on("finish", () => resolve(actionIndex));
-
-      var executeActions = function(passedModel) {
-        var action;
-        try {
-          action = actions[actionIndex](
-            req,
-            res,
-            function _next(model) {
-              if (model)
-                if (model.constructor)
-                  if (model.constructor.name == "ServerError") {
-                    reject(model);
-                    return;
-                  }
-
-              // Execute next
-              actionIndex++;
-
-              if (actions.length == actionIndex) {
-                return resolve(model);
-              }
-
-              executeActions(model);
-            },
-            function _done(statusCode?: number, statusMessage?: string) {
-              res.statusCode = statusCode || 200;
-              res.statusMessage = statusMessage;
-              res.end();
-              resolve();
-            },
-            passedModel
-          );
-        } catch (error) {
-          reject(error);
-        }
-
-        if (action)
-          action
-            .then(data => {})
-            .catch((e: Error) => {
-              reject(new ServerError(500, e ? e.message : ""));
-            });
-      };
-
-      executeActions(null);
+            ServerRouter.executeActions(req, res, model, actions, actionIndex);
+          },
+          function _done(statusCode?: number, statusMessage?: string) {
+            res.statusCode = statusCode || 200;
+            res.statusMessage = statusMessage;
+            res.end();
+            resolve();
+          },
+          passedModel
+        );
+      } catch (error) {
+        reject(error);
+      }
+      if (action && action.then)
+        action
+          .then(data => { })
+          .catch((e: Error) => {
+            reject(new ServerError(500, e ? e.message : ""));
+          });
     });
   }
 
@@ -167,14 +167,13 @@ export class ServerRouter {
   ): Promise<any> {
     return new Promise((resolve, reject) => {
       if (!srvRoute) {
-
         // Check if controller exist and requested method matches
         var err = new ServerError(
           404,
           `[${req.method.toUpperCase()} ${req.url}] route not found !`
         );
-         reject(err);
-         return;
+        reject(err);
+        return;
       }
 
       var authService: AuthService = Server.services["AuthService"];
