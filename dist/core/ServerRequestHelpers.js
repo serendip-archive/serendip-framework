@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ua = require("useragent");
+const reqIp = require("request-ip");
 function ServerRequestHelpers(req) {
     req.useragent = () => {
         if (!req.headers["user-agent"])
@@ -14,7 +15,7 @@ function ServerRequestHelpers(req) {
             return null;
     };
     req.ip = () => {
-        return req.connection.remoteAddress;
+        return reqIp.getClientIp(req);
     };
     if (!req.body)
         req.body = {};
