@@ -12,7 +12,9 @@ import * as WS from "ws";
 import { EventEmitter } from "events";
 import { IncomingMessage } from "http";
 import { WebSocketInterface } from "./WebSocketInterface";
+import * as url from "url";
 import chalk from "chalk";
+import * as qs from "qs";
 
 export class WebSocketService implements ServerServiceInterface {
   static dependencies = ["DbService", "AuthService"];
@@ -22,7 +24,6 @@ export class WebSocketService implements ServerServiceInterface {
 
   connectionEmitter = new EventEmitter();
   messageEmitter = new EventEmitter();
-  wsServer: WS.Server;
 
   constructor() {
     this.dbService = Server.services["DbService"];
@@ -42,15 +43,15 @@ export class WebSocketService implements ServerServiceInterface {
       return new Promise((resolve, reject) => {
         Server.wsServer.clients.forEach((client: WebSocketInterface) => {
 
-          if(client.token)
-          if (client.token.access_token == token.access_token)
-            client.send(model, (err?) => {
-              resolve({
-                username: token.username,
-                access_token: token.access_token,
-                result: err || "success"
+          if (client.token)
+            if (client.token.access_token == token.access_token)
+              client.send(model, (err?) => {
+                resolve({
+                  username: token.username,
+                  access_token: token.access_token,
+                  result: err || "success"
+                });
               });
-            });
         });
       });
     });
@@ -61,7 +62,7 @@ export class WebSocketService implements ServerServiceInterface {
       "connection",
       (ws: WebSocketInterface, req: IncomingMessage) => {
         ws.on("message", async msg => {
-          
+
           // Server.wsServer.clients.forEach((client: WebSocketInterface) => {
           //   console.log(client.path, client.token);
           // });
@@ -71,14 +72,18 @@ export class WebSocketService implements ServerServiceInterface {
               ws.token = await this.authService.findTokenByAccessToken(
                 msg.toString()
               );
-              ws.path = req.url;
+
+              var parsedUrl = url.parse(req.url);
+              ws.path = parsedUrl.pathname;
+
+              ws.query = qs.parse(parsedUrl.query);
 
               console.log(
                 chalk.blue(
                   `\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
-                    `new socket at ${req.url} user:${ws.token.username} ip:${
-                      req.connection.remoteAddress
-                    }\n`
+                  `new socket at ${req.url} user:${ws.token.username} ip:${
+                  req.connection.remoteAddress
+                  }\n`
                 )
               );
 
@@ -89,9 +94,9 @@ export class WebSocketService implements ServerServiceInterface {
               console.log(
                 chalk.redBright(
                   `\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
-                    `unauthenticated socket closed ip:${
-                      req.connection.remoteAddress
-                    }\n`
+                  `unauthenticated socket closed ip:${
+                  req.connection.remoteAddress
+                  }\n`
                 )
               );
             }
@@ -102,9 +107,9 @@ export class WebSocketService implements ServerServiceInterface {
           console.log(
             chalk.redBright(
               `\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
-                `socket close user:${
-                  ws.token ? ws.token.username : "N/A"
-                } code:${code} reason:${reason} \n`
+              `socket close user:${
+              ws.token ? ws.token.username : "N/A"
+              } code:${code} reason:${reason} \n`
             )
           );
         });

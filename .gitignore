@@ -8,3 +8,5 @@ dist/debug_ignore.js
 .vscode
 .sonarlint
 .nyc_output
+
+npm.debug.log

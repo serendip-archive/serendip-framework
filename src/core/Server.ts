@@ -59,7 +59,7 @@ export class Server {
 
   private static async processRequest(req, res) {
 
-   
+
     var requestReceived = Date.now();
 
     req = ServerRequestHelpers(req);
