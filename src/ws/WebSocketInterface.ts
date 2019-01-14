@@ -5,7 +5,5 @@ export interface WebSocketInterface extends WS {
   token?: TokenModel;
   path?: string;
 
-
   query?: any;
-
 }

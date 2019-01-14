@@ -391,9 +391,9 @@ class AuthController {
                     if (!user)
                         user = await this.authService.findUserByEmail(req.body.username);
                     if (!user && req.body.mobile)
-                        user = await this.authService.findUserByMobile(parseInt(req.body.mobile).toString());
+                        user = await this.authService.findUserByMobile(parseInt(req.body.mobile).toString(), req.body.mobileCountryCode);
                     if (!user)
-                        user = await this.authService.findUserByMobile(parseInt(req.body.username).toString());
+                        user = await this.authService.findUserByMobile(parseInt(req.body.username).toString(), req.body.mobileCountryCode);
                     if (!user)
                         return next(new core_1.ServerError(400, "user/password invalid"));
                     var userMatchPassword = false;
@@ -427,7 +427,7 @@ class AuthController {
                     var userToken = await this.authService.insertToken({
                         userId: user._id.toString(),
                         useragent: req.useragent(),
-                        grant_type: "password"
+                        grant_type: userMatchOneTimePassword ? "password" : "one-time"
                     });
                     userToken.username = user.username;
                     console.log(userToken);

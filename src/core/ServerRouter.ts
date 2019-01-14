@@ -17,15 +17,18 @@ import * as mime from "mime-types";
 import * as _ from "underscore";
 
 export class ServerRouter {
-  constructor() { }
+  constructor() {}
 
   static processRequestToStatic(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     callback,
-    staticPath?,
+    staticPath?
   ): void {
-    var filePath = path.join(staticPath || Server.staticPath, req.url.split("?")[0]);
+    var filePath = path.join(
+      staticPath || Server.staticPath,
+      req.url.split("?")[0]
+    );
     fs.stat(filePath, (err, stat) => {
       if (err) {
         res.writeHead(404);
@@ -69,7 +72,6 @@ export class ServerRouter {
     var srvRoute: ServerRouteInterface = Server.routes.find(route => {
       // Check if controller exist and requested method matches
 
-
       var matcher = ServerRouter.routerPathMatcher(route.route);
 
       var params = matcher(path);
@@ -87,7 +89,6 @@ export class ServerRouter {
       }
 
       return false;
-
     });
 
     return srvRoute;
@@ -114,10 +115,9 @@ export class ServerRouter {
 
     // starting from first action
     return ServerRouter.executeActions(req, res, null, actions, 0);
-
   }
   static executeActions(req, res, passedModel, actions, actionIndex) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       res.on("finish", () => resolve());
       var action;
       try {
@@ -138,8 +138,15 @@ export class ServerRouter {
             if (actions.length == actionIndex) {
               return resolve(model);
             }
-
-            ServerRouter.executeActions(req, res, model, actions, actionIndex);
+            try {
+              ServerRouter.executeActions(
+                req,
+                res,
+                model,
+                actions,
+                actionIndex
+              );
+            } catch (error) {}
           },
           function _done(statusCode?: number, statusMessage?: string) {
             res.statusCode = statusCode || 200;
@@ -154,7 +161,7 @@ export class ServerRouter {
       }
       if (action && action.then)
         action
-          .then(data => { })
+          .then(data => {})
           .catch((e: Error) => {
             reject(new ServerError(500, e ? e.message : ""));
           });

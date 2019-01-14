@@ -525,12 +525,14 @@ export class AuthController {
 
         if (!user && req.body.mobile)
           user = await this.authService.findUserByMobile(
-            parseInt(req.body.mobile).toString()
+            parseInt(req.body.mobile).toString(),
+            req.body.mobileCountryCode
           );
 
         if (!user)
           user = await this.authService.findUserByMobile(
-            parseInt(req.body.username).toString()
+            parseInt(req.body.username).toString(),
+            req.body.mobileCountryCode
           );
 
         if (!user) return next(new ServerError(400, "user/password invalid"));
@@ -550,7 +552,6 @@ export class AuthController {
             user,
             req.body.oneTimePassword
           );
-
         if (user.twoFactorEnabled) {
           if (!req.body.password)
             return next(new ServerError(400, "include password"));
@@ -578,7 +579,7 @@ export class AuthController {
         var userToken = await this.authService.insertToken({
           userId: user._id.toString(),
           useragent: req.useragent(),
-          grant_type: "password"
+          grant_type: userMatchOneTimePassword ? "password" : "one-time"
         });
 
         userToken.username = user.username;

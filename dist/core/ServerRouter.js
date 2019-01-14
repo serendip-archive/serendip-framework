@@ -71,7 +71,7 @@ class ServerRouter {
         return ServerRouter.executeActions(req, res, null, actions, 0);
     }
     static executeActions(req, res, passedModel, actions, actionIndex) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             res.on("finish", () => resolve());
             var action;
             try {
@@ -87,7 +87,10 @@ class ServerRouter {
                     if (actions.length == actionIndex) {
                         return resolve(model);
                     }
-                    ServerRouter.executeActions(req, res, model, actions, actionIndex);
+                    try {
+                        ServerRouter.executeActions(req, res, model, actions, actionIndex);
+                    }
+                    catch (error) { }
                 }, function _done(statusCode, statusMessage) {
                     res.statusCode = statusCode || 200;
                     res.statusMessage = statusMessage;

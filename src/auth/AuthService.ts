@@ -15,6 +15,7 @@ import {
 import * as _ from "underscore";
 import { EmailService, SmsIrService } from "..";
 import { SmsServiceProviderInterface } from "../sms";
+import { EventEmitter } from "events";
 
 export interface AuthServiceOptionsInterface {
   /**
@@ -28,6 +29,7 @@ export interface AuthServiceOptionsInterface {
   mobileConfirmationRequired?: boolean;
   emailConfirmationRequired?: boolean;
   smsProvider?: string;
+  defaultMobileCountryCode?: string;
 }
 
 export class AuthService implements ServerServiceInterface {
@@ -41,6 +43,8 @@ export class AuthService implements ServerServiceInterface {
   };
 
   static dependencies = ["DbService", "EmailService"];
+
+  static events = new EventEmitter();
 
   private dbService: DbService;
   private emailService: EmailService;
@@ -81,21 +85,26 @@ export class AuthService implements ServerServiceInterface {
   }
 
   public sendVerifyEmail(userModel: UserModel): Promise<any> {
-    return this.emailService.send({
-      from: process.env.company_mail_auth || process.env.company_mail_noreply,
-      to: userModel.email,
-      text: `Welcome to ${process.env.company_name}, ${userModel.username}!\n\n
+    return this.emailService
+      .send({
+        from: process.env.company_mail_auth || process.env.company_mail_noreply,
+        to: userModel.email,
+        text: `Welcome to ${process.env.company_name}, ${
+          userModel.username
+        }!\n\n
              Your verification code is : ${userModel.emailVerificationCode} \n\n
              ${process.env.company_domain}`,
-      subject: `Verify your email address on ${process.env.company_name}`,
-      template: {
-        data: {
-          name: userModel.username,
-          code: userModel.emailVerificationCode
-        },
-        name: "verify_email"
-      }
-    });
+        subject: `Verify your email address on ${process.env.company_name}`,
+        template: {
+          data: {
+            name: userModel.username,
+            code: userModel.emailVerificationCode
+          },
+          name: "verify_email"
+        }
+      })
+      .then(r => AuthService.events.emit("sendVerifyEmail", r, null))
+      .catch(e => AuthService.events.emit("sendVerifyEmail", null, e));
   }
 
   public sendVerifySms(
@@ -114,7 +123,9 @@ export class AuthService implements ServerServiceInterface {
           )
           .then(body => resolve(body))
           .catch(err => reject(new ServerError(500, err)));
-      });
+      })
+        .then(r => AuthService.events.emit("sendVerifySms", r, null))
+        .catch(e => AuthService.events.emit("sendVerifySms", null, e));
     else throw new ServerError(500, "no sms provider");
   }
 
@@ -293,6 +304,7 @@ export class AuthService implements ServerServiceInterface {
     await this.usersCollection.updateOne(user, userId);
   }
   public userMatchPassword(user: UserModel, password: string): boolean {
+    if (!password || !user.password || !user.passwordSalt) return false;
     return utils.bcryptCompare(password + user.passwordSalt, user.password);
   }
 
@@ -300,6 +312,8 @@ export class AuthService implements ServerServiceInterface {
     user: UserModel,
     oneTimePassword: string
   ): boolean {
+    if (!oneTimePassword || !user.oneTimePassword || !user.oneTimePasswordSalt)
+      return;
     return utils.bcryptCompare(
       oneTimePassword + user.oneTimePasswordSalt,
       user.oneTimePassword
@@ -307,6 +321,7 @@ export class AuthService implements ServerServiceInterface {
   }
 
   public clientMatchSecret(client: ClientModel, secret: string): boolean {
+    if (!secret) return false;
     return utils.bcryptCompare(secret + client.secretSalt, client.secret);
   }
 
@@ -385,6 +400,7 @@ export class AuthService implements ServerServiceInterface {
     userId?: string;
     useragent: string;
     grant_type:
+      | "one-time"
       | "password"
       | "client_credentials"
       | "refresh_token"
@@ -522,18 +538,31 @@ export class AuthService implements ServerServiceInterface {
     else return query[0];
   }
 
-  public async findUserByMobile(mobile: string): Promise<UserModel> {
+  public async findUserByMobile(
+    mobile: string,
+    mobileCountryCode?: string
+  ): Promise<UserModel> {
     if (!mobile) return undefined;
 
     var query = await this.usersCollection
       .aggregate([])
       .match({
-        $or: [
+        $and: [
           {
-            mobile: mobile
+            $or: [
+              {
+                mobile: mobile
+              },
+              {
+                mobile: "0" + mobile
+              }
+            ]
           },
           {
-            mobile: "0" + mobile
+            mobileCountryCode:
+              mobileCountryCode ||
+              AuthService.options.defaultMobileCountryCode ||
+              "+98"
           }
         ]
       })

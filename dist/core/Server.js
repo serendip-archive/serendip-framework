@@ -86,7 +86,8 @@ class Server {
         var logString = () => {
             return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : "unauthorized"}  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
         };
-        if (Server.opts.beforeMiddlewares && Server.opts.beforeMiddlewares.length > 0) {
+        if (Server.opts.beforeMiddlewares &&
+            Server.opts.beforeMiddlewares.length > 0) {
             await ServerRouter_1.ServerRouter.executeActions(req, res, null, Server.opts.beforeMiddlewares, 0);
             if (res.finished)
                 return;
@@ -123,7 +124,7 @@ class Server {
                 }
                 else {
                     res.statusCode = 404;
-                    res.statusMessage = req.url + ' not found';
+                    res.statusMessage = req.url + " not found";
                     res.end();
                     return;
                 }
@@ -144,10 +145,13 @@ class Server {
             }
         })
             .catch((e) => {
+            console.log("~~~~~~~~~~~~~~~~~~", e);
             if (!res.finished) {
                 res.statusCode = e.code || 500;
                 res.statusMessage = e.message || e.Message;
                 res.json(_.pick(e, "code", "description"));
+                if (!res.finished)
+                    res.end();
             }
             if (Server.opts.logging == "info")
                 console.error(`${logString()}`, chalk_1.default.red(JSON.stringify(e)));

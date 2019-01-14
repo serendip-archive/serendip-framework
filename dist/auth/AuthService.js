@@ -5,6 +5,7 @@ const core_1 = require("../core");
 const utils = require("../utils");
 const models_1 = require("./models");
 const _ = require("underscore");
+const events_1 = require("events");
 class AuthService {
     constructor() {
         this.dbService = core_1.Server.services["DbService"];
@@ -27,7 +28,8 @@ class AuthService {
         await this.refreshRestrictions();
     }
     sendVerifyEmail(userModel) {
-        return this.emailService.send({
+        return this.emailService
+            .send({
             from: process.env.company_mail_auth || process.env.company_mail_noreply,
             to: userModel.email,
             text: `Welcome to ${process.env.company_name}, ${userModel.username}!\n\n
@@ -41,7 +43,9 @@ class AuthService {
                 },
                 name: "verify_email"
             }
-        });
+        })
+            .then(r => AuthService.events.emit("sendVerifyEmail", r, null))
+            .catch(e => AuthService.events.emit("sendVerifyEmail", null, e));
     }
     sendVerifySms(userModel, useragent, ip) {
         if (AuthService.options.smsProvider)
@@ -50,7 +54,9 @@ class AuthService {
                     .sendVerification(userModel.mobile, userModel.mobileVerificationCode, useragent, ip)
                     .then(body => resolve(body))
                     .catch(err => reject(new core_1.ServerError(500, err)));
-            });
+            })
+                .then(r => AuthService.events.emit("sendVerifySms", r, null))
+                .catch(e => AuthService.events.emit("sendVerifySms", null, e));
         else
             throw new core_1.ServerError(500, "no sms provider");
     }
@@ -188,12 +194,18 @@ class AuthService {
         await this.usersCollection.updateOne(user, userId);
     }
     userMatchPassword(user, password) {
+        if (!password || !user.password || !user.passwordSalt)
+            return false;
         return utils.bcryptCompare(password + user.passwordSalt, user.password);
     }
     userMatchOneTimePassword(user, oneTimePassword) {
+        if (!oneTimePassword || !user.oneTimePassword || !user.oneTimePasswordSalt)
+            return;
         return utils.bcryptCompare(oneTimePassword + user.oneTimePasswordSalt, user.oneTimePassword);
     }
     clientMatchSecret(client, secret) {
+        if (!secret)
+            return false;
         return utils.bcryptCompare(secret + client.secretSalt, client.secret);
     }
     async findTokenByAccessToken(access_token) {
@@ -341,18 +353,27 @@ class AuthService {
         else
             return query[0];
     }
-    async findUserByMobile(mobile) {
+    async findUserByMobile(mobile, mobileCountryCode) {
         if (!mobile)
             return undefined;
         var query = await this.usersCollection
             .aggregate([])
             .match({
-            $or: [
+            $and: [
                 {
-                    mobile: mobile
+                    $or: [
+                        {
+                            mobile: mobile
+                        },
+                        {
+                            mobile: "0" + mobile
+                        }
+                    ]
                 },
                 {
-                    mobile: "0" + mobile
+                    mobileCountryCode: mobileCountryCode ||
+                        AuthService.options.defaultMobileCountryCode ||
+                        "+98"
                 }
             ]
         })
@@ -387,4 +408,5 @@ AuthService.options = {
     tokenExpireIn: 1000 * 60 * 60 * 2
 };
 AuthService.dependencies = ["DbService", "EmailService"];
+AuthService.events = new events_1.EventEmitter();
 exports.AuthService = AuthService;

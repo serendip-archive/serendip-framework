@@ -2,7 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const __1 = require("..");
 const events_1 = require("events");
+const url = require("url");
 const chalk_1 = require("chalk");
+const qs = require("qs");
 class WebSocketService {
     constructor() {
         this.connectionEmitter = new events_1.EventEmitter();
@@ -44,7 +46,9 @@ class WebSocketService {
                 if (!ws.token)
                     try {
                         ws.token = await this.authService.findTokenByAccessToken(msg.toString());
-                        ws.path = req.url;
+                        var parsedUrl = url.parse(req.url);
+                        ws.path = parsedUrl.pathname;
+                        ws.query = qs.parse(parsedUrl.query);
                         console.log(chalk_1.default.blue(`\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
                             `new socket at ${req.url} user:${ws.token.username} ip:${req.connection.remoteAddress}\n`));
                         ws.send("authenticated");

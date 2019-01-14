@@ -76,6 +76,7 @@ export function ServerResponseHelpers(res: http.ServerResponse | any) {
 
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify(data));
+        res.end();
 
     };
 

@@ -52,6 +52,7 @@ function ServerResponseHelpers(res) {
     res.json = (data) => {
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify(data));
+        res.end();
     };
     return res;
 }

@@ -58,8 +58,6 @@ export class Server {
   }
 
   private static async processRequest(req, res) {
-
-
     var requestReceived = Date.now();
 
     req = ServerRequestHelpers(req);
@@ -68,31 +66,37 @@ export class Server {
     var logString = () => {
       return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
         req.method
-        }] "${req.url}" ${req.ip()}/${
+      }] "${req.url}" ${req.ip()}/${
         req.user ? req.user.username : "unauthorized"
-        }  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
+      }  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
     };
 
-
-    if (Server.opts.beforeMiddlewares && Server.opts.beforeMiddlewares.length > 0) {
-      await ServerRouter.executeActions(req, res, null, Server.opts.beforeMiddlewares, 0);
-      if (res.finished)
-        return;
+    if (
+      Server.opts.beforeMiddlewares &&
+      Server.opts.beforeMiddlewares.length > 0
+    ) {
+      await ServerRouter.executeActions(
+        req,
+        res,
+        null,
+        Server.opts.beforeMiddlewares,
+        0
+      );
+      if (res.finished) return;
     }
 
     if (Server.opts.logging == "info")
       console.info(
         chalk.gray(
           `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
-          req.method
+            req.method
           }] "${
-          req.url
+            req.url
           }" ${req.ip()}/${req.useragent()} process request started.`
         )
       );
 
     // finding controller by path
-
 
     if (Server.opts.cors)
       res.setHeader("Access-Control-Allow-Origin", Server.opts.cors);
@@ -106,7 +110,6 @@ export class Server {
       "POST, GET, PUT, DELETE, OPTIONS"
     );
 
-
     var srvRoute = ServerRouter.findSrvRoute(req, true);
     if (req.method === "OPTIONS") {
       if (ServerRouter.findSrvRoute(req, false)) {
@@ -119,7 +122,6 @@ export class Server {
         return;
       }
     } else {
-
       if (!srvRoute) {
         if (Server.staticPath) {
           ServerRouter.processRequestToStatic(req, res, (code, filePath) => {
@@ -131,17 +133,13 @@ export class Server {
           });
           return;
         } else {
-
           res.statusCode = 404;
-          res.statusMessage = req.url + ' not found';
+          res.statusMessage = req.url + " not found";
           res.end();
           return;
         }
       }
     }
-
-
-
 
     ServerRouter.routeIt(req, res, srvRoute)
       .then(data => {
@@ -159,11 +157,12 @@ export class Server {
         }
       })
       .catch((e: any) => {
-
+        console.log("~~~~~~~~~~~~~~~~~~",e)
         if (!res.finished) {
           res.statusCode = e.code || 500;
           res.statusMessage = e.message || e.Message;
           res.json(_.pick(e, "code", "description"));
+          if (!res.finished) res.end();
         }
 
         if (Server.opts.logging == "info")
@@ -173,7 +172,6 @@ export class Server {
             `${logString()}`,
             chalk.red("\n[Error] " + (e.message || e.Message))
           );
-
       });
   }
 
@@ -257,7 +255,7 @@ export class Server {
                 console.log(
                   chalk.cyan(
                     `worker ${
-                    worker.id
+                      worker.id
                     } running http server at port ${httpPort}`
                   )
                 );
@@ -268,7 +266,7 @@ export class Server {
                     console.log(
                       chalk.cyan(
                         `worker ${
-                        worker.id
+                          worker.id
                         } running https server at port ${httpsPort}`
                       )
                     );
@@ -366,11 +364,11 @@ export class Server {
     if (Server.opts.logging == "info")
       console.log(chalk.blueBright`Registering controller routes...`);
     // iterating trough controller classes
-    controllersToRegister.forEach(function (controller) {
+    controllersToRegister.forEach(function(controller) {
       var objToRegister = new controller();
 
       // iterating trough controller endpoint in class
-      Object.getOwnPropertyNames(objToRegister).forEach(function (
+      Object.getOwnPropertyNames(objToRegister).forEach(function(
         controllerEndpointName
       ) {
         var endpoint: ServerEndpointInterface =
@@ -383,10 +381,10 @@ export class Server {
         // Defining controllerUrl for this controllerMethod
         var controllerUrl = `/api/${
           controller.apiPrefix ? controller.apiPrefix + "/" : ""
-          }${controller.name.replace(
-            "Controller",
-            ""
-          )}/${controllerEndpointName}`.toLowerCase();
+        }${controller.name.replace(
+          "Controller",
+          ""
+        )}/${controllerEndpointName}`.toLowerCase();
 
         if (endpoint.route)
           if (!endpoint.route.startsWith("/"))
@@ -409,7 +407,7 @@ export class Server {
           console.log(
             chalk`{green ☑}  [${serverRoute.method.toUpperCase()}] {magenta ${
               serverRoute.route
-              }} | {gray ${serverRoute.controllerName} > ${serverRoute.endpoint}}`
+            }} | {gray ${serverRoute.controllerName} > ${serverRoute.endpoint}}`
           );
 
         Server.routes.push(serverRoute);
