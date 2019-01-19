@@ -39,7 +39,6 @@ export class WebSocketService implements ServerServiceInterface {
    */
   async sendToUser(userId: string, path: string, model: string) {
     Server.wsServer.clients.forEach((client: WebSocketInterface) => {
-      console.log(client.path, path);
 
       if (client.token.userId != userId) return;
 
