@@ -20,21 +20,14 @@ class WebSocketService {
      *
      */
     async sendToUser(userId, path, model) {
-        var tokens = await this.authService.findTokensByUserId(userId);
-        tokens.map(token => {
-            return new Promise((resolve, reject) => {
-                __1.Server.wsServer.clients.forEach((client) => {
-                    if (client.token)
-                        if (client.token.access_token == token.access_token)
-                            client.send(model, (err) => {
-                                resolve({
-                                    username: token.username,
-                                    access_token: token.access_token,
-                                    result: err || "success"
-                                });
-                            });
-                });
-            });
+        __1.Server.wsServer.clients.forEach((client) => {
+            console.log(client.path, path);
+            if (client.token.userId != userId)
+                return;
+            if (path)
+                if (client.path != path)
+                    return;
+            client.send(model, (err) => { });
         });
     }
     async start() {

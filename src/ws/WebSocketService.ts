@@ -38,22 +38,13 @@ export class WebSocketService implements ServerServiceInterface {
    *
    */
   async sendToUser(userId: string, path: string, model: string) {
-    var tokens = await this.authService.findTokensByUserId(userId);
-    tokens.map(token => {
-      return new Promise((resolve, reject) => {
-        Server.wsServer.clients.forEach((client: WebSocketInterface) => {
+    Server.wsServer.clients.forEach((client: WebSocketInterface) => {
+      console.log(client.path, path);
 
-          if (client.token)
-            if (client.token.access_token == token.access_token)
-              client.send(model, (err?) => {
-                resolve({
-                  username: token.username,
-                  access_token: token.access_token,
-                  result: err || "success"
-                });
-              });
-        });
-      });
+      if (client.token.userId != userId) return;
+
+      if (path) if (client.path != path) return;
+      client.send(model, (err?) => {});
     });
   }
 
@@ -62,7 +53,6 @@ export class WebSocketService implements ServerServiceInterface {
       "connection",
       (ws: WebSocketInterface, req: IncomingMessage) => {
         ws.on("message", async msg => {
-
           // Server.wsServer.clients.forEach((client: WebSocketInterface) => {
           //   console.log(client.path, client.token);
           // });
@@ -81,9 +71,9 @@ export class WebSocketService implements ServerServiceInterface {
               console.log(
                 chalk.blue(
                   `\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
-                  `new socket at ${req.url} user:${ws.token.username} ip:${
-                  req.connection.remoteAddress
-                  }\n`
+                    `new socket at ${req.url} user:${ws.token.username} ip:${
+                      req.connection.remoteAddress
+                    }\n`
                 )
               );
 
@@ -94,9 +84,9 @@ export class WebSocketService implements ServerServiceInterface {
               console.log(
                 chalk.redBright(
                   `\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
-                  `unauthenticated socket closed ip:${
-                  req.connection.remoteAddress
-                  }\n`
+                    `unauthenticated socket closed ip:${
+                      req.connection.remoteAddress
+                    }\n`
                 )
               );
             }
@@ -107,9 +97,9 @@ export class WebSocketService implements ServerServiceInterface {
           console.log(
             chalk.redBright(
               `\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
-              `socket close user:${
-              ws.token ? ws.token.username : "N/A"
-              } code:${code} reason:${reason} \n`
+                `socket close user:${
+                  ws.token ? ws.token.username : "N/A"
+                } code:${code} reason:${reason} \n`
             )
           );
         });

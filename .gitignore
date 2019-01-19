@@ -9,4 +9,4 @@ dist/debug_ignore.js
 .sonarlint
 .nyc_output
 
-npm.debug.log
+npm-debug.log
