@@ -157,7 +157,6 @@ export class Server {
         }
       })
       .catch((e: any) => {
-        console.log("~~~~~~~~~~~~~~~~~~",e)
         if (!res.finished) {
           res.statusCode = e.code || 500;
           res.statusMessage = e.message || e.Message;

@@ -5,6 +5,7 @@ const events_1 = require("events");
 const url = require("url");
 const chalk_1 = require("chalk");
 const qs = require("qs");
+const reqIp = require("request-ip");
 class WebSocketService {
     constructor() {
         this.connectionEmitter = new events_1.EventEmitter();
@@ -21,7 +22,6 @@ class WebSocketService {
      */
     async sendToUser(userId, path, model) {
         __1.Server.wsServer.clients.forEach((client) => {
-            console.log(client.path, path);
             if (client.token.userId != userId)
                 return;
             if (path)
@@ -43,7 +43,7 @@ class WebSocketService {
                         ws.path = parsedUrl.pathname;
                         ws.query = qs.parse(parsedUrl.query);
                         console.log(chalk_1.default.blue(`\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
-                            `new socket at ${req.url} user:${ws.token.username} ip:${req.connection.remoteAddress}\n`));
+                            `new socket at ${req.url} user:${ws.token.username} ip:${reqIp.getClientIp(req)}\n`));
                         ws.send("authenticated");
                     }
                     catch (error) {

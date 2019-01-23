@@ -117,18 +117,25 @@ export class ServerRouter {
     return ServerRouter.executeActions(req, res, null, actions, 0);
   }
   static executeActions(req, res, passedModel, actions, actionIndex) {
-    return new Promise(async (resolve, reject) => {
-      res.on("finish", () => resolve());
+    return new Promise((resolve, reject) => {
       var action;
       try {
         action = actions[actionIndex](
           req,
           res,
-          function _next(model) {
+          //next
+          model => {
             if (model)
               if (model.constructor)
                 if (model.constructor.name == "ServerError") {
                   reject(model);
+                  if (!res.finished) {
+                    res.statusCode = model.code || 500;
+                    res.statusMessage =
+                      model.message || model.Message || model.description;
+                    res.json(_.pick(model, "code", "description"));
+                  }
+
                   return;
                 }
 
@@ -148,9 +155,10 @@ export class ServerRouter {
               );
             } catch (error) {}
           },
-          function _done(statusCode?: number, statusMessage?: string) {
+          // done()
+          (statusCode?: number, statusMessage?: string) => {
             res.statusCode = statusCode || 200;
-            res.statusMessage = statusMessage;
+            res.statusMessage = res.statusText = statusMessage;
             res.end();
             resolve();
           },

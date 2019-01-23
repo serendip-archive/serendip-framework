@@ -15,6 +15,7 @@ import { WebSocketInterface } from "./WebSocketInterface";
 import * as url from "url";
 import chalk from "chalk";
 import * as qs from "qs";
+import * as reqIp from "request-ip";
 
 export class WebSocketService implements ServerServiceInterface {
   static dependencies = ["DbService", "AuthService"];
@@ -39,7 +40,6 @@ export class WebSocketService implements ServerServiceInterface {
    */
   async sendToUser(userId: string, path: string, model: string) {
     Server.wsServer.clients.forEach((client: WebSocketInterface) => {
-
       if (client.token.userId != userId) return;
 
       if (path) if (client.path != path) return;
@@ -70,9 +70,9 @@ export class WebSocketService implements ServerServiceInterface {
               console.log(
                 chalk.blue(
                   `\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
-                    `new socket at ${req.url} user:${ws.token.username} ip:${
-                      req.connection.remoteAddress
-                    }\n`
+                    `new socket at ${req.url} user:${
+                      ws.token.username
+                    } ip:${reqIp.getClientIp(req)}\n`
                 )
               );
 
