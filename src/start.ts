@@ -17,7 +17,7 @@ export function start(opts?: ServerOptionsInterface) {
     //opts.cpuCores || cpus().length
 
     if (opts.cpuCores)
-      if (opts.cpuCores == "max") cpuCount = cpus().length;
+      if (opts.cpuCores.toString().trim().toLowerCase() == "max") cpuCount = cpus().length;
       else cpuCount = parseInt(opts.cpuCores.toString());
 
     var stopForking = false;

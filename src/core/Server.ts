@@ -217,6 +217,10 @@ export class Server {
       .then(() => {
         this.addRoutes(opts.controllers)
           .then(() => {
+            if (opts.httpPort === null) {
+              return serverStartCallback();
+            }
+
             Server.httpServer = http.createServer();
 
             if (opts.cert && opts.key) {
@@ -360,8 +364,9 @@ export class Server {
    * Notice : controller methods should start with requested method ex : get,post,put,delete
    */
   private async addRoutes(controllersToRegister) {
-    if (Server.opts.logging == "info")
-      console.log(chalk.blueBright`Registering controller routes...`);
+    if (controllersToRegister && controllersToRegister.length > 0)
+      if (Server.opts.logging == "info")
+        console.log(chalk.blueBright`Registering controller routes...`);
     // iterating trough controller classes
     controllersToRegister.forEach(function(controller) {
       var objToRegister = new controller();

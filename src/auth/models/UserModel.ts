@@ -1,9 +1,9 @@
 export class UserModel {
   public _id?: string;
 
-  public registeredAt: number;
-  public registeredByIp: string;
-  public registeredByUseragent: string;
+  public registeredAt?: number;
+  public registeredByIp?: string;
+  public registeredByUseragent?: string;
 
   public username: string;
   public password?: string;
@@ -20,9 +20,9 @@ export class UserModel {
   public mobileVerificationCode?: string;
 
   public email?: string;
-  public mobile: string;
+  public mobile?: string;
 
-  public mobileCountryCode: string;
+  public mobileCountryCode?: string;
 
   public emailVerified?: boolean;
   public mobileVerified?: boolean;

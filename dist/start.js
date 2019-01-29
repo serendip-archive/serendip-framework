@@ -16,7 +16,7 @@ function start(opts) {
         var cpuCount = 1;
         //opts.cpuCores || cpus().length
         if (opts.cpuCores)
-            if (opts.cpuCores == "max")
+            if (opts.cpuCores.toString().trim().toLowerCase() == "max")
                 cpuCount = os_1.cpus().length;
             else
                 cpuCount = parseInt(opts.cpuCores.toString());
