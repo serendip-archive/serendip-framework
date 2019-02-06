@@ -104,23 +104,24 @@ class DbCollection {
         model["_vdate"] = Date.now();
         return new Promise((resolve, reject) => {
             var objectId = new mongodb_1.ObjectID();
-            var doc = this._collection.findOneAndUpdate({ _id: objectId }, { $set: model }, {
-                upsert: true,
-                returnOriginal: false
-            }, (err, result) => {
+            if (model._id && typeof model._id == "string")
+                model._id = new mongodb_1.ObjectID(model._id);
+            if (!model._id)
+                model._id = new mongodb_1.ObjectID();
+            var doc = this._collection.insertOne(model, (err, result) => {
                 if (err)
                     return reject(err);
-                resolve(result.value);
                 if (this._track)
                     this._dbService.entityChangeCollection.insertOne({
                         date: Date.now(),
-                        model: result.value,
-                        diff: deep.diff({}, result.value),
+                        model: model,
+                        diff: deep.diff({}, model),
                         type: _1.entityChangeType.Create,
                         userId: userId,
                         collection: this._collection.collectionName,
-                        entityId: objectId
+                        entityId: model._id
                     });
+                resolve(model);
             });
         });
     }

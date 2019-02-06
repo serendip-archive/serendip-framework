@@ -82,6 +82,8 @@ class AuthService {
         catch (error) {
             throw error;
         }
+        if (!user)
+            throw new core_1.ServerError(401, "user deleted");
         if (!user.groups)
             user.groups = [];
         if (user.groups.indexOf("blocked") != -1)

@@ -22,7 +22,7 @@ class WebSocketService {
      */
     async sendToUser(userId, path, model) {
         __1.Server.wsServer.clients.forEach((client) => {
-            if (client.token.userId != userId)
+            if (client.token && client.token.userId != userId)
                 return;
             if (path)
                 if (client.path != path)

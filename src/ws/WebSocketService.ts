@@ -40,7 +40,7 @@ export class WebSocketService implements ServerServiceInterface {
    */
   async sendToUser(userId: string, path: string, model: string) {
     Server.wsServer.clients.forEach((client: WebSocketInterface) => {
-      if (client.token.userId != userId) return;
+      if (client.token && client.token.userId != userId) return;
 
       if (path) if (client.path != path) return;
       client.send(model, (err?) => {});

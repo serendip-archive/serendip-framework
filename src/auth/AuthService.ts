@@ -164,6 +164,8 @@ export class AuthService implements ServerServiceInterface {
       throw error;
     }
 
+    if (!user) throw new ServerError(401, "user deleted");
+
     if (!user.groups) user.groups = [];
 
     if (user.groups.indexOf("blocked") != -1)

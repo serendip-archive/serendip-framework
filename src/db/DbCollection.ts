@@ -120,36 +120,32 @@ export class DbCollection<T> {
     });
   }
 
-  public insertOne(model: T, userId?: string): Promise<T> {
+  public insertOne(model: T | any, userId?: string): Promise<T> {
     model["_vdate"] = Date.now();
 
     return new Promise((resolve, reject) => {
       var objectId: ObjectID = new ObjectID();
 
-      var doc = this._collection.findOneAndUpdate(
-        { _id: objectId },
-        { $set: model },
-        {
-          upsert: true,
-          returnOriginal: false
-        },
-        (err, result) => {
-          if (err) return reject(err);
+      if (model._id && typeof model._id == "string")
+        model._id = new ObjectID(model._id);
+      if (!model._id) model._id = new ObjectID();
 
-          resolve(result.value);
+      var doc = this._collection.insertOne(model, (err, result) => {
+        if (err) return reject(err);
 
-          if (this._track)
-            this._dbService.entityChangeCollection.insertOne({
-              date: Date.now(),
-              model: result.value,
-              diff: deep.diff({}, result.value),
-              type: entityChangeType.Create,
-              userId: userId,
-              collection: this._collection.collectionName,
-              entityId: objectId
-            });
-        }
-      );
+        if (this._track)
+          this._dbService.entityChangeCollection.insertOne({
+            date: Date.now(),
+            model: model,
+            diff: deep.diff({}, model),
+            type: entityChangeType.Create,
+            userId: userId,
+            collection: this._collection.collectionName,
+            entityId: model._id
+          });
+
+        resolve(model);
+      });
     });
   }
 }
