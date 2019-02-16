@@ -9,7 +9,8 @@ const http_1 = require("../http");
  * /api/auth/(endpoint)
  */
 class AuthController {
-    constructor() {
+    constructor(authService) {
+        this.authService = authService;
         this.register = {
             method: "post",
             publicAccess: true,
@@ -440,7 +441,6 @@ class AuthController {
                 }
             ]
         };
-        this.authService = core_1.Server.services["AuthService"];
     }
 }
 exports.AuthController = AuthController;

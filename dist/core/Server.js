@@ -23,89 +23,98 @@ class Server {
         return new Server(opts, worker, serverStartCallback);
     }
     // FIXME: needs refactor
-    async addServices(servicesToRegister) {
-        if (!servicesToRegister)
+    async addServices(serviceClasses) {
+        if (!serviceClasses)
             return;
-        if (servicesToRegister.length == 0)
+        if (serviceClasses.length == 0)
             return;
-        var servicesToStart = [];
-        var dependenciesToSort = [];
-        servicesToRegister.forEach(sv => {
+        let serviceObjects = {};
+        let unsortedDependencies = [];
+        serviceClasses.forEach(sv => {
             if (!sv)
                 return;
             if (typeof sv.dependencies !== "undefined" && sv.dependencies.length)
                 sv.dependencies.forEach((dep) => {
                     dep = sUtil.text.capitalizeFirstLetter(dep);
-                    if (dependenciesToSort.indexOf([sv.name, dep]) === -1)
-                        dependenciesToSort.push([sv.name, dep]);
+                    if (unsortedDependencies.indexOf([sv.name, dep]) === -1)
+                        unsortedDependencies.push([sv.name, dep]);
                 });
             sUtil.functions.args(sv).forEach((dep) => {
                 dep = sUtil.text.capitalizeFirstLetter(dep);
-                if (dependenciesToSort.indexOf([sv.name, dep]) === -1)
-                    dependenciesToSort.push([sv.name, dep]);
+                if (unsortedDependencies.indexOf([sv.name, dep]) === -1)
+                    unsortedDependencies.push([sv.name, dep]);
             });
-            servicesToStart[sv.name] = sv;
+            serviceObjects[sv.name] = sv;
         });
         // TODO: replace toposort module with code :)
-        var sortedDependencies = utils_1.toposort(dependenciesToSort).reverse();
+        var sortedDependencies = utils_1.toposort(unsortedDependencies).reverse();
         // if there is only one service topoSort will return empty array so we should push that one service ourselves
         if (sortedDependencies.length == 0) {
-            if (servicesToRegister[0])
-                sortedDependencies.push(servicesToRegister[0].name);
+            if (serviceClasses[0])
+                sortedDependencies.push(serviceClasses[0].name);
         }
-        return new Promise((resolve, reject) => {
+        if (Server.opts.logging == "info")
+            console.log(chalk_1.default.cyan `Starting server services...`);
+        if (serviceClasses.length > 0)
+            await this.startService(0, serviceObjects, sortedDependencies, unsortedDependencies);
+    }
+    /**
+     * Will start services from Index to length of sortedDependencies
+     * @param index Index of item in sortedDependencies to start
+     * @param serviceObjects key value object that contains service objects and their names
+     * @param sortedDependencies Service names sorted by dependency order
+     */
+    async startService(index, serviceObjects, sortedDependencies, unsortedDependencies) {
+        const serviceName = sortedDependencies[index];
+        let serviceDependencies = unsortedDependencies.filter(p => p[0] === serviceName).map(p => p[1]) ||
+            [];
+        if (serviceDependencies.length > 0) {
+            serviceDependencies = serviceDependencies.reduceRight((prev, current, currentIndex, array) => {
+                if (typeof prev == "string")
+                    return [prev];
+                if (prev.indexOf(current) == -1)
+                    return prev.concat([current]);
+                return prev;
+            });
+        }
+        if (typeof serviceDependencies == "string")
+            serviceDependencies = [serviceDependencies];
+        if (!serviceName)
+            return;
+        var serviceObject;
+        if (!serviceObjects[serviceName])
+            throw `${serviceName} not imported as service in start method. it's a dependency of ` +
+                unsortedDependencies
+                    .filter(p => p[1] == serviceName)
+                    .map(p => p[0])
+                    .join(",");
+        try {
+            serviceObject = new serviceObjects[serviceName](...unsortedDependencies
+                .filter(p => p[0] === serviceName)
+                .map(p => Server.services[p[1]]));
+        }
+        catch (e) {
+            throw chalk_1.default.red `Server Service Error in "${serviceName}"\n` + e.message;
+        }
+        Server.services[serviceName] = serviceObject;
+        if (!serviceObject.start)
+            return this.startService(index + 1, serviceObjects, sortedDependencies, unsortedDependencies);
+        else {
             if (Server.opts.logging == "info")
-                console.log(chalk_1.default.cyan `Starting server services...`);
-            function startService(index) {
-                var serviceName = sortedDependencies[index];
-                if (!serviceName)
-                    resolve();
-                var serviceObject;
-                if (!servicesToStart[serviceName])
-                    return reject(`${serviceName} not imported as service in start method. it's a dependency of ` +
-                        dependenciesToSort
-                            .filter(p => p[1] == serviceName)
-                            .map(p => p[0])
-                            .join(","));
-                try {
-                    serviceObject = new servicesToStart[serviceName](...dependenciesToSort
-                        .filter(p => p[0] === serviceName)
-                        .map(p => Server.services[p[1]]));
-                }
-                catch (e) {
-                    e.message =
-                        chalk_1.default.red `Server Service Error in "${serviceName}"\n` + e.message;
-                    reject(e);
-                }
-                Server.services[serviceName] = serviceObject;
-                if (!serviceObject.start)
-                    startService(index + 1);
-                else
-                    serviceObject
-                        .start()
-                        .then(() => {
-                        var serviceDependencies = dependenciesToSort
-                            .filter(p => p[0] === serviceName)
-                            .map(p => p[1]);
-                        if (Server.opts.logging == "info")
-                            console.log(chalk_1.default `${(index + 1)
-                                .toString()
-                                .padStart(2, " ")} of ${Object.keys(servicesToStart)
-                                .length.toString()
-                                .padStart(2, " ")} {green ☑} ${serviceName} {gray depends on: ${serviceDependencies.toString() ||
-                                "none"}}`);
-                        if (sortedDependencies.length > index + 1)
-                            startService(index + 1);
-                        else
-                            resolve();
-                    })
-                        .catch(err => {
-                        reject(err);
-                    });
-            }
-            if (servicesToRegister.length > 0)
-                startService(0);
-        });
+                console.log(chalk_1.default `{grey ${(index + 1)
+                    .toString()
+                    .padStart(2, " ")} of ${Object.keys(serviceObjects)
+                    .length.toString()
+                    .padStart(2, "")} starting ${serviceName} it depends on: ${serviceDependencies.join(",") || "none"}}`);
+            await serviceObject.start();
+            if (Server.opts.logging == "info")
+                console.log(chalk_1.default `${(index + 1).toString().padStart(2, " ")} of${Object.keys(serviceObjects)
+                    .length.toString()
+                    .padStart(2, " ")} {green ☑} ${serviceName}`);
+            if (sortedDependencies.length > index + 1)
+                return this.startService(index + 1, serviceObjects, sortedDependencies, unsortedDependencies);
+            return;
+        }
     }
 }
 Server.services = {};

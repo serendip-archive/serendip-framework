@@ -1,6 +1,7 @@
 export interface ServerServiceInterface {
   start?(): Promise<void>;
 
+  new (...args);
   // optional array of service names your server dependent on and imported in serendip start
   dependencies?: string[];
 

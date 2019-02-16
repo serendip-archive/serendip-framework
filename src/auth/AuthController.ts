@@ -10,11 +10,7 @@ import { HttpError } from "../http";
  * /api/auth/(endpoint)
  */
 export class AuthController {
-  public authService: AuthService;
-
-  constructor() {
-    this.authService = Server.services["AuthService"];
-  }
+  constructor(private authService: AuthService) {}
 
   public register: HttpEndpointInterface = {
     method: "post",

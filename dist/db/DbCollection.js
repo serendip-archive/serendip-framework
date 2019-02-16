@@ -43,9 +43,6 @@ class DbCollection {
     count(query) {
         return this._collection.find(query).count();
     }
-    aggregate(pipeline) {
-        return this._collection.aggregate(pipeline);
-    }
     updateOne(model, userId) {
         return new Promise((resolve, reject) => {
             model["_id"] = new mongodb_1.ObjectID(model["_id"]);
