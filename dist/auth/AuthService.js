@@ -6,10 +6,11 @@ const utils = require("../utils");
 const models_1 = require("./models");
 const _ = require("underscore");
 const events_1 = require("events");
+const http_1 = require("../http");
 class AuthService {
-    constructor() {
-        this.dbService = core_1.Server.services["DbService"];
-        this.emailService = core_1.Server.services["EmailService"];
+    constructor(dbService, emailService) {
+        this.dbService = dbService;
+        this.emailService = emailService;
     }
     static configure(options) {
         AuthService.options = _.extend(AuthService.options, options);
@@ -53,12 +54,12 @@ class AuthService {
                 core_1.Server.services[AuthService.options.smsProvider]
                     .sendVerification(userModel.mobile, userModel.mobileVerificationCode, useragent, ip)
                     .then(body => resolve(body))
-                    .catch(err => reject(new core_1.ServerError(500, err)));
+                    .catch(err => reject(new http_1.HttpError(500, err)));
             })
                 .then(r => AuthService.events.emit("sendVerifySms", r, null))
                 .catch(e => AuthService.events.emit("sendVerifySms", null, e));
         else
-            throw new core_1.ServerError(500, "no sms provider");
+            throw new http_1.HttpError(500, "no sms provider");
     }
     async refreshRestrictions() {
         this.restrictions = await this.restrictionCollection.find({});
@@ -67,7 +68,7 @@ class AuthService {
         if (publicAccess)
             return true;
         if (!req.headers.authorization && !req.body.access_token)
-            throw new core_1.ServerError(401, "access_token not found in body and authorization header");
+            throw new http_1.HttpError(401, "access_token not found in body and authorization header");
         var access_token;
         if (req.body.access_token)
             access_token = req.body.access_token;
@@ -83,11 +84,11 @@ class AuthService {
             throw error;
         }
         if (!user)
-            throw new core_1.ServerError(401, "user deleted");
+            throw new http_1.HttpError(401, "user deleted");
         if (!user.groups)
             user.groups = [];
         if (user.groups.indexOf("blocked") != -1)
-            throw new core_1.ServerError(401, "user access is blocked");
+            throw new http_1.HttpError(401, "user access is blocked");
         var rules = [
             // global
             _.findWhere(this.restrictions, { controllerName: "", endpoint: "" }),
@@ -107,11 +108,11 @@ class AuthService {
                 if (rule.allowAll &&
                     rule.groups.length != _.difference(rule.groups, user.groups).length)
                     if (rule.users.indexOf(user._id) == -1)
-                        throw new core_1.ServerError(401, "user group access is denied");
+                        throw new http_1.HttpError(401, "user group access is denied");
                 if (!rule.allowAll &&
                     rule.groups.length == _.difference(rule.groups, user.groups).length)
                     if (rule.users.indexOf(user._id) == -1)
-                        throw new core_1.ServerError(401, "user group access is denied");
+                        throw new http_1.HttpError(401, "user group access is denied");
             }
         });
     }
@@ -215,7 +216,7 @@ class AuthService {
             access_token: access_token
         });
         if (tokenQuery.length != 1)
-            throw new core_1.ServerError(401, "access_token invalid");
+            throw new http_1.HttpError(401, "access_token invalid");
         else {
             return tokenQuery[0];
         }
@@ -358,17 +359,18 @@ class AuthService {
     async findUserByMobile(mobile, mobileCountryCode) {
         if (!mobile)
             return undefined;
-        var query = await this.usersCollection
-            .aggregate([])
-            .match({
+        var match = {
             $and: [
                 {
                     $or: [
                         {
-                            mobile: mobile
+                            mobile: parseInt(mobile, 10)
                         },
                         {
-                            mobile: "0" + mobile
+                            mobile: parseInt(mobile, 10).toString()
+                        },
+                        {
+                            mobile: "0" + parseInt(mobile, 10).toString()
                         }
                     ]
                 },
@@ -378,7 +380,10 @@ class AuthService {
                         "+98"
                 }
             ]
-        })
+        };
+        var query = await this.usersCollection
+            .aggregate([])
+            .match(match)
             .toArray();
         if (query.length == 0)
             return undefined;

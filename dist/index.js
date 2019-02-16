@@ -13,3 +13,4 @@ __export(require("./sms"));
 __export(require("./email"));
 __export(require("./ui"));
 __export(require("./ws/WebSocketService"));
+__export(require("./http"));

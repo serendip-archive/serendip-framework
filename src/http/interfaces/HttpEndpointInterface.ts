@@ -1,6 +1,6 @@
-import { ServerEndpointActionInterface } from "..";
+import { HttpEndpointActionInterface } from "./HttpEndpointActionInterface";
 
-export interface ServerEndpointInterface {
+export interface HttpEndpointInterface {
 
   /**
    * Http Method put,post,get,delete
@@ -23,7 +23,7 @@ export interface ServerEndpointInterface {
   /**
    * Series of actions to respond any request to this endpoint route
    */
-  actions: ServerEndpointActionInterface[]
+  actions: HttpEndpointActionInterface[]
 
   /**
    * is this endpoint publicly accessible by anyone on net

@@ -7,11 +7,11 @@ const chalk_1 = require("chalk");
 const qs = require("qs");
 const reqIp = require("request-ip");
 class WebSocketService {
-    constructor() {
+    constructor(dbService, authService) {
+        this.dbService = dbService;
+        this.authService = authService;
         this.connectionEmitter = new events_1.EventEmitter();
         this.messageEmitter = new events_1.EventEmitter();
-        this.dbService = __1.Server.services["DbService"];
-        this.authService = __1.Server.services["AuthService"];
     }
     /**
      *
@@ -61,5 +61,4 @@ class WebSocketService {
         });
     }
 }
-WebSocketService.dependencies = ["DbService", "AuthService"];
 exports.WebSocketService = WebSocketService;

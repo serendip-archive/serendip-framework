@@ -21,15 +21,16 @@ export interface EmailServiceOptionsInterface {
 }
 
 export class EmailService implements ServerServiceInterface {
-  private _dbService: DbService;
-  private _viewEngineService: ViewEngineService;
-
-  static dependencies = ["DbService", "ViewEngineService"];
   private outboxCollection: DbCollection<EmailModel>;
 
   static options: EmailServiceOptionsInterface = {};
 
   static emailTemplates = [];
+
+  constructor(
+    private dbService: DbService,
+    private viewEngineService: ViewEngineService
+  ) {}
 
   static configure(options: EmailServiceOptionsInterface): void {
     EmailService.options = _.extend(EmailService.options, options);
@@ -54,9 +55,7 @@ export class EmailService implements ServerServiceInterface {
   }
 
   async start() {
-    this._dbService = Server.services["DbService"];
-    this._viewEngineService = Server.services["ViewEngineService"];
-    this.outboxCollection = await this._dbService.collection<EmailModel>(
+    this.outboxCollection = await this.dbService.collection<EmailModel>(
       "EmailOutbox"
     );
 
@@ -65,7 +64,6 @@ export class EmailService implements ServerServiceInterface {
 
   public send(emailModel: EmailModel): Promise<void> {
     return new Promise((resolve, reject) => {
-        
       var transporter = nodeMailer.createTransport({
         host: EmailService.options.smtp.host,
         port: EmailService.options.smtp.port,
@@ -90,7 +88,7 @@ export class EmailService implements ServerServiceInterface {
         if (!emailModel.template.data) emailModel.template.data = {};
 
         if (emailModel.template.source)
-          emailModel.html = this._viewEngineService.renderMustache(
+          emailModel.html = this.viewEngineService.renderMustache(
             emailModel.template.source,
             emailModel.template.data
           );

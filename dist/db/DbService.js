@@ -14,32 +14,23 @@ class DbService {
     static configure(options) {
         DbService.options = _.extend(DbService.options, options);
     }
-    /**
-     * set mongo collection with specified type
-     * @param collectionName Collection name in MongoDB
-     *
-     *  filing Server.db that will use in entire system
-     */
-    async connect() {
-        // Creating mongoDB client from mongoUrl
-        let connectOptions = {
-            useNewUrlParser: true
-        };
-        if (DbService.options.authSource) {
-            connectOptions.authSource = DbService.options.authSource;
-        }
-        if (DbService.options.user && DbService.options.password) {
-            connectOptions.auth = {
-                user: DbService.options.user,
-                password: DbService.options.password
-            };
-        }
-        var mongoClient = await mongodb_1.MongoClient.connect(DbService.options.mongoUrl, connectOptions);
-        this.db = mongoClient.db(DbService.options.mongoDb);
-    }
     async start() {
         try {
-            await this.connect();
+            // Creating mongoDB client from mongoUrl
+            let connectOptions = {
+                useNewUrlParser: true
+            };
+            if (DbService.options.authSource) {
+                connectOptions.authSource = DbService.options.authSource;
+            }
+            if (DbService.options.user && DbService.options.password) {
+                connectOptions.auth = {
+                    user: DbService.options.user,
+                    password: DbService.options.password
+                };
+            }
+            var mongoClient = await mongodb_1.MongoClient.connect(DbService.options.mongoUrl, connectOptions);
+            this.db = mongoClient.db(DbService.options.mongoDb);
         }
         catch (error) {
             throw new Error("\n\nUnable to connect to MongoDb. Error details: \n" + error.message);

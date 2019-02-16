@@ -3,7 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const _1 = require(".");
 const _ = require("underscore");
 class ServerController {
-    constructor() {
+    constructor(httpService, authService) {
+        this.httpService = httpService;
+        this.authService = authService;
         this.clusterTesting = {
             publicAccess: true,
             route: "/api/server/cluster-testing",
@@ -25,11 +27,12 @@ class ServerController {
                     }, 200);
                 },
                 (req, res, next, done) => {
-                    var model = _.map(_1.Server.routes, route => {
-                        route = _.omit(route, "controllerObject");
-                        return route;
-                    });
-                    res.json(model);
+                    // var model = _.map(this.httpService.routes, route => {
+                    //   route = _.omit(route, "controllerObject");
+                    //   return route;
+                    // });
+                    // res.json(model);
+                    done(200);
                 }
             ]
         };

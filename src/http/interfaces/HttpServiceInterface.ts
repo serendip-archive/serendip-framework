@@ -1,4 +1,4 @@
-export interface ServerServiceInterface {
+export interface HttpServiceInterface {
   start?(): Promise<void>;
 
   // optional array of service names your server dependent on and imported in serendip start

@@ -5,8 +5,6 @@ const cluster = require("cluster");
 const os_1 = require("os");
 const events_1 = require("events");
 function start(opts) {
-    if (!opts.controllers)
-        opts.controllers = [];
     if (!opts.services)
         opts.services = [];
     if (!opts.logging)
@@ -16,7 +14,10 @@ function start(opts) {
         var cpuCount = 1;
         //opts.cpuCores || cpus().length
         if (opts.cpuCores)
-            if (opts.cpuCores.toString().trim().toLowerCase() == "max")
+            if (opts.cpuCores
+                .toString()
+                .trim()
+                .toLowerCase() == "max")
                 cpuCount = os_1.cpus().length;
             else
                 cpuCount = parseInt(opts.cpuCores.toString());

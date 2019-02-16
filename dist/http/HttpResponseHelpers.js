@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const Path = require("path");
-function ServerResponseHelpers(res) {
+function HttpResponseHelpers(res) {
     res.sendFile = (path) => {
         // maps file extention to MIME types
         const mimeType = {
@@ -56,4 +56,4 @@ function ServerResponseHelpers(res) {
     };
     return res;
 }
-exports.ServerResponseHelpers = ServerResponseHelpers;
+exports.HttpResponseHelpers = HttpResponseHelpers;

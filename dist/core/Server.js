@@ -1,177 +1,26 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const bodyParser = require("body-parser");
 const chalk_1 = require("chalk");
-const fs = require("fs");
-const http = require("http");
-const https = require("https");
-const _ = require("underscore");
-const ws = require("ws");
-const _1 = require(".");
-const ServerRouter_1 = require("./ServerRouter");
 const utils_1 = require("../utils");
+const sUtil = require("serendip-utility");
 /**
  *  Will contain everything that we need from server
  */
 class Server {
     // passing worker from Start.js
-    constructor(opts, worker, serverStartCallback) {
-        var httpPort = opts.httpPort || parseInt(process.env.httpPort);
-        var httpsPort = opts.httpsPort || parseInt(process.env.httpsPort);
+    constructor(opts, worker, callback) {
         Server.opts = opts;
-        Server.staticPath = opts.staticPath;
         // Cluster worker
         Server.worker = worker;
-        Server.middlewares = opts.middlewares || [];
-        // adding basic middlewares to begging of middlewares array
-        Server.middlewares.unshift(bodyParser.json({ limit: "50mb" }));
-        Server.middlewares.unshift(bodyParser.urlencoded({ limit: "50mb", extended: false }));
         if (!opts.services)
             opts.services = [];
         this.addServices(opts.services)
-            .then(() => {
-            this.addRoutes(opts.controllers)
-                .then(() => {
-                if (opts.httpPort === null) {
-                    return serverStartCallback();
-                }
-                Server.httpServer = http.createServer();
-                if (opts.cert && opts.key) {
-                    Server.httpsServer = https.createServer({
-                        cert: fs.readFileSync(opts.cert),
-                        key: fs.readFileSync(opts.key)
-                    });
-                }
-                if (opts.httpsOnly) {
-                    Server.httpsServer.on("request", Server.processRequest);
-                    Server.httpServer.on("request", Server.redirectToHttps(httpPort, httpsPort));
-                }
-                else {
-                    if (Server.httpsServer)
-                        Server.httpsServer.on("request", Server.processRequest);
-                    Server.httpServer.on("request", Server.processRequest);
-                }
-                Server.httpServer.listen(httpPort, () => {
-                    if (Server.services["WebSocketService"]) {
-                        var wsService = Server.services["WebSocketService"];
-                        Server.wsServer = new ws.Server({ noServer: true });
-                        Server.httpServer.on("upgrade", (req, socket, head) => {
-                            Server.wsServer.handleUpgrade(req, socket, head, ws => {
-                                wsService.connectionEmitter.emit("connection", ws, req);
-                            });
-                        });
-                    }
-                    if (Server.opts.logging == "info")
-                        console.log(chalk_1.default.cyan(`worker ${worker.id} running http server at port ${httpPort}`));
-                    if (!Server.httpsServer)
-                        return serverStartCallback();
-                    else
-                        Server.httpsServer.listen(httpsPort, () => {
-                            if (Server.opts.logging == "info")
-                                console.log(chalk_1.default.cyan(`worker ${worker.id} running https server at port ${httpsPort}`));
-                            if (serverStartCallback)
-                                serverStartCallback();
-                        });
-                });
-            })
-                .catch(e => serverStartCallback(e));
-        })
-            .catch(e => serverStartCallback(e));
+            .then(() => callback())
+            .catch(e => callback(e));
     }
     // usage : starting server from ./Start.js
     static bootstrap(opts, worker, serverStartCallback) {
         return new Server(opts, worker, serverStartCallback);
-    }
-    static async processRequest(req, res) {
-        var requestReceived = Date.now();
-        req = _1.ServerRequestHelpers(req);
-        res = _1.ServerResponseHelpers(res);
-        var logString = () => {
-            return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : "unauthorized"}  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
-        };
-        if (Server.opts.beforeMiddlewares &&
-            Server.opts.beforeMiddlewares.length > 0) {
-            await ServerRouter_1.ServerRouter.executeActions(req, res, null, Server.opts.beforeMiddlewares, 0);
-            if (res.finished)
-                return;
-        }
-        if (Server.opts.logging == "info")
-            console.info(chalk_1.default.gray(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.useragent()} process request started.`));
-        // finding controller by path
-        if (Server.opts.cors)
-            res.setHeader("Access-Control-Allow-Origin", Server.opts.cors);
-        res.setHeader("Access-Control-Allow-Headers", "clientid, Authorization , Content-Type, Accept");
-        res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
-        var srvRoute = ServerRouter_1.ServerRouter.findSrvRoute(req, true);
-        if (req.method === "OPTIONS") {
-            if (ServerRouter_1.ServerRouter.findSrvRoute(req, false)) {
-                res.statusCode = 200;
-                res.end();
-                return;
-            }
-            else {
-                res.statusCode = 400;
-                res.end();
-                return;
-            }
-        }
-        else {
-            if (!srvRoute) {
-                if (Server.staticPath) {
-                    ServerRouter_1.ServerRouter.processRequestToStatic(req, res, (code, filePath) => {
-                        if (code == 200)
-                            if (Server.opts.logging == "info")
-                                console.info(`${logString()} => Download started [${filePath}]`);
-                    });
-                    return;
-                }
-                else {
-                    res.statusCode = 404;
-                    res.statusMessage = req.url + " not found";
-                    res.end();
-                    return;
-                }
-            }
-        }
-        ServerRouter_1.ServerRouter.routeIt(req, res, srvRoute)
-            .then(data => {
-            // Request gone through all middlewares and actions for matched route
-            if (req.method.toLowerCase() != "options" && srvRoute) {
-                if (!srvRoute.isStream)
-                    if (!res.finished)
-                        if (data)
-                            res.json(data);
-                        else
-                            res.end();
-                if (Server.opts.logging == "info")
-                    console.info(`${logString()} ${srvRoute.isStream ? " stream started!" : ""}`);
-            }
-        })
-            .catch((e) => {
-            if (!res.finished) {
-                res.statusCode = e.code || 500;
-                res.statusMessage = e.message || e.Message;
-                res.json(_.pick(e, "code", "description"));
-                if (!res.finished)
-                    res.end();
-            }
-            if (Server.opts.logging == "info")
-                console.error(`${logString()}`, chalk_1.default.red(JSON.stringify(e)));
-            else if (Server.opts.logging != "silent")
-                console.error(`${logString()}`, chalk_1.default.red("\n[Error] " + (e.message || e.Message)));
-        });
-    }
-    static redirectToHttps(httpPort, httpsPort) {
-        return (req, res) => {
-            res.writeHead(301, {
-                Location: "https://" +
-                    req.headers["host"]
-                        .toString()
-                        .replace(":" + httpPort, ":" + httpsPort) +
-                    req.url
-            });
-            res.end();
-        };
     }
     // FIXME: needs refactor
     async addServices(servicesToRegister) {
@@ -185,13 +34,21 @@ class Server {
             if (!sv)
                 return;
             if (typeof sv.dependencies !== "undefined" && sv.dependencies.length)
-                sv.dependencies.forEach(val => {
-                    dependenciesToSort.push([sv.name, val]);
+                sv.dependencies.forEach((dep) => {
+                    dep = sUtil.text.capitalizeFirstLetter(dep);
+                    if (dependenciesToSort.indexOf([sv.name, dep]) === -1)
+                        dependenciesToSort.push([sv.name, dep]);
                 });
+            sUtil.functions.args(sv).forEach((dep) => {
+                dep = sUtil.text.capitalizeFirstLetter(dep);
+                if (dependenciesToSort.indexOf([sv.name, dep]) === -1)
+                    dependenciesToSort.push([sv.name, dep]);
+            });
             servicesToStart[sv.name] = sv;
         });
         // TODO: replace toposort module with code :)
         var sortedDependencies = utils_1.toposort(dependenciesToSort).reverse();
+        // if there is only one service topoSort will return empty array so we should push that one service ourselves
         if (sortedDependencies.length == 0) {
             if (servicesToRegister[0])
                 sortedDependencies.push(servicesToRegister[0].name);
@@ -205,9 +62,15 @@ class Server {
                     resolve();
                 var serviceObject;
                 if (!servicesToStart[serviceName])
-                    return reject(chalk_1.default.red `"${serviceName}" not imported in start method. it's a dependency of another service.`);
+                    return reject(`${serviceName} not imported as service in start method. it's a dependency of ` +
+                        dependenciesToSort
+                            .filter(p => p[1] == serviceName)
+                            .map(p => p[0])
+                            .join(","));
                 try {
-                    serviceObject = new servicesToStart[serviceName]();
+                    serviceObject = new servicesToStart[serviceName](...dependenciesToSort
+                        .filter(p => p[0] === serviceName)
+                        .map(p => Server.services[p[1]]));
                 }
                 catch (e) {
                     e.message =
@@ -221,8 +84,16 @@ class Server {
                     serviceObject
                         .start()
                         .then(() => {
+                        var serviceDependencies = dependenciesToSort
+                            .filter(p => p[0] === serviceName)
+                            .map(p => p[1]);
                         if (Server.opts.logging == "info")
-                            console.log(chalk_1.default `{green ☑} ${serviceName}`);
+                            console.log(chalk_1.default `${(index + 1)
+                                .toString()
+                                .padStart(2, " ")} of ${Object.keys(servicesToStart)
+                                .length.toString()
+                                .padStart(2, " ")} {green ☑} ${serviceName} {gray depends on: ${serviceDependencies.toString() ||
+                                "none"}}`);
                         if (sortedDependencies.length > index + 1)
                             startService(index + 1);
                         else
@@ -236,52 +107,6 @@ class Server {
                 startService(0);
         });
     }
-    /**
-     * Add controllers to express router
-     * Notice : all controllers should end with 'Controller'
-     * Notice : controller methods should start with requested method ex : get,post,put,delete
-     */
-    async addRoutes(controllersToRegister) {
-        if (controllersToRegister && controllersToRegister.length > 0)
-            if (Server.opts.logging == "info")
-                console.log(chalk_1.default.blueBright `Registering controller routes...`);
-        // iterating trough controller classes
-        controllersToRegister.forEach(function (controller) {
-            var objToRegister = new controller();
-            // iterating trough controller endpoint in class
-            Object.getOwnPropertyNames(objToRegister).forEach(function (controllerEndpointName) {
-                var endpoint = objToRegister[controllerEndpointName];
-                if (!endpoint)
-                    return;
-                if (!endpoint.method || !endpoint.actions)
-                    return;
-                // Defining controllerUrl for this controllerMethod
-                var controllerUrl = `/api/${controller.apiPrefix ? controller.apiPrefix + "/" : ""}${controller.name.replace("Controller", "")}/${controllerEndpointName}`.toLowerCase();
-                if (endpoint.route)
-                    if (!endpoint.route.startsWith("/"))
-                        endpoint.route = "/" + endpoint.route;
-                var serverRoute = {
-                    route: endpoint.route || controllerUrl,
-                    isStream: endpoint.isStream,
-                    method: endpoint.method,
-                    publicAccess: endpoint.publicAccess || false,
-                    endpoint: controllerEndpointName,
-                    controllerName: controller.name,
-                    controllerObject: objToRegister
-                };
-                serverRoute.route = serverRoute.route.toLowerCase();
-                serverRoute.method = serverRoute.method.toLowerCase();
-                if (Server.opts.logging == "info")
-                    console.log(chalk_1.default `{green ☑}  [${serverRoute.method.toUpperCase()}] {magenta ${serverRoute.route}} | {gray ${serverRoute.controllerName} > ${serverRoute.endpoint}}`);
-                Server.routes.push(serverRoute);
-            });
-        });
-    }
 }
-/**
- * routes which server router will respond to
- * and feel free to add your routes to it
- */
-Server.routes = [];
 Server.services = {};
 exports.Server = Server;

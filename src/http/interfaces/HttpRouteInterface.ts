@@ -1,7 +1,7 @@
 /**
  * routes to introduce to express :) 
  */
-export interface ServerRouteInterface {
+export interface HttpRouteInterface {
 
     method: string;
     route: string;

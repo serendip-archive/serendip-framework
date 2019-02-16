@@ -2,11 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("underscore");
 const nodeMailer = require("nodemailer");
-const __1 = require("..");
 const fs = require("fs");
 const glob = require("glob");
 const path = require("path");
 class EmailService {
+    constructor(dbService, viewEngineService) {
+        this.dbService = dbService;
+        this.viewEngineService = viewEngineService;
+    }
     static configure(options) {
         EmailService.options = _.extend(EmailService.options, options);
     }
@@ -24,9 +27,7 @@ class EmailService {
         });
     }
     async start() {
-        this._dbService = __1.Server.services["DbService"];
-        this._viewEngineService = __1.Server.services["ViewEngineService"];
-        this.outboxCollection = await this._dbService.collection("EmailOutbox");
+        this.outboxCollection = await this.dbService.collection("EmailOutbox");
         if (EmailService.options.templatesPath)
             await this.loadTemplates();
     }
@@ -51,7 +52,7 @@ class EmailService {
                 if (!emailModel.template.data)
                     emailModel.template.data = {};
                 if (emailModel.template.source)
-                    emailModel.html = this._viewEngineService.renderMustache(emailModel.template.source, emailModel.template.data);
+                    emailModel.html = this.viewEngineService.renderMustache(emailModel.template.source, emailModel.template.data);
                 else
                     reject("no template source");
             }
@@ -64,7 +65,6 @@ class EmailService {
         });
     }
 }
-EmailService.dependencies = ["DbService", "ViewEngineService"];
 EmailService.options = {};
 EmailService.emailTemplates = [];
 exports.EmailService = EmailService;

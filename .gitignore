@@ -10,3 +10,4 @@ dist/debug_ignore.js
 .nyc_output
 
 npm-debug.log
+.env

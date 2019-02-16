@@ -3,7 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const request = require("request");
 const _ = require("underscore");
 class SmsIrService {
-    constructor() {
+    constructor(dbService) {
+        this.dbService = dbService;
         if (!SmsIrService.options.apiKey ||
             !SmsIrService.options.lineNumber ||
             !SmsIrService.options.secretKey)
@@ -77,54 +78,91 @@ class SmsIrService {
     sendAuthCode(mobileNumber, code, useragent, ip) {
         return new Promise((resolve, reject) => {
             console.log("SmsIrService sendVerification =>", mobileNumber, code);
-            var smsPayload = {
-                ParameterArray: [
-                    { Parameter: "VerificationCode", ParameterValue: code }
-                ],
-                Mobile: mobileNumber,
-                TemplateId: ip && useragent
-                    ? SmsIrService.options.verifyTemplateWithIpAndUseragent
-                    : SmsIrService.options.verifyTemplate
-            };
-            if (ip)
-                smsPayload.ParameterArray.push({
-                    Parameter: "ip",
-                    ParameterValue: "IP: " + (ip == "::1" ? "127.0.0.1" : ip)
+            if (SmsIrService.options.verifyTemplateWithIpAndUseragent ||
+                SmsIrService.options.verifyTemplate) {
+                var smsPayload = {
+                    ParameterArray: [
+                        { Parameter: "VerificationCode", ParameterValue: code }
+                    ],
+                    Mobile: mobileNumber,
+                    TemplateId: ip && useragent
+                        ? SmsIrService.options.verifyTemplateWithIpAndUseragent
+                        : SmsIrService.options.verifyTemplate
+                };
+                if (ip)
+                    smsPayload.ParameterArray.push({
+                        Parameter: "ip",
+                        ParameterValue: "IP: " + (ip == "::1" ? "127.0.0.1" : ip)
+                    });
+                if (useragent)
+                    smsPayload.ParameterArray.push({
+                        Parameter: "useragent",
+                        ParameterValue: useragent
+                    });
+                this.getToken()
+                    .then(token => {
+                    request({
+                        method: "POST",
+                        url: "http://RestfulSms.com/api/UltraFastSend",
+                        headers: {
+                            "Cache-Control": "no-cache",
+                            "Content-Type": "application/json",
+                            "x-sms-ir-secure-token": token
+                        },
+                        body: smsPayload,
+                        json: true
+                    }, function (error, response, body) {
+                        if (error) {
+                            console.error("SmsIrService sendVerification Error =>", error);
+                            return reject(error);
+                        }
+                        if (!body.IsSuccessful) {
+                            return reject(body);
+                        }
+                        else {
+                            resolve(body);
+                        }
+                    });
+                })
+                    .catch(e => {
+                    console.error(e);
+                    reject(e);
                 });
-            if (useragent)
-                smsPayload.ParameterArray.push({
-                    Parameter: "useragent",
-                    ParameterValue: useragent
+            }
+            else {
+                this.getToken()
+                    .then(token => {
+                    request({
+                        method: "POST",
+                        url: "http://RestfulSms.com/api/VerificationCode",
+                        headers: {
+                            "Cache-Control": "no-cache",
+                            "Content-Type": "application/json",
+                            "x-sms-ir-secure-token": token
+                        },
+                        body: {
+                            Code: code,
+                            mobileNumber: mobileNumber
+                        },
+                        json: true
+                    }, function (error, response, body) {
+                        if (error) {
+                            console.error("SmsIrService sendVerification Error =>", error);
+                            return reject(error);
+                        }
+                        if (!body.IsSuccessful) {
+                            return reject(body);
+                        }
+                        else {
+                            resolve(body);
+                        }
+                    });
+                })
+                    .catch(e => {
+                    console.error(e);
+                    reject(e);
                 });
-            this.getToken()
-                .then(token => {
-                request({
-                    method: "POST",
-                    url: "http://RestfulSms.com/api/UltraFastSend",
-                    headers: {
-                        "Cache-Control": "no-cache",
-                        "Content-Type": "application/json",
-                        "x-sms-ir-secure-token": token
-                    },
-                    body: smsPayload,
-                    json: true
-                }, function (error, response, body) {
-                    if (error) {
-                        console.error("SmsIrService sendVerification Error =>", error);
-                        return reject(error);
-                    }
-                    if (!body.IsSuccessful) {
-                        return reject(body);
-                    }
-                    else {
-                        resolve(body);
-                    }
-                });
-            })
-                .catch(e => {
-                console.error(e);
-                reject(e);
-            });
+            }
         });
     }
     send(mobileNumbers, message) {
@@ -161,12 +199,11 @@ class SmsIrService {
     }
     async start() { }
 }
-SmsIrService.dependencies = ["DbService"];
 SmsIrService.options = {
     apiKey: "",
     lineNumber: "",
     secretKey: "",
-    verifyTemplate: 5405,
-    verifyTemplateWithIpAndUseragent: 5406
+    verifyTemplate: 0,
+    verifyTemplateWithIpAndUseragent: 0
 };
 exports.SmsIrService = SmsIrService;

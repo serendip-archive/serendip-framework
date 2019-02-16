@@ -1,49 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const _1 = require(".");
 const pathMatch = require("path-match");
 const url = require("url");
 const qs = require("qs");
-const path = require("path");
-const fs = require("fs");
-const mime = require("mime-types");
 const _ = require("underscore");
-class ServerRouter {
+const core_1 = require("../core");
+const _1 = require(".");
+class HttpRouter {
     constructor() { }
-    static processRequestToStatic(req, res, callback, staticPath) {
-        var filePath = path.join(staticPath || _1.Server.staticPath, req.url.split("?")[0]);
-        fs.stat(filePath, (err, stat) => {
-            if (err) {
-                res.writeHead(404);
-                res.end();
-                return callback(404);
-            }
-            if (stat.isDirectory())
-                filePath = path.join(filePath, "index.html");
-            fs.exists(filePath, exist => {
-                if (exist) {
-                    res.writeHead(200, {
-                        "Content-Type": mime.lookup(filePath).toString()
-                    });
-                    var readStream = fs.createReadStream(filePath);
-                    readStream.pipe(res);
-                    callback(200, filePath);
-                }
-                else {
-                    res.writeHead(404);
-                    res.end();
-                    return callback(404);
-                }
-            });
-        });
-    }
-    static findSrvRoute(req, matchMethod) {
+    static findSrvRoute(req, routes, matchMethod) {
         var parsedUrl = url.parse(req.url);
         var path = parsedUrl.pathname;
         // finding controller by path
-        var srvRoute = _1.Server.routes.find(route => {
+        var srvRoute = routes.find(route => {
             // Check if controller exist and requested method matches
-            var matcher = ServerRouter.routerPathMatcher(route.route);
+            var matcher = HttpRouter.routerPathMatcher(route.route);
             var params = matcher(path);
             if (params !== false) {
                 req.query = qs.parse(parsedUrl.query);
@@ -59,16 +30,16 @@ class ServerRouter {
         return srvRoute;
     }
     // FIXME: needs refactor
-    static executeRoute(srvRoute, req, res) {
+    static executeRoute(srvRoute, middlewares, req, res) {
         // creating object from controllerClass
         // Reason : basically because we need to run constructor
         var controllerObject = srvRoute.controllerObject;
         var actions = _.clone(controllerObject[srvRoute.endpoint].actions);
         if (controllerObject["onRequest"])
             actions.unshift(controllerObject["onRequest"]);
-        _1.Server.middlewares.forEach(middle => actions.unshift(middle));
+        middlewares.forEach(middle => actions.unshift(middle));
         // starting from first action
-        return ServerRouter.executeActions(req, res, null, actions, 0);
+        return HttpRouter.executeActions(req, res, null, actions, 0);
     }
     static executeActions(req, res, passedModel, actions, actionIndex) {
         return new Promise((resolve, reject) => {
@@ -79,7 +50,7 @@ class ServerRouter {
                 model => {
                     if (model)
                         if (model.constructor)
-                            if (model.constructor.name == "ServerError") {
+                            if (model.constructor.name == "HttpError") {
                                 reject(model);
                                 if (!res.finished) {
                                     res.statusCode = model.code || 500;
@@ -95,7 +66,7 @@ class ServerRouter {
                         return resolve(model);
                     }
                     try {
-                        ServerRouter.executeActions(req, res, model, actions, actionIndex);
+                        HttpRouter.executeActions(req, res, model, actions, actionIndex);
                     }
                     catch (error) { }
                 }, 
@@ -114,21 +85,21 @@ class ServerRouter {
                 action
                     .then(data => { })
                     .catch((e) => {
-                    reject(new _1.ServerError(500, e ? e.message : ""));
+                    reject(new _1.HttpError(500, e ? e.message : ""));
                 });
         });
     }
-    static routeIt(req, res, srvRoute) {
+    static routeIt(req, res, middlewares, srvRoute) {
         return new Promise((resolve, reject) => {
             if (!srvRoute) {
                 // Check if controller exist and requested method matches
-                var err = new _1.ServerError(404, `[${req.method.toUpperCase()} ${req.url}] route not found !`);
+                var err = new _1.HttpError(404, `[${req.method.toUpperCase()} ${req.url}] route not found !`);
                 reject(err);
                 return;
             }
-            var authService = _1.Server.services["AuthService"];
+            var authService = core_1.Server.services["AuthService"];
             if (!authService)
-                ServerRouter.executeRoute(srvRoute, req, res)
+                HttpRouter.executeRoute(srvRoute, middlewares, req, res)
                     .then(data => {
                     resolve(data);
                 })
@@ -139,7 +110,7 @@ class ServerRouter {
                 authService
                     .authorizeRequest(req, srvRoute.controllerName, srvRoute.endpoint, srvRoute.publicAccess)
                     .then(() => {
-                    ServerRouter.executeRoute(srvRoute, req, res)
+                    HttpRouter.executeRoute(srvRoute, middlewares, req, res)
                         .then(data => {
                         resolve(data);
                     })
@@ -153,10 +124,10 @@ class ServerRouter {
         });
     }
 }
-ServerRouter.routerPathMatcher = pathMatch({
+HttpRouter.routerPathMatcher = pathMatch({
     // path-to-regexp options
     sensitive: false,
     strict: false,
     end: false
 });
-exports.ServerRouter = ServerRouter;
+exports.HttpRouter = HttpRouter;

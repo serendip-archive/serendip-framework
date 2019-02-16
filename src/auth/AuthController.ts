@@ -1,8 +1,10 @@
-import { Server, ServerEndpointInterface, ServerError } from "../core";
+import { Server } from "../core";
 import { Validator } from "../utils";
 import { AuthService, UserRegisterRequestInterface, UserModel } from ".";
 import * as _ from "underscore";
 import { reduce } from "async";
+import { HttpEndpointInterface } from "../http/interfaces";
+import { HttpError } from "../http";
 
 /**
  * /api/auth/(endpoint)
@@ -14,7 +16,7 @@ export class AuthController {
     this.authService = Server.services["AuthService"];
   }
 
-  public register: ServerEndpointInterface = {
+  public register: HttpEndpointInterface = {
     method: "post",
     publicAccess: true,
     actions: [
@@ -22,7 +24,7 @@ export class AuthController {
         var model: UserRegisterRequestInterface = req.body;
 
         if (!model.username || !model.password)
-          return next(new ServerError(400, "username or password missing"));
+          return next(new HttpError(400, "username or password missing"));
 
         if (!model.email)
           if (Validator.isEmail(model.username)) model.email = model.username;
@@ -34,7 +36,7 @@ export class AuthController {
 
         if (!Validator.isLength(model.username, 6, 32))
           return next(
-            new ServerError(
+            new HttpError(
               400,
               "username should be between 6 and 32 char length"
             )
@@ -42,16 +44,16 @@ export class AuthController {
 
         if (!Validator.isAlphanumeric(model.username))
           return next(
-            new ServerError(400, "username should be alphanumeric a-z and 0-9")
+            new HttpError(400, "username should be alphanumeric a-z and 0-9")
           );
 
         if (model.email)
           if (!Validator.isEmail(model.email))
-            return next(new ServerError(400, "email not valid"));
+            return next(new HttpError(400, "email not valid"));
 
         if (!Validator.isLength(model.password, 4, 32))
           return next(
-            new ServerError(
+            new HttpError(
               400,
               "password should be between 4 and 32 char length"
             )
@@ -69,33 +71,33 @@ export class AuthController {
           })
           .catch(err => {
             if (err.codeName == "DuplicateKey")
-              return next(new ServerError(400, "username already exists"));
+              return next(new HttpError(400, "username already exists"));
 
             if (err.message == "DuplicateEmail")
-              return next(new ServerError(400, "email already exists"));
+              return next(new HttpError(400, "email already exists"));
 
             if (err.message == "DuplicateMobile")
-              return next(new ServerError(400, "mobile already exists"));
+              return next(new HttpError(400, "mobile already exists"));
 
             if (Server.opts.logging != "silent")
               console.log("User register => Error", err);
-            return next(new ServerError(500, err));
+            return next(new HttpError(500, err));
           });
       }
     ]
   };
 
-  public sendResetPasswordToken: ServerEndpointInterface = {
+  public sendResetPasswordToken: HttpEndpointInterface = {
     method: "post",
     publicAccess: true,
     actions: [
       async (req, res, next, done) => {
         if (!req.body.email && !req.body.mobile)
-          return next(new ServerError(400, "email or mobile missing"));
+          return next(new HttpError(400, "email or mobile missing"));
 
         if (req.body.email)
           if (!Validator.isEmail(req.body.email))
-            return next(new ServerError(400, "email not valid"));
+            return next(new HttpError(400, "email not valid"));
 
         var user: UserModel = null;
 
@@ -103,12 +105,12 @@ export class AuthController {
           user = await this.authService.findUserByEmail(req.body.email);
         else user = await this.authService.findUserByMobile(req.body.mobile);
 
-        if (!user) return next(new ServerError(400, "user not found"));
+        if (!user) return next(new HttpError(400, "user not found"));
 
         if (user.passwordResetTokenIssueAt)
           if (Date.now() - user.passwordResetTokenIssueAt < 1000 * 60)
             return next(
-              new ServerError(
+              new HttpError(
                 400,
                 "minimum interval between reset password request is 60 seconds"
               )
@@ -125,13 +127,13 @@ export class AuthController {
     ]
   };
 
-  public addUserToGroup: ServerEndpointInterface = {
+  public addUserToGroup: HttpEndpointInterface = {
     method: "post",
     publicAccess: false,
     actions: [
       async (req, res, next, done) => {
         if (req.user.groups.indexOf("admin") == -1)
-          return next(new ServerError(401, "admin access required"));
+          return next(new HttpError(401, "admin access required"));
 
         this.authService.addUserToGroup(req.body.user, req.body.group);
 
@@ -140,13 +142,13 @@ export class AuthController {
     ]
   };
 
-  public deleteUserFromGroup: ServerEndpointInterface = {
+  public deleteUserFromGroup: HttpEndpointInterface = {
     method: "post",
     publicAccess: false,
     actions: [
       async (req, res, next, done) => {
         if (req.user.groups.indexOf("admin") == -1)
-          return next(new ServerError(401, "admin access required"));
+          return next(new HttpError(401, "admin access required"));
 
         this.authService.deleteUserFromGroup(req.body.user, req.body.group);
 
@@ -155,7 +157,7 @@ export class AuthController {
     ]
   };
 
-  public changeSecret: ServerEndpointInterface = {
+  public changeSecret: HttpEndpointInterface = {
     method: "post",
     publicAccess: false,
     actions: [
@@ -163,18 +165,18 @@ export class AuthController {
         var userId = req.user._id.toString();
 
         if (!req.body.secret)
-          return next(new ServerError(400, "secret is missing"));
+          return next(new HttpError(400, "secret is missing"));
 
         if (!req.body.clientId)
-          return next(new ServerError(400, "clientId is missing"));
+          return next(new HttpError(400, "clientId is missing"));
 
         var client = await this.authService.findClientById(req.body.clientId);
 
-        if (!client) return next(new ServerError(400, "client not found"));
+        if (!client) return next(new HttpError(400, "client not found"));
 
         if (client.owner != userId)
           return next(
-            new ServerError(
+            new HttpError(
               400,
               "you need to be owner of client to change it's secret"
             )
@@ -187,7 +189,7 @@ export class AuthController {
     ]
   };
 
-  public changePassword: ServerEndpointInterface = {
+  public changePassword: HttpEndpointInterface = {
     method: "post",
     publicAccess: false,
     actions: [
@@ -196,14 +198,14 @@ export class AuthController {
 
         if (req.body.user)
           if (req.user.groups.indexOf("admin") != -1) userId = req.body.user;
-          else return next(new ServerError(401, "admin access required"));
+          else return next(new HttpError(401, "admin access required"));
 
         if (!req.body.password)
-          return next(new ServerError(400, "password is missing"));
+          return next(new HttpError(400, "password is missing"));
 
         if (req.body.password != req.body.passwordConfirm)
           return next(
-            new ServerError(400, "password and passwordConfirm do not match")
+            new HttpError(400, "password and passwordConfirm do not match")
           );
 
         await this.authService.setNewPassword(
@@ -218,28 +220,27 @@ export class AuthController {
     ]
   };
 
-  public resetPassword: ServerEndpointInterface = {
+  public resetPassword: HttpEndpointInterface = {
     method: "post",
     publicAccess: true,
     actions: [
       async (req, res, next, done) => {
-        if (!req.body.code)
-          return next(new ServerError(400, "code is missing"));
+        if (!req.body.code) return next(new HttpError(400, "code is missing"));
 
         if (!req.body.password)
-          return next(new ServerError(400, "password is missing"));
+          return next(new HttpError(400, "password is missing"));
 
         if (req.body.password != req.body.passwordConfirm)
           return next(
-            new ServerError(400, "password and passwordConfirm do not match")
+            new HttpError(400, "password and passwordConfirm do not match")
           );
 
         if (!req.body.email && !req.body.mobile)
-          return next(new ServerError(400, "email or mobile missing"));
+          return next(new HttpError(400, "email or mobile missing"));
 
         if (req.body.email)
           if (!Validator.isEmail(req.body.email))
-            return next(new ServerError(400, "email not valid"));
+            return next(new HttpError(400, "email not valid"));
 
         var user: UserModel = null;
 
@@ -247,7 +248,7 @@ export class AuthController {
           user = await this.authService.findUserByEmail(req.body.email);
         else user = await this.authService.findUserByMobile(req.body.mobile);
 
-        if (!user) return next(new ServerError(400, "user not found"));
+        if (!user) return next(new HttpError(400, "user not found"));
 
         await this.authService.setNewPassword(
           user._id,
@@ -261,17 +262,16 @@ export class AuthController {
     ]
   };
 
-  public sendVerifyEmail: ServerEndpointInterface = {
+  public sendVerifyEmail: HttpEndpointInterface = {
     publicAccess: true,
     method: "post",
     actions: [
       async (req, res, next, done) => {
-        if (!req.body.email)
-          return next(new ServerError(400, "email required"));
+        if (!req.body.email) return next(new HttpError(400, "email required"));
 
         var user = await this.authService.findUserByEmail(req.body.email);
         if (!user)
-          return next(new ServerError(400, "no user found with this email"));
+          return next(new HttpError(400, "no user found with this email"));
 
         this.authService
           .sendVerifyEmail(user)
@@ -285,21 +285,19 @@ export class AuthController {
     ]
   };
 
-  public sendVerifySms: ServerEndpointInterface = {
+  public sendVerifySms: HttpEndpointInterface = {
     method: "post",
     publicAccess: true,
 
     actions: [
       (req, res, next, done) => {
         if (!req.body.mobile)
-          return next(new ServerError(400, "mobile required"));
+          return next(new HttpError(400, "mobile required"));
         this.authService
           .findUserByMobile(req.body.mobile)
           .then(user => {
             if (!user)
-              return next(
-                new ServerError(400, "no user found with this mobile")
-              );
+              return next(new HttpError(400, "no user found with this mobile"));
 
             this.authService
               .sendVerifySms(
@@ -315,35 +313,33 @@ export class AuthController {
             // .then((info) => {
             //     res.json(info);
             // }).catch((e) => {
-            //     next(new ServerError(500, e.message));
+            //     next(new HttpError(500, e.message));
             // });
           })
-          .catch(e => next(new ServerError(500, e.message)));
+          .catch(e => next(new HttpError(500, e.message)));
       }
     ]
   };
 
-  public verifyMobile: ServerEndpointInterface = {
+  public verifyMobile: HttpEndpointInterface = {
     method: "post",
     publicAccess: true,
 
     actions: [
       (req, res, next, done) => {
         if (!req.body.mobile)
-          return next(new ServerError(400, "mobile required"));
+          return next(new HttpError(400, "mobile required"));
 
-        if (!req.body.code) return next(new ServerError(400, "code required"));
+        if (!req.body.code) return next(new HttpError(400, "code required"));
 
         this.authService
           .findUserByMobile(req.body.mobile)
           .then(user => {
             if (!user)
-              return next(
-                new ServerError(400, "no user found with this mobile")
-              );
+              return next(new HttpError(400, "no user found with this mobile"));
 
             if (user.mobileVerificationCode != req.body.code)
-              return next(new ServerError(400, "invalid code"));
+              return next(new HttpError(400, "invalid code"));
 
             this.authService
               .VerifyUserMobile(req.body.mobile, req.body.code)
@@ -357,21 +353,20 @@ export class AuthController {
     ]
   };
 
-  public verifyEmail: ServerEndpointInterface = {
+  public verifyEmail: HttpEndpointInterface = {
     method: "post",
     publicAccess: true,
 
     actions: [
       async (req, res, next, done) => {
-        if (!req.body.email)
-          return next(new ServerError(400, "email required"));
+        if (!req.body.email) return next(new HttpError(400, "email required"));
 
-        if (!req.body.code) return next(new ServerError(400, "code required"));
+        if (!req.body.code) return next(new HttpError(400, "code required"));
 
         var user = await this.authService.findUserByEmail(req.body.email);
 
         if (!user)
-          return next(new ServerError(400, "no user found with this email"));
+          return next(new HttpError(400, "no user found with this email"));
 
         await this.authService.VerifyUserEmail(req.body.email, req.body.code);
         done(202, "email verified");
@@ -379,17 +374,17 @@ export class AuthController {
     ]
   };
 
-  public clientToken: ServerEndpointInterface = {
+  public clientToken: HttpEndpointInterface = {
     method: "post",
     publicAccess: true,
     actions: [
       async (req, res, next, done) => {
         var client = await this.authService.findClientById(req.body.clientId);
 
-        if (!client) return next(new ServerError(400, "client not found"));
+        if (!client) return next(new HttpError(400, "client not found"));
 
         if (!this.authService.clientMatchSecret(client, req.body.clientSecret))
-          return next(new ServerError(400, "client secret mismatch"));
+          return next(new HttpError(400, "client secret mismatch"));
 
         this.authService
           .insertToken({
@@ -402,13 +397,13 @@ export class AuthController {
             res.json(token);
           })
           .catch(e => {
-            return next(new ServerError(500, e.message));
+            return next(new HttpError(500, e.message));
           });
       }
     ]
   };
 
-  public refreshToken: ServerEndpointInterface = {
+  public refreshToken: HttpEndpointInterface = {
     method: "post",
     publicAccess: true,
     actions: [
@@ -420,7 +415,7 @@ export class AuthController {
             req.body.access_token
           );
         } catch (err) {
-          return next(new ServerError(err.code || 500, err.message));
+          return next(new HttpError(err.code || 500, err.message));
         }
 
         if (token)
@@ -435,15 +430,15 @@ export class AuthController {
                 return res.json(token);
               })
               .catch(e => {
-                return next(new ServerError(400, e.message));
+                return next(new HttpError(400, e.message));
               });
-          else return next(new ServerError(400, "refresh token invalid"));
-        else return next(new ServerError(400, "access token invalid"));
+          else return next(new HttpError(400, "refresh token invalid"));
+        else return next(new HttpError(400, "access token invalid"));
       }
     ]
   };
 
-  public sessions: ServerEndpointInterface = {
+  public sessions: HttpEndpointInterface = {
     method: "get",
     publicAccess: false,
     actions: [
@@ -457,7 +452,7 @@ export class AuthController {
     ]
   };
 
-  public checkToken: ServerEndpointInterface = {
+  public checkToken: HttpEndpointInterface = {
     method: "post",
     publicAccess: false,
     actions: [
@@ -467,24 +462,33 @@ export class AuthController {
     ]
   };
 
-  public oneTimePassword: ServerEndpointInterface = {
+  public oneTimePassword: HttpEndpointInterface = {
     method: "post",
     publicAccess: true,
     actions: [
       async (req, res, next, done) => {
         var mobile = req.body.mobile;
 
-        if (!mobile) return next(new ServerError(400, "mobile required"));
+        var mobileCountryCode = req.body.mobileCountryCode;
 
-        var user = await this.authService.findUserByMobile(mobile);
+        if (mobile) mobile = parseInt(mobile.replace("/D/g", ""), 10);
+
+        if (!mobile) return done(400, "mobile required");
+
+        var user = await this.authService.findUserByMobile(
+          mobile,
+          mobileCountryCode
+        );
+
+        console.log(mobile, user);
 
         if (!user) {
           user = await this.authService.usersCollection.insertOne({
             registeredAt: Date.now(),
             mobile: parseInt(mobile).toString(),
-            mobileCountryCode: req.body.mobileCountryCode || "+98",
+            mobileCountryCode: mobileCountryCode || "+98",
             mobileVerified: false,
-            username: parseInt(mobile).toString(),
+            username: mobileCountryCode || "+98" + parseInt(mobile).toString(),
             registeredByIp: req.ip().toString(),
             registeredByUseragent: req.useragent().toString(),
             groups: []
@@ -499,12 +503,12 @@ export class AuthController {
           )
           .then(() => done(200, "one-time password sent"))
           .catch(e => {
-            next(new ServerError(500, e));
+            done(500, e.message | e);
           });
       }
     ]
   };
-  public token: ServerEndpointInterface = {
+  public token: HttpEndpointInterface = {
     method: "post",
     publicAccess: true,
 
@@ -535,7 +539,7 @@ export class AuthController {
             req.body.mobileCountryCode
           );
 
-        if (!user) return next(new ServerError(400, "user/password invalid"));
+        if (!user) return next(new HttpError(400, "user/password invalid"));
 
         var userMatchPassword = false;
 
@@ -554,13 +558,13 @@ export class AuthController {
           );
         if (user.twoFactorEnabled) {
           if (!req.body.password)
-            return next(new ServerError(400, "include password"));
+            return next(new HttpError(400, "include password"));
 
           if (!userMatchPassword || !userMatchOneTimePassword)
-            return next(new ServerError(400, "user/password invalid"));
+            return next(new HttpError(400, "user/password invalid"));
         } else {
           if (!userMatchPassword && !userMatchOneTimePassword)
-            return next(new ServerError(400, "user/password invalid"));
+            return next(new HttpError(400, "user/password invalid"));
         }
 
         if (userMatchOneTimePassword) {
@@ -569,17 +573,17 @@ export class AuthController {
         } else {
           if (AuthService.options.mobileConfirmationRequired)
             if (!user.mobileVerified)
-              return next(new ServerError(403, "mobile not confirmed"));
+              return next(new HttpError(403, "mobile not confirmed"));
 
           if (AuthService.options.emailConfirmationRequired)
             if (!user.emailVerified)
-              return next(new ServerError(403, "email not confirmed"));
+              return next(new HttpError(403, "email not confirmed"));
         }
 
         var userToken = await this.authService.insertToken({
           userId: user._id.toString(),
           useragent: req.useragent(),
-          grant_type: userMatchOneTimePassword ? "password" : "one-time"
+          grant_type: !userMatchOneTimePassword ? "password" : "one-time"
         });
 
         userToken.username = user.username;

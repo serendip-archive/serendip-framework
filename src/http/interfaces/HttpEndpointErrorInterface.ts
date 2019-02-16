@@ -1,5 +1,5 @@
 
-export interface ServerEndpointErrorInterface {
+export interface HttpEndpointErrorInterface {
 
     error: string;
     error_description: string;

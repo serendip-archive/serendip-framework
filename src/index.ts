@@ -15,3 +15,4 @@ export * from "./ui";
 
 export * from "./ws/WebSocketService";
 export * from "./ws/WebSocketInterface";
+export * from "./http";

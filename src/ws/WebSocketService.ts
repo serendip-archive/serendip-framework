@@ -18,18 +18,10 @@ import * as qs from "qs";
 import * as reqIp from "request-ip";
 
 export class WebSocketService implements ServerServiceInterface {
-  static dependencies = ["DbService", "AuthService"];
-
-  dbService: DbService;
-  authService: AuthService;
-
   connectionEmitter = new EventEmitter();
   messageEmitter = new EventEmitter();
 
-  constructor() {
-    this.dbService = Server.services["DbService"];
-    this.authService = Server.services["AuthService"];
-  }
+  constructor(private dbService: DbService, private authService: AuthService) {}
 
   /**
    *

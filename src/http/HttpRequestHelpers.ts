@@ -2,7 +2,7 @@ import * as http from 'http'
 import * as ua from 'useragent'
 import * as reqIp from 'request-ip'
 
-export function ServerRequestHelpers(req: http.IncomingMessage | any) {
+export function  HttpRequestHelpers(req: http.IncomingMessage | any) {
 
 
     req.useragent = () => {

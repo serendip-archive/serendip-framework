@@ -1,10 +1,16 @@
-import { ServerEndpointInterface, Server } from ".";
+import { Server } from ".";
 import * as _ from "underscore";
+import { HttpService } from "../http/HttpService";
+import { HttpEndpointInterface } from "../http/interfaces/HttpEndpointInterface";
+import { AuthService } from "../auth";
 
 export class ServerController {
-  constructor() {}
+  constructor(
+    private httpService: HttpService,
+    private authService: AuthService
+  ) {}
 
-  clusterTesting: ServerEndpointInterface = {
+  clusterTesting: HttpEndpointInterface = {
     publicAccess: true,
     route: "/api/server/cluster-testing",
     method: "get",
@@ -16,9 +22,9 @@ export class ServerController {
     ]
   };
 
-  routes: ServerEndpointInterface = {
+  routes: HttpEndpointInterface = {
     method: "get",
-    publicAccess  : true,
+    publicAccess: true,
     actions: [
       (req, res, next, done) => {
         setTimeout(() => {
@@ -26,19 +32,20 @@ export class ServerController {
         }, 200);
       },
       (req, res, next, done) => {
-        var model = _.map(Server.routes, route => {
-          route = _.omit(route, "controllerObject");
+        // var model = _.map(this.httpService.routes, route => {
+        //   route = _.omit(route, "controllerObject");
 
-          return route;
-        });
-        res.json(model);
+        //   return route;
+        // });
+        // res.json(model);
+        done(200);
       }
     ]
   };
 
-  services: ServerEndpointInterface = {
+  services: HttpEndpointInterface = {
     method: "get",
-    publicAccess  : true,
+    publicAccess: true,
     actions: [
       (req, res, next, done) => {
         var model = _.keys(Server.services);

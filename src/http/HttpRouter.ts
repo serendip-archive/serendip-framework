@@ -1,11 +1,3 @@
-import {
-  ServerRequestInterface,
-  ServerResponseInterface,
-  ServerRouteInterface,
-  Server,
-  ServerEndpointActionInterface,
-  ServerError
-} from ".";
 import * as pathMatch from "path-match";
 import * as url from "url";
 import * as qs from "qs";
@@ -13,49 +5,17 @@ import { AuthService } from "..";
 import * as path from "path";
 import * as fs from "fs";
 import * as http from "http";
-import * as mime from "mime-types";
 import * as _ from "underscore";
+import { HttpMiddlewareInterface } from "./interfaces/HttpMiddlewareInterface";
+import { HttpRouteInterface } from "./interfaces/HttpRouteInterface";
+import { HttpResponseInterface } from "./interfaces/HttpResponseInterface";
+import { HttpRequestInterface } from "./interfaces/HttpRequestInterface";
+import { HttpEndpointActionInterface } from "./interfaces/HttpEndpointActionInterface";
+import { Server } from "../core";
+import { HttpError } from ".";
 
-export class ServerRouter {
+export class HttpRouter {
   constructor() {}
-
-  static processRequestToStatic(
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
-    callback,
-    staticPath?
-  ): void {
-    var filePath = path.join(
-      staticPath || Server.staticPath,
-      req.url.split("?")[0]
-    );
-    fs.stat(filePath, (err, stat) => {
-      if (err) {
-        res.writeHead(404);
-        res.end();
-
-        return callback(404);
-      }
-
-      if (stat.isDirectory()) filePath = path.join(filePath, "index.html");
-
-      fs.exists(filePath, exist => {
-        if (exist) {
-          res.writeHead(200, {
-            "Content-Type": mime.lookup(filePath).toString()
-          });
-
-          var readStream = fs.createReadStream(filePath);
-          readStream.pipe(res);
-          callback(200, filePath);
-        } else {
-          res.writeHead(404);
-          res.end();
-          return callback(404);
-        }
-      });
-    });
-  }
 
   static routerPathMatcher = pathMatch({
     // path-to-regexp options
@@ -64,15 +24,19 @@ export class ServerRouter {
     end: false
   });
 
-  static findSrvRoute(req, matchMethod: boolean): ServerRouteInterface {
+  static findSrvRoute(
+    req,
+    routes: HttpRouteInterface[],
+    matchMethod: boolean
+  ): HttpRouteInterface {
     var parsedUrl = url.parse(req.url);
     var path = parsedUrl.pathname;
 
     // finding controller by path
-    var srvRoute: ServerRouteInterface = Server.routes.find(route => {
+    var srvRoute: HttpRouteInterface = routes.find(route => {
       // Check if controller exist and requested method matches
 
-      var matcher = ServerRouter.routerPathMatcher(route.route);
+      var matcher = HttpRouter.routerPathMatcher(route.route);
 
       var params = matcher(path);
 
@@ -96,25 +60,26 @@ export class ServerRouter {
 
   // FIXME: needs refactor
   static executeRoute(
-    srvRoute: ServerRouteInterface,
-    req: ServerRequestInterface,
-    res: ServerResponseInterface
+    srvRoute: HttpRouteInterface,
+    middlewares: HttpMiddlewareInterface[],
+    req: HttpRequestInterface,
+    res: HttpResponseInterface
   ): Promise<any> {
     // creating object from controllerClass
     // Reason : basically because we need to run constructor
     var controllerObject = srvRoute.controllerObject;
 
-    var actions: ServerEndpointActionInterface[] = _.clone(
+    var actions: HttpEndpointActionInterface[] = _.clone(
       controllerObject[srvRoute.endpoint].actions
     );
 
     if (controllerObject["onRequest"])
       actions.unshift(controllerObject["onRequest"]);
 
-    Server.middlewares.forEach(middle => actions.unshift(middle));
+    middlewares.forEach(middle => actions.unshift(middle));
 
     // starting from first action
-    return ServerRouter.executeActions(req, res, null, actions, 0);
+    return HttpRouter.executeActions(req, res, null, actions, 0);
   }
   static executeActions(req, res, passedModel, actions, actionIndex) {
     return new Promise((resolve, reject) => {
@@ -127,7 +92,7 @@ export class ServerRouter {
           model => {
             if (model)
               if (model.constructor)
-                if (model.constructor.name == "ServerError") {
+                if (model.constructor.name == "HttpError") {
                   reject(model);
                   if (!res.finished) {
                     res.statusCode = model.code || 500;
@@ -146,13 +111,7 @@ export class ServerRouter {
               return resolve(model);
             }
             try {
-              ServerRouter.executeActions(
-                req,
-                res,
-                model,
-                actions,
-                actionIndex
-              );
+              HttpRouter.executeActions(req, res, model, actions, actionIndex);
             } catch (error) {}
           },
           // done()
@@ -171,20 +130,21 @@ export class ServerRouter {
         action
           .then(data => {})
           .catch((e: Error) => {
-            reject(new ServerError(500, e ? e.message : ""));
+            reject(new HttpError(500, e ? e.message : ""));
           });
     });
   }
-
+  
   static routeIt(
-    req: ServerRequestInterface,
-    res: ServerResponseInterface,
-    srvRoute: ServerRouteInterface
+    req: HttpRequestInterface,
+    res: HttpResponseInterface,
+    middlewares: HttpMiddlewareInterface[],
+    srvRoute: HttpRouteInterface
   ): Promise<any> {
     return new Promise((resolve, reject) => {
       if (!srvRoute) {
         // Check if controller exist and requested method matches
-        var err = new ServerError(
+        var err = new HttpError(
           404,
           `[${req.method.toUpperCase()} ${req.url}] route not found !`
         );
@@ -195,7 +155,7 @@ export class ServerRouter {
       var authService: AuthService = Server.services["AuthService"];
 
       if (!authService)
-        ServerRouter.executeRoute(srvRoute, req, res)
+        HttpRouter.executeRoute(srvRoute, middlewares, req, res)
           .then(data => {
             resolve(data);
           })
@@ -211,7 +171,7 @@ export class ServerRouter {
             srvRoute.publicAccess
           )
           .then(() => {
-            ServerRouter.executeRoute(srvRoute, req, res)
+            HttpRouter.executeRoute(srvRoute, middlewares, req, res)
               .then(data => {
                 resolve(data);
               })

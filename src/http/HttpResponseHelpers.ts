@@ -5,7 +5,7 @@ import * as Path from 'path';
 /**
  * ServerRequest 
  */
-export interface ServerResponse extends http.ServerResponse {
+export interface  HttpResponse extends http.ServerResponse {
 
 
     send(data): void;
@@ -17,7 +17,7 @@ export interface ServerResponse extends http.ServerResponse {
 
 
 
-export function ServerResponseHelpers(res: http.ServerResponse | any) {
+export function  HttpResponseHelpers(res: http.ServerResponse | any) {
 
 
     res.sendFile = (path) => {

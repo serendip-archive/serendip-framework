@@ -2,6 +2,7 @@ import { ServerServiceInterface } from "../core";
 import * as request from "request";
 import * as _ from "underscore";
 import { SmsServiceProviderInterface } from ".";
+import { DbService } from "../db";
 
 export interface SmsIrServiceOptionsInterface {
   lineNumber: string;
@@ -14,21 +15,19 @@ export interface SmsIrServiceOptionsInterface {
 
 export class SmsIrService
   implements ServerServiceInterface, SmsServiceProviderInterface {
-  static dependencies = ["DbService"];
-
   static options: SmsIrServiceOptionsInterface = {
     apiKey: "",
     lineNumber: "",
     secretKey: "",
-    verifyTemplate: 5405,
-    verifyTemplateWithIpAndUseragent: 5406
+    verifyTemplate: 0,
+    verifyTemplateWithIpAndUseragent: 0
   };
 
   static configure(options: SmsIrServiceOptionsInterface): void {
     SmsIrService.options = _.extend(SmsIrService.options, options);
   }
 
-  constructor() {
+  constructor(private dbService: DbService) {
     if (
       !SmsIrService.options.apiKey ||
       !SmsIrService.options.lineNumber ||
@@ -119,61 +118,106 @@ export class SmsIrService
     return new Promise((resolve, reject) => {
       console.log("SmsIrService sendVerification =>", mobileNumber, code);
 
-      var smsPayload = {
-        ParameterArray: [
-          { Parameter: "VerificationCode", ParameterValue: code }
-        ],
-        Mobile: mobileNumber,
-        TemplateId:
-          ip && useragent
-            ? SmsIrService.options.verifyTemplateWithIpAndUseragent
-            : SmsIrService.options.verifyTemplate
-      };
+      if (
+        SmsIrService.options.verifyTemplateWithIpAndUseragent ||
+        SmsIrService.options.verifyTemplate
+      ) {
+        var smsPayload = {
+          ParameterArray: [
+            { Parameter: "VerificationCode", ParameterValue: code }
+          ],
+          Mobile: mobileNumber,
+          TemplateId:
+            ip && useragent
+              ? SmsIrService.options.verifyTemplateWithIpAndUseragent
+              : SmsIrService.options.verifyTemplate
+        };
 
-      if (ip)
-        smsPayload.ParameterArray.push({
-          Parameter: "ip",
-          ParameterValue: "IP: " + (ip == "::1" ? "127.0.0.1" : ip)
-        });
+        if (ip)
+          smsPayload.ParameterArray.push({
+            Parameter: "ip",
+            ParameterValue: "IP: " + (ip == "::1" ? "127.0.0.1" : ip)
+          });
 
-      if (useragent)
-        smsPayload.ParameterArray.push({
-          Parameter: "useragent",
-          ParameterValue: useragent
-        });
+        if (useragent)
+          smsPayload.ParameterArray.push({
+            Parameter: "useragent",
+            ParameterValue: useragent
+          });
 
-      this.getToken()
-        .then(token => {
-          request(
-            {
-              method: "POST",
-              url: "http://RestfulSms.com/api/UltraFastSend",
-              headers: {
-                "Cache-Control": "no-cache",
-                "Content-Type": "application/json",
-                "x-sms-ir-secure-token": token
+        this.getToken()
+          .then(token => {
+            request(
+              {
+                method: "POST",
+                url: "http://RestfulSms.com/api/UltraFastSend",
+                headers: {
+                  "Cache-Control": "no-cache",
+                  "Content-Type": "application/json",
+                  "x-sms-ir-secure-token": token
+                },
+                body: smsPayload,
+                json: true
               },
-              body: smsPayload,
-              json: true
-            },
-            function(error, response, body) {
-              if (error) {
-                console.error("SmsIrService sendVerification Error =>", error);
-                return reject(error);
+              function(error, response, body) {
+                if (error) {
+                  console.error(
+                    "SmsIrService sendVerification Error =>",
+                    error
+                  );
+                  return reject(error);
+                }
+                if (!body.IsSuccessful) {
+                  return reject(body);
+                } else {
+                  resolve(body);
+                }
               }
-
-              if (!body.IsSuccessful) {
-                return reject(body);
-              } else {
-                resolve(body);
+            );
+          })
+          .catch(e => {
+            console.error(e);
+            reject(e);
+          });
+      } else {
+        this.getToken()
+          .then(token => {
+            request(
+              {
+                method: "POST",
+                url: "http://RestfulSms.com/api/VerificationCode",
+                headers: {
+                  "Cache-Control": "no-cache",
+                  "Content-Type": "application/json",
+                  "x-sms-ir-secure-token": token
+                },
+                body: {
+                  Code: code,
+                  mobileNumber: mobileNumber
+                },
+                json: true
+              },
+              function(error, response, body) {
+                if (error) {
+                  console.error(
+                    "SmsIrService sendVerification Error =>",
+                    error
+                  );
+                  return reject(error);
+                }
+                if (!body.IsSuccessful) {
+                  return reject(body);
+                } else {
+                  resolve(body);
+                }
               }
-            }
-          );
-        })
-        .catch(e => {
-          console.error(e);
-          reject(e);
-        });
+            );
+          })
+          .catch(e => {
+            console.error(e);
+            reject(e);
+          });
+      }
     });
   }
 

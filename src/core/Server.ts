@@ -1,23 +1,11 @@
-import * as bodyParser from "body-parser";
 import chalk from "chalk";
 import * as cluster from "cluster";
-import * as fs from "fs";
-import * as http from "http";
-import * as https from "https";
-import * as _ from "underscore";
 import * as ws from "ws";
 
-import {
-  ServerEndpointInterface,
-  ServerOptionsInterface,
-  ServerRequestHelpers,
-  ServerResponseHelpers,
-  ServerRouteInterface,
-  ServerServiceInterface
-} from ".";
-import { WebSocketService } from "../ws/WebSocketService";
-import { ServerRouter } from "./ServerRouter";
+import { ServerServiceInterface } from ".";
 import { toposort } from "../utils";
+import * as sUtil from "serendip-utility";
+import { ServerOptionsInterface } from "./interfaces";
 
 /**
  *  Will contain everything that we need from server
@@ -30,20 +18,8 @@ export class Server {
   public static worker: cluster.Worker;
 
   public static dir: string;
-  /**
-   * routes which server router will respond to
-   * and feel free to add your routes to it
-   */
-  public static routes: ServerRouteInterface[] = [];
 
   public static services: any = {};
-
-  public static httpServer: http.Server;
-  public static httpsServer: https.Server;
-
-  public static middlewares: any[];
-
-  public static staticPath: string;
 
   public static opts: ServerOptionsInterface;
   public static wsServer: ws.Server;
@@ -57,229 +33,22 @@ export class Server {
     return new Server(opts, worker, serverStartCallback);
   }
 
-  private static async processRequest(req, res) {
-    var requestReceived = Date.now();
-
-    req = ServerRequestHelpers(req);
-    res = ServerResponseHelpers(res);
-
-    var logString = () => {
-      return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
-        req.method
-      }] "${req.url}" ${req.ip()}/${
-        req.user ? req.user.username : "unauthorized"
-      }  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
-    };
-
-    if (
-      Server.opts.beforeMiddlewares &&
-      Server.opts.beforeMiddlewares.length > 0
-    ) {
-      await ServerRouter.executeActions(
-        req,
-        res,
-        null,
-        Server.opts.beforeMiddlewares,
-        0
-      );
-      if (res.finished) return;
-    }
-
-    if (Server.opts.logging == "info")
-      console.info(
-        chalk.gray(
-          `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
-            req.method
-          }] "${
-            req.url
-          }" ${req.ip()}/${req.useragent()} process request started.`
-        )
-      );
-
-    // finding controller by path
-
-    if (Server.opts.cors)
-      res.setHeader("Access-Control-Allow-Origin", Server.opts.cors);
-
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "clientid, Authorization , Content-Type, Accept"
-    );
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "POST, GET, PUT, DELETE, OPTIONS"
-    );
-
-    var srvRoute = ServerRouter.findSrvRoute(req, true);
-    if (req.method === "OPTIONS") {
-      if (ServerRouter.findSrvRoute(req, false)) {
-        res.statusCode = 200;
-        res.end();
-        return;
-      } else {
-        res.statusCode = 400;
-        res.end();
-        return;
-      }
-    } else {
-      if (!srvRoute) {
-        if (Server.staticPath) {
-          ServerRouter.processRequestToStatic(req, res, (code, filePath) => {
-            if (code == 200)
-              if (Server.opts.logging == "info")
-                console.info(
-                  `${logString()} => Download started [${filePath}]`
-                );
-          });
-          return;
-        } else {
-          res.statusCode = 404;
-          res.statusMessage = req.url + " not found";
-          res.end();
-          return;
-        }
-      }
-    }
-
-    ServerRouter.routeIt(req, res, srvRoute)
-      .then(data => {
-        // Request gone through all middlewares and actions for matched route
-        if (req.method.toLowerCase() != "options" && srvRoute) {
-          if (!srvRoute.isStream)
-            if (!res.finished)
-              if (data) res.json(data);
-              else res.end();
-
-          if (Server.opts.logging == "info")
-            console.info(
-              `${logString()} ${srvRoute.isStream ? " stream started!" : ""}`
-            );
-        }
-      })
-      .catch((e: any) => {
-        if (!res.finished) {
-          res.statusCode = e.code || 500;
-          res.statusMessage = e.message || e.Message;
-          res.json(_.pick(e, "code", "description"));
-          if (!res.finished) res.end();
-        }
-
-        if (Server.opts.logging == "info")
-          console.error(`${logString()}`, chalk.red(JSON.stringify(e)));
-        else if (Server.opts.logging != "silent")
-          console.error(
-            `${logString()}`,
-            chalk.red("\n[Error] " + (e.message || e.Message))
-          );
-      });
-  }
-
-  private static redirectToHttps(httpPort, httpsPort) {
-    return (req, res) => {
-      res.writeHead(301, {
-        Location:
-          "https://" +
-          req.headers["host"]
-            .toString()
-            .replace(":" + httpPort, ":" + httpsPort) +
-          req.url
-      });
-      res.end();
-    };
-  }
-
   // passing worker from Start.js
   constructor(
     opts: ServerOptionsInterface,
     worker: cluster.Worker,
-    serverStartCallback?: Function
+    callback?: Function
   ) {
-    var httpPort: number = opts.httpPort || parseInt(process.env.httpPort);
-    var httpsPort: number = opts.httpsPort || parseInt(process.env.httpsPort);
-
     Server.opts = opts;
-    Server.staticPath = opts.staticPath;
 
     // Cluster worker
     Server.worker = worker;
 
-    Server.middlewares = opts.middlewares || [];
-
-    // adding basic middlewares to begging of middlewares array
-    Server.middlewares.unshift(bodyParser.json({ limit: "50mb" }));
-    Server.middlewares.unshift(
-      bodyParser.urlencoded({ limit: "50mb", extended: false })
-    );
-
     if (!opts.services) opts.services = [];
 
     this.addServices(opts.services)
-      .then(() => {
-        this.addRoutes(opts.controllers)
-          .then(() => {
-            if (opts.httpPort === null) {
-              return serverStartCallback();
-            }
-
-            Server.httpServer = http.createServer();
-
-            if (opts.cert && opts.key) {
-              Server.httpsServer = https.createServer({
-                cert: fs.readFileSync(opts.cert),
-                key: fs.readFileSync(opts.key)
-              });
-            }
-            if (opts.httpsOnly) {
-              Server.httpsServer.on("request", Server.processRequest);
-              Server.httpServer.on(
-                "request",
-                Server.redirectToHttps(httpPort, httpsPort)
-              );
-            } else {
-              if (Server.httpsServer)
-                Server.httpsServer.on("request", Server.processRequest);
-              Server.httpServer.on("request", Server.processRequest);
-            }
-
-            Server.httpServer.listen(httpPort, () => {
-              if (Server.services["WebSocketService"]) {
-                var wsService: WebSocketService =
-                  Server.services["WebSocketService"];
-
-                Server.wsServer = new ws.Server({ noServer: true });
-                Server.httpServer.on("upgrade", (req, socket, head) => {
-                  Server.wsServer.handleUpgrade(req, socket, head, ws => {
-                    wsService.connectionEmitter.emit("connection", ws, req);
-                  });
-                });
-              }
-
-              if (Server.opts.logging == "info")
-                console.log(
-                  chalk.cyan(
-                    `worker ${
-                      worker.id
-                    } running http server at port ${httpPort}`
-                  )
-                );
-              if (!Server.httpsServer) return serverStartCallback();
-              else
-                Server.httpsServer.listen(httpsPort, () => {
-                  if (Server.opts.logging == "info")
-                    console.log(
-                      chalk.cyan(
-                        `worker ${
-                          worker.id
-                        } running https server at port ${httpsPort}`
-                      )
-                    );
-                  if (serverStartCallback) serverStartCallback();
-                });
-            });
-          })
-          .catch(e => serverStartCallback(e));
-      })
-      .catch(e => serverStartCallback(e));
+      .then(() => callback())
+      .catch(e => callback(e));
   }
 
   // FIXME: needs refactor
@@ -294,9 +63,17 @@ export class Server {
       if (!sv) return;
 
       if (typeof sv.dependencies !== "undefined" && sv.dependencies.length)
-        sv.dependencies.forEach(val => {
-          dependenciesToSort.push([sv.name, val]);
+        sv.dependencies.forEach((dep: any) => {
+          dep = sUtil.text.capitalizeFirstLetter(dep);
+          if (dependenciesToSort.indexOf([sv.name, dep]) === -1)
+            dependenciesToSort.push([sv.name, dep]);
         });
+
+      sUtil.functions.args(sv).forEach((dep: any) => {
+        dep = sUtil.text.capitalizeFirstLetter(dep);
+        if (dependenciesToSort.indexOf([sv.name, dep]) === -1)
+          dependenciesToSort.push([sv.name, dep]);
+      });
 
       servicesToStart[sv.name] = sv;
     });
@@ -306,6 +83,7 @@ export class Server {
       dependenciesToSort
     ) as any).reverse();
 
+    // if there is only one service topoSort will return empty array so we should push that one service ourselves
     if (sortedDependencies.length == 0) {
       if (servicesToRegister[0])
         sortedDependencies.push(servicesToRegister[0].name);
@@ -324,11 +102,19 @@ export class Server {
 
         if (!servicesToStart[serviceName])
           return reject(
-            chalk.red`"${serviceName}" not imported in start method. it's a dependency of another service.`
+            `${serviceName} not imported as service in start method. it's a dependency of ` +
+              dependenciesToSort
+                .filter(p => p[1] == serviceName)
+                .map(p => p[0])
+                .join(",")
           );
 
         try {
-          serviceObject = new servicesToStart[serviceName]();
+          serviceObject = new servicesToStart[serviceName](
+            ...dependenciesToSort
+              .filter(p => p[0] === serviceName)
+              .map(p => Server.services[p[1]])
+          );
         } catch (e) {
           e.message =
             chalk.red`Server Service Error in "${serviceName}"\n` + e.message;
@@ -342,8 +128,22 @@ export class Server {
           serviceObject
             .start()
             .then(() => {
+              var serviceDependencies = dependenciesToSort
+                .filter(p => p[0] === serviceName)
+                .map(p => p[1]);
+
               if (Server.opts.logging == "info")
-                console.log(chalk`{green ☑} ${serviceName}`);
+                console.log(
+                  chalk`${(index + 1)
+                    .toString()
+                    .padStart(2, " ")} of ${Object.keys(servicesToStart)
+                    .length.toString()
+                    .padStart(
+                      2,
+                      " "
+                    )} {green ☑} ${serviceName} {gray depends on: ${serviceDependencies.toString() ||
+                    "none"}}`
+                );
 
               if (sortedDependencies.length > index + 1)
                 startService(index + 1);
@@ -355,67 +155,6 @@ export class Server {
       }
 
       if (servicesToRegister.length > 0) startService(0);
-    });
-  }
-
-  /**
-   * Add controllers to express router
-   * Notice : all controllers should end with 'Controller'
-   * Notice : controller methods should start with requested method ex : get,post,put,delete
-   */
-  private async addRoutes(controllersToRegister) {
-    if (controllersToRegister && controllersToRegister.length > 0)
-      if (Server.opts.logging == "info")
-        console.log(chalk.blueBright`Registering controller routes...`);
-    // iterating trough controller classes
-    controllersToRegister.forEach(function(controller) {
-      var objToRegister = new controller();
-
-      // iterating trough controller endpoint in class
-      Object.getOwnPropertyNames(objToRegister).forEach(function(
-        controllerEndpointName
-      ) {
-        var endpoint: ServerEndpointInterface =
-          objToRegister[controllerEndpointName];
-
-        if (!endpoint) return;
-
-        if (!endpoint.method || !endpoint.actions) return;
-
-        // Defining controllerUrl for this controllerMethod
-        var controllerUrl = `/api/${
-          controller.apiPrefix ? controller.apiPrefix + "/" : ""
-        }${controller.name.replace(
-          "Controller",
-          ""
-        )}/${controllerEndpointName}`.toLowerCase();
-
-        if (endpoint.route)
-          if (!endpoint.route.startsWith("/"))
-            endpoint.route = "/" + endpoint.route;
-
-        var serverRoute: ServerRouteInterface = {
-          route: endpoint.route || controllerUrl,
-          isStream: endpoint.isStream,
-          method: endpoint.method,
-          publicAccess: endpoint.publicAccess || false,
-          endpoint: controllerEndpointName,
-          controllerName: controller.name,
-          controllerObject: objToRegister
-        };
-
-        serverRoute.route = serverRoute.route.toLowerCase();
-        serverRoute.method = serverRoute.method.toLowerCase();
-
-        if (Server.opts.logging == "info")
-          console.log(
-            chalk`{green ☑}  [${serverRoute.method.toUpperCase()}] {magenta ${
-              serverRoute.route
-            }} | {gray ${serverRoute.controllerName} > ${serverRoute.endpoint}}`
-          );
-
-        Server.routes.push(serverRoute);
-      });
     });
   }
 }

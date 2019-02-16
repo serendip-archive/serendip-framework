@@ -1,10 +1,5 @@
 import { Collection, ObjectID, ObjectId } from "mongodb";
-import {
-  ServerServiceInterface,
-  Server,
-  ServerRequestInterface,
-  ServerError
-} from "../core";
+import { ServerServiceInterface, Server } from "../core";
 import * as utils from "../utils";
 import { DbService, DbCollection } from "../db";
 import { UserModel, RestrictionModel, ClientModel, TokenModel } from "./models";
@@ -16,6 +11,8 @@ import * as _ from "underscore";
 import { EmailService, SmsIrService } from "..";
 import { SmsServiceProviderInterface } from "../sms";
 import { EventEmitter } from "events";
+import { HttpError } from "../http";
+import { HttpRequestInterface } from "../http/interfaces";
 
 export interface AuthServiceOptionsInterface {
   /**
@@ -46,9 +43,6 @@ export class AuthService implements ServerServiceInterface {
 
   static events = new EventEmitter();
 
-  private dbService: DbService;
-  private emailService: EmailService;
-
   public usersCollection: DbCollection<UserModel>;
   public clientsCollection: DbCollection<ClientModel>;
   public restrictionCollection: DbCollection<RestrictionModel>;
@@ -56,10 +50,10 @@ export class AuthService implements ServerServiceInterface {
 
   private restrictions: RestrictionModel[];
 
-  constructor() {
-    this.dbService = Server.services["DbService"];
-    this.emailService = Server.services["EmailService"];
-  }
+  constructor(
+    private dbService: DbService,
+    private emailService: EmailService
+  ) {}
 
   async start() {
     this.clientsCollection = await this.dbService.collection<ClientModel>(
@@ -122,11 +116,11 @@ export class AuthService implements ServerServiceInterface {
             ip
           )
           .then(body => resolve(body))
-          .catch(err => reject(new ServerError(500, err)));
+          .catch(err => reject(new HttpError(500, err)));
       })
         .then(r => AuthService.events.emit("sendVerifySms", r, null))
         .catch(e => AuthService.events.emit("sendVerifySms", null, e));
-    else throw new ServerError(500, "no sms provider");
+    else throw new HttpError(500, "no sms provider");
   }
 
   public async refreshRestrictions() {
@@ -134,7 +128,7 @@ export class AuthService implements ServerServiceInterface {
   }
 
   public async authorizeRequest(
-    req: ServerRequestInterface,
+    req: HttpRequestInterface,
     controllerName,
     endpoint,
     publicAccess: boolean
@@ -142,7 +136,7 @@ export class AuthService implements ServerServiceInterface {
     if (publicAccess) return true;
 
     if (!req.headers.authorization && !req.body.access_token)
-      throw new ServerError(
+      throw new HttpError(
         401,
         "access_token not found in body and authorization header"
       );
@@ -164,12 +158,12 @@ export class AuthService implements ServerServiceInterface {
       throw error;
     }
 
-    if (!user) throw new ServerError(401, "user deleted");
+    if (!user) throw new HttpError(401, "user deleted");
 
     if (!user.groups) user.groups = [];
 
     if (user.groups.indexOf("blocked") != -1)
-      throw new ServerError(401, "user access is blocked");
+      throw new HttpError(401, "user access is blocked");
 
     var rules = [
       // global
@@ -193,14 +187,14 @@ export class AuthService implements ServerServiceInterface {
           rule.groups.length != _.difference(rule.groups, user.groups).length
         )
           if (rule.users.indexOf(user._id) == -1)
-            throw new ServerError(401, "user group access is denied");
+            throw new HttpError(401, "user group access is denied");
 
         if (
           !rule.allowAll &&
           rule.groups.length == _.difference(rule.groups, user.groups).length
         )
           if (rule.users.indexOf(user._id) == -1)
-            throw new ServerError(401, "user group access is denied");
+            throw new HttpError(401, "user group access is denied");
       }
     });
   }
@@ -335,7 +329,7 @@ export class AuthService implements ServerServiceInterface {
     });
 
     if (tokenQuery.length != 1)
-      throw new ServerError(401, "access_token invalid");
+      throw new HttpError(401, "access_token invalid");
     else {
       return tokenQuery[0];
     }
@@ -546,28 +540,32 @@ export class AuthService implements ServerServiceInterface {
   ): Promise<UserModel> {
     if (!mobile) return undefined;
 
+    var match = {
+      $and: [
+        {
+          $or: [
+            {
+              mobile: parseInt(mobile, 10)
+            },
+            {
+              mobile: parseInt(mobile, 10).toString()
+            },
+            {
+              mobile: "0" + parseInt(mobile, 10).toString()
+            }
+          ]
+        },
+        {
+          mobileCountryCode:
+            mobileCountryCode ||
+            AuthService.options.defaultMobileCountryCode ||
+            "+98"
+        }
+      ]
+    };
     var query = await this.usersCollection
       .aggregate([])
-      .match({
-        $and: [
-          {
-            $or: [
-              {
-                mobile: mobile
-              },
-              {
-                mobile: "0" + mobile
-              }
-            ]
-          },
-          {
-            mobileCountryCode:
-              mobileCountryCode ||
-              AuthService.options.defaultMobileCountryCode ||
-              "+98"
-          }
-        ]
-      })
+      .match(match)
       .toArray();
 
     if (query.length == 0) return undefined;

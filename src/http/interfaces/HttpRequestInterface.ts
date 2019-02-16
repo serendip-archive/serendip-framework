@@ -2,9 +2,9 @@ import * as http from "http";
 import { TokenModel, ClientModel, UserModel } from "../../auth";
 
 /**
- * ServerRequest
+ * HttpRequest
  */
-export interface ServerRequestInterface extends http.IncomingMessage {
+export interface HttpRequestInterface extends http.IncomingMessage {
   query: any;
   body: any;
   params: any;

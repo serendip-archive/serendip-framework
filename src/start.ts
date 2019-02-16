@@ -4,7 +4,7 @@ import { cpus } from "os";
 import { EventEmitter } from "events";
 
 export function start(opts?: ServerOptionsInterface) {
-  if (!opts.controllers) opts.controllers = [];
+  
 
   if (!opts.services) opts.services = [];
 
@@ -17,7 +17,13 @@ export function start(opts?: ServerOptionsInterface) {
     //opts.cpuCores || cpus().length
 
     if (opts.cpuCores)
-      if (opts.cpuCores.toString().trim().toLowerCase() == "max") cpuCount = cpus().length;
+      if (
+        opts.cpuCores
+          .toString()
+          .trim()
+          .toLowerCase() == "max"
+      )
+        cpuCount = cpus().length;
       else cpuCount = parseInt(opts.cpuCores.toString());
 
     var stopForking = false;

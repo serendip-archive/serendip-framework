@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const ua = require("useragent");
 const reqIp = require("request-ip");
-function ServerRequestHelpers(req) {
+function HttpRequestHelpers(req) {
     req.useragent = () => {
         if (!req.headers["user-agent"])
             return '';
@@ -21,4 +21,4 @@ function ServerRequestHelpers(req) {
         req.body = {};
     return req;
 }
-exports.ServerRequestHelpers = ServerRequestHelpers;
+exports.HttpRequestHelpers = HttpRequestHelpers;

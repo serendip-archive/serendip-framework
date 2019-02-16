@@ -1,8 +1,8 @@
 var assert = require("assert");
 var serendip = require("..");
 
-describe("running authentication scenarios", function () {
-  it("should run authentication example scenario", function (done) {
+describe("running authentication scenarios", function() {
+  it("should run authentication example scenario", function(done) {
     serendip.DbService.configure({
       mongoDb: "serendipTests",
       mongoUrl: "mongodb://localhost:27017"

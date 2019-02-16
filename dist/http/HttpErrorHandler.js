@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class ServerError extends Error {
+class HttpError extends Error {
     constructor(code, message, id) {
         super(message);
         this.code = code;
@@ -10,4 +10,4 @@ class ServerError extends Error {
             this.id = id;
     }
 }
-exports.ServerError = ServerError;
+exports.HttpError = HttpError;
