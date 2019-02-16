@@ -37,14 +37,12 @@ class HttpService {
      * Notice : all controllers should end with 'Controller'
      * Notice : controller methods should start with requested method ex : get,post,put,delete
      */
-    static get routes() {
-        if (HttpService._routes)
-            return HttpService._routes;
+    addRoutes() {
         var result = [];
         if (HttpService.options.controllers &&
             HttpService.options.controllers.length > 0)
             if (core_1.Server.opts.logging == "info")
-                console.log(chalk_1.default.blueBright `Registering controller routes...`);
+                console.log(chalk_1.default.blueBright `HttpService > Registering controller routes...`);
         // iterating trough controller classes
         HttpService.options.controllers.forEach(controller => {
             var objToRegister = new controller(...sUtil.functions
@@ -78,13 +76,19 @@ class HttpService {
                     console.log(chalk_1.default `{green ☑}  [${serverRoute.method.toUpperCase()}] {magenta ${serverRoute.route}} | {gray ${serverRoute.controllerName} > ${serverRoute.endpoint}}`);
             });
         });
-        return result;
+        HttpService.routes = result;
     }
     static configure(opts) {
         HttpService.options = _.extend(HttpService.options, opts);
     }
     async start() {
-        HttpService.routes;
+        try {
+            this.addRoutes();
+        }
+        catch (error) {
+            console.log("error while adding routes to HttpService", error);
+            throw error;
+        }
         if (HttpService.options.httpPort === null) {
             return;
         }
@@ -96,13 +100,13 @@ class HttpService {
             });
         }
         if (HttpService.options.httpsOnly) {
-            this.httpsServer.on("request", this.processRequest);
+            this.httpsServer.on("request", HttpService.processRequest);
             this.httpServer.on("request", this.redirectToHttps(HttpService.options.httpPort, HttpService.options.httpsPort));
         }
         else {
             if (this.httpsServer)
-                this.httpsServer.on("request", this.processRequest);
-            this.httpServer.on("request", this.processRequest);
+                this.httpsServer.on("request", HttpService.processRequest);
+            this.httpServer.on("request", HttpService.processRequest);
         }
         await new Promise((resolve, reject) => {
             this.httpServer.listen(HttpService.options.httpPort, () => {
@@ -115,25 +119,29 @@ class HttpService {
                     });
                 }
                 if (core_1.Server.opts.logging == "info")
-                    console.log(chalk_1.default.cyan(`worker ${core_1.Server.worker.id} running http server at port ${HttpService.options.httpPort}`));
+                    console.log(chalk_1.default.blueBright(`HttpService > worker ${core_1.Server.worker.id} running http server at port ${HttpService.options.httpPort}`));
                 if (!this.httpsServer)
                     return resolve();
                 else
                     this.httpsServer.listen(HttpService.options.httpsPort, () => {
                         if (core_1.Server.opts.logging == "info")
-                            console.log(chalk_1.default.cyan(`worker ${core_1.Server.worker.id} running https server at port ${HttpService.options.httpsPort}`));
+                            console.log(chalk_1.default.blueBright(`HttpService > worker ${core_1.Server.worker.id} running https server at port ${HttpService.options.httpsPort}`));
                         return resolve();
                     });
             });
         });
     }
-    async processRequest(req, res) {
+    static async processRequest(req, res) {
         var requestReceived = Date.now();
         req = HttpRequestHelpers_1.HttpRequestHelpers(req);
         res = HttpResponseHelpers_1.HttpResponseHelpers(res);
-        var logString = () => {
-            return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : "unauthorized"}  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
+        const logString = () => {
+            return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : ""} ${req.useragent()} ${res.statusCode} ${Date.now() -
+                requestReceived}ms ${res.statusMessage}`;
         };
+        res.on("finish", () => {
+            console.log(logString());
+        });
         if (HttpService.options.beforeMiddlewares &&
             HttpService.options.beforeMiddlewares.length > 0) {
             await HttpRouter_1.HttpRouter.executeActions(req, res, null, HttpService.options.beforeMiddlewares, 0);
@@ -141,7 +149,7 @@ class HttpService {
                 return;
         }
         if (core_1.Server.opts.logging == "info")
-            console.info(chalk_1.default.gray(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.useragent()} process request started.`));
+            console.info(chalk_1.default.gray(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.useragent()}`));
         // finding controller by path
         if (HttpService.options.cors)
             res.setHeader("Access-Control-Allow-Origin", HttpService.options.cors);
@@ -163,11 +171,7 @@ class HttpService {
         else {
             if (!srvRoute) {
                 if (HttpService.options.staticPath) {
-                    this.processRequestToStatic(req, res, (code, filePath) => {
-                        if (code == 200)
-                            if (core_1.Server.opts.logging == "info")
-                                console.info(`${logString()} => Download started [${filePath}]`);
-                    });
+                    HttpService.processRequestToStatic(req, res, (code, filePath) => { });
                     return;
                 }
                 else {
@@ -218,7 +222,7 @@ class HttpService {
             res.end();
         };
     }
-    processRequestToStatic(req, res, callback, staticPath) {
+    static async processRequestToStatic(req, res, callback, staticPath) {
         var filePath = path.join(staticPath || HttpService.options.staticPath, req.url.split("?")[0]);
         fs.stat(filePath, (err, stat) => {
             if (err) {

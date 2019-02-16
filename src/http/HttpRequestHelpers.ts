@@ -1,36 +1,25 @@
-import * as http from 'http'
-import * as ua from 'useragent'
-import * as reqIp from 'request-ip'
+import * as http from "http";
+import * as ua from "useragent";
+import * as reqIp from "request-ip";
 
-export function  HttpRequestHelpers(req: http.IncomingMessage | any) {
+export function HttpRequestHelpers(req: http.IncomingMessage | any) {
+  req.useragent = () => {
+    if (!req.headers["user-agent"]) return "";
 
+    return ua.parse(req.headers["user-agent"].toString());
+  };
 
-    req.useragent = () => {
+  req.client = () => {
+    if (req.headers["clientid"] != undefined)
+      return req.headers["clientid"].toString();
+    else return null;
+  };
 
-        if (!req.headers["user-agent"])
-            return '';
+  req.ip = () => {
+    return reqIp.getClientIp(req);
+  };
 
-        return ua.parse(req.headers["user-agent"].toString());
+  if (!req.body) req.body = {};
 
-    };
-
-    req.client = () => {
-        if (req.headers["clientid"] != undefined)
-            return req.headers["clientid"].toString();
-        else
-            return null;
-    };
-
-
-    req.ip = () => {
-
-        return reqIp.getClientIp(req);
-
-    };
-
-    if (!req.body)
-        req.body = {};
-
-    return req;
-
+  return req;
 }

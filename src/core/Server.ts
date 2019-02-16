@@ -145,7 +145,7 @@ export class Server {
           .join(",");
 
     try {
-      serviceObject = new serviceObjects[serviceName](
+      serviceObject = new (serviceObjects as any)[serviceName](
         ...unsortedDependencies
           .filter(p => p[0] === serviceName)
           .map(p => Server.services[p[1]])
@@ -182,7 +182,7 @@ export class Server {
 
       if (Server.opts.logging == "info")
         console.log(
-          chalk`${(index + 1).toString().padStart(2, " ")} of${Object.keys(
+          chalk`${(index + 1).toString().padStart(2, " ")} of ${Object.keys(
             serviceObjects
           )
             .length.toString()

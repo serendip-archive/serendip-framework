@@ -73,7 +73,7 @@ class HttpRouter {
                 // done()
                 (statusCode, statusMessage) => {
                     res.statusCode = statusCode || 200;
-                    res.statusMessage = res.statusText = statusMessage;
+                    res.statusMessage = statusMessage;
                     res.end();
                     resolve();
                 }, passedModel);
@@ -87,6 +87,10 @@ class HttpRouter {
                     .catch((e) => {
                     reject(new _1.HttpError(500, e ? e.message : ""));
                 });
+        }).catch(e => {
+            res.statusCode = e.code || 500;
+            res.statusMessage = e.message || e;
+            res.end();
         });
     }
     static routeIt(req, res, middlewares, srvRoute) {

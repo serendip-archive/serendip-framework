@@ -563,10 +563,7 @@ export class AuthService implements ServerServiceInterface {
         }
       ]
     };
-    var query = await this.usersCollection
-      .aggregate([])
-      .match(match)
-      .toArray();
+    var query = await this.usersCollection.find(match);
 
     if (query.length == 0) return undefined;
     else return query[0];

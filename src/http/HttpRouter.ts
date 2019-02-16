@@ -81,7 +81,13 @@ export class HttpRouter {
     // starting from first action
     return HttpRouter.executeActions(req, res, null, actions, 0);
   }
-  static executeActions(req, res, passedModel, actions, actionIndex) {
+  static executeActions(
+    req,
+    res: HttpResponseInterface,
+    passedModel,
+    actions,
+    actionIndex
+  ) {
     return new Promise((resolve, reject) => {
       var action;
       try {
@@ -117,7 +123,7 @@ export class HttpRouter {
           // done()
           (statusCode?: number, statusMessage?: string) => {
             res.statusCode = statusCode || 200;
-            res.statusMessage = res.statusText = statusMessage;
+            res.statusMessage = statusMessage;
             res.end();
             resolve();
           },
@@ -132,9 +138,13 @@ export class HttpRouter {
           .catch((e: Error) => {
             reject(new HttpError(500, e ? e.message : ""));
           });
+    }).catch(e => {
+      res.statusCode = e.code || 500;
+      res.statusMessage = e.message || e;
+      res.end();
     });
   }
-  
+
   static routeIt(
     req: HttpRequestInterface,
     res: HttpResponseInterface,

@@ -3,6 +3,7 @@ import * as _ from "underscore";
 import { HttpService } from "../http/HttpService";
 import { HttpEndpointInterface } from "../http/interfaces/HttpEndpointInterface";
 import { AuthService } from "../auth";
+import { HttpError } from "../../dist/http/HttpErrorHandler";
 
 export class ServerController {
   constructor(
@@ -38,6 +39,51 @@ export class ServerController {
         //   return route;
         // });
         // res.json(model);
+        done(200);
+      }
+    ]
+  };
+
+  throw: HttpEndpointInterface = {
+    method: "get",
+    publicAccess: true,
+    actions: [
+      (req, res, next, done) => {
+        throw new Error("fake error");
+      },
+      (req, res, next, done) => {
+        // var model = _.map(this.httpService.routes, route => {
+        //   route = _.omit(route, "controllerObject");
+
+        //   return route;
+        // });
+        // res.json(model);
+        done(200);
+      }
+    ]
+  };
+
+  nextError: HttpEndpointInterface = {
+    method: "get",
+    publicAccess: true,
+    actions: [
+      (req, res, next, done) => {
+        next(new HttpError("500", "just checking", 123));
+      },
+      (req, res, next, done) => {
+        done(200);
+      }
+    ]
+  };
+
+  doneError: HttpEndpointInterface = {
+    method: "get",
+    publicAccess: true,
+    actions: [
+      (req, res, next, done) => {
+        done("500", "done error");
+      },
+      (req, res, next, done) => {
         done(200);
       }
     ]

@@ -108,7 +108,7 @@ class Server {
                     .padStart(2, "")} starting ${serviceName} it depends on: ${serviceDependencies.join(",") || "none"}}`);
             await serviceObject.start();
             if (Server.opts.logging == "info")
-                console.log(chalk_1.default `${(index + 1).toString().padStart(2, " ")} of${Object.keys(serviceObjects)
+                console.log(chalk_1.default `${(index + 1).toString().padStart(2, " ")} of ${Object.keys(serviceObjects)
                     .length.toString()
                     .padStart(2, " ")} {green ☑} ${serviceName}`);
             if (sortedDependencies.length > index + 1)

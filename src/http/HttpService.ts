@@ -16,6 +16,7 @@ import { HttpRequestHelpers } from "./HttpRequestHelpers";
 import { HttpRouter } from "./HttpRouter";
 import { HttpMiddlewareInterface } from "./interfaces/HttpMiddlewareInterface";
 import * as sUtil from "serendip-utility";
+import { HttpRequestInterface, HttpResponseInterface } from "./interfaces";
 export interface HttpServiceOptionsInterface {
   // controllers responsible for http(s) incoming requests
   controllers?: any[];
@@ -61,15 +62,14 @@ export class HttpService implements ServerServiceInterface {
    * routes which server router will respond to
    * and feel free to add your routes to it
    */
-  private static _routes: HttpRouteInterface[];
+  private static routes: HttpRouteInterface[];
 
   /**
  
    * Notice : all controllers should end with 'Controller'
    * Notice : controller methods should start with requested method ex : get,post,put,delete
    */
-  public static get routes() {
-    if (HttpService._routes) return HttpService._routes;
+  public addRoutes() {
     var result = [];
 
     if (
@@ -77,7 +77,9 @@ export class HttpService implements ServerServiceInterface {
       HttpService.options.controllers.length > 0
     )
       if (Server.opts.logging == "info")
-        console.log(chalk.blueBright`Registering controller routes...`);
+        console.log(
+          chalk.blueBright`HttpService > Registering controller routes...`
+        );
     // iterating trough controller classes
     HttpService.options.controllers.forEach(controller => {
       var objToRegister = new controller(
@@ -134,7 +136,7 @@ export class HttpService implements ServerServiceInterface {
         }
       );
     });
-    return result;
+    HttpService.routes = result;
   }
   static options: HttpServiceOptionsInterface = {
     middlewares: [],
@@ -163,7 +165,12 @@ export class HttpService implements ServerServiceInterface {
   }
 
   async start() {
-    HttpService.routes;
+    try {
+      this.addRoutes();
+    } catch (error) {
+      console.log("error while adding routes to HttpService", error);
+      throw error;
+    }
     if (HttpService.options.httpPort === null) {
       return;
     }
@@ -177,7 +184,7 @@ export class HttpService implements ServerServiceInterface {
       });
     }
     if (HttpService.options.httpsOnly) {
-      this.httpsServer.on("request", this.processRequest);
+      this.httpsServer.on("request", HttpService.processRequest);
       this.httpServer.on(
         "request",
         this.redirectToHttps(
@@ -186,8 +193,9 @@ export class HttpService implements ServerServiceInterface {
         )
       );
     } else {
-      if (this.httpsServer) this.httpsServer.on("request", this.processRequest);
-      this.httpServer.on("request", this.processRequest);
+      if (this.httpsServer)
+        this.httpsServer.on("request", HttpService.processRequest);
+      this.httpServer.on("request", HttpService.processRequest);
     }
 
     await new Promise((resolve, reject) => {
@@ -207,10 +215,10 @@ export class HttpService implements ServerServiceInterface {
 
         if (Server.opts.logging == "info")
           console.log(
-            chalk.cyan(
-              `worker ${Server.worker.id} running http server at port ${
-                HttpService.options.httpPort
-              }`
+            chalk.blueBright(
+              `HttpService > worker ${
+                Server.worker.id
+              } running http server at port ${HttpService.options.httpPort}`
             )
           );
         if (!this.httpsServer) return resolve();
@@ -218,8 +226,10 @@ export class HttpService implements ServerServiceInterface {
           this.httpsServer.listen(HttpService.options.httpsPort, () => {
             if (Server.opts.logging == "info")
               console.log(
-                chalk.cyan(
-                  `worker ${Server.worker.id} running https server at port ${
+                chalk.blueBright(
+                  `HttpService > worker ${
+                    Server.worker.id
+                  } running https server at port ${
                     HttpService.options.httpsPort
                   }`
                 )
@@ -230,19 +240,27 @@ export class HttpService implements ServerServiceInterface {
     });
   }
 
-  private async processRequest(req, res) {
+  private static async processRequest(
+    req: HttpRequestInterface,
+    res: HttpResponseInterface
+  ) {
     var requestReceived = Date.now();
 
     req = HttpRequestHelpers(req);
     res = HttpResponseHelpers(res);
 
-    var logString = () => {
+    const logString = () => {
       return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
         req.method
       }] "${req.url}" ${req.ip()}/${
-        req.user ? req.user.username : "unauthorized"
-      }  ${req.useragent()}  ${Date.now() - requestReceived}ms`;
+        req.user ? req.user.username : ""
+      } ${req.useragent()} ${res.statusCode} ${Date.now() -
+        requestReceived}ms ${res.statusMessage}`;
     };
+
+    res.on("finish", () => {
+      console.log(logString());
+    });
 
     if (
       HttpService.options.beforeMiddlewares &&
@@ -263,9 +281,7 @@ export class HttpService implements ServerServiceInterface {
         chalk.gray(
           `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
             req.method
-          }] "${
-            req.url
-          }" ${req.ip()}/${req.useragent()} process request started.`
+          }] "${req.url}" ${req.ip()}/${req.useragent()}`
         )
       );
 
@@ -297,13 +313,7 @@ export class HttpService implements ServerServiceInterface {
     } else {
       if (!srvRoute) {
         if (HttpService.options.staticPath) {
-          this.processRequestToStatic(req, res, (code, filePath) => {
-            if (code == 200)
-              if (Server.opts.logging == "info")
-                console.info(
-                  `${logString()} => Download started [${filePath}]`
-                );
-          });
+          HttpService.processRequestToStatic(req, res, (code, filePath) => {});
           return;
         } else {
           res.statusCode = 404;
@@ -361,12 +371,12 @@ export class HttpService implements ServerServiceInterface {
     };
   }
 
-  private processRequestToStatic(
+  private static async processRequestToStatic(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     callback,
     staticPath?
-  ): void {
+  ) {
     var filePath = path.join(
       staticPath || HttpService.options.staticPath,
       req.url.split("?")[0]
