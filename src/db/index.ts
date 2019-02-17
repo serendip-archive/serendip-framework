@@ -1,4 +1,5 @@
-export * from './DbCollection'
-export * from './DbService'
+export * from "./models";
+export * from "./interfaces";
 
-export * from './models'
+export * from "./DbService";
+export * from "./DbCollection";

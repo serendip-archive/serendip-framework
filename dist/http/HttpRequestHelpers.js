@@ -5,7 +5,7 @@ const reqIp = require("request-ip");
 function HttpRequestHelpers(req) {
     req.useragent = () => {
         if (!req.headers["user-agent"])
-            return '';
+            return "";
         return ua.parse(req.headers["user-agent"].toString());
     };
     req.client = () => {

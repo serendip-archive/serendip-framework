@@ -214,7 +214,7 @@ export class SmsIrService
             );
           })
           .catch(e => {
-            console.error(e);
+             
             reject(e);
           });
       }

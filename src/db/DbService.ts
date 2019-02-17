@@ -7,16 +7,43 @@ import {
   MongoClientOptions
 } from "mongodb";
 import { ServerServiceInterface, Server } from "../core";
-import { DbCollection, EntityChangeModel } from ".";
+import { EntityChangeModel } from ".";
 import * as _ from "underscore";
+import { DbCollectionInterface } from "./interfaces/DbCollectionInterface";
+import { any } from "async";
+import { MongodbProviderOptions, MongodbProvider } from "./providers/Mongodb";
+import chalk from "chalk";
 
-export interface DbServiceOptionsInterface {
-  mongoUrl?: string;
-  mongoDb?: string;
+export interface DbProviderInterface {
+  /**
+   * return db collection as interface
+   */
+  collection<T>(
+    collectionName: string,
+    trackChanges?: boolean
+  ): Promise<DbCollectionInterface<T>>;
 
-  authSource?: string;
-  user?: string;
-  password?: string;
+  changes: DbCollectionInterface<EntityChangeModel>;
+  /**
+   * options for this provider
+   */
+  initiate(options?): Promise<void>;
+}
+
+export interface DbProviderOptionsInterface {
+  [key: string]: any;
+}
+export interface DbServiceOptions {
+  /**
+   * name of default provider. will be used in case of executing collection without provider argument set
+   */
+  defaultProvider?: string;
+
+  providers: {
+    providerName: string;
+    providerObject?: DbProviderInterface;
+    options: DbProviderOptionsInterface;
+  }[];
 }
 
 /**
@@ -25,81 +52,49 @@ export interface DbServiceOptionsInterface {
 export class DbService implements ServerServiceInterface {
   static dependencies = [];
 
-  public entityChangeCollection: DbCollection<EntityChangeModel>;
-  private mongoCollections: string[] = [];
-  /**
-   * Instance of mongodb database
-   */
-  private db: Db;
-
-  static options: DbServiceOptionsInterface = {
-    mongoUrl: process.env.mongoUrl,
-    mongoDb: process.env.mongoDb
+  static options: DbServiceOptions = {
+    defaultProvider: "Mongodb",
+    providers: [
+      {
+        providerName: "Mongodb",
+        providerObject: new MongodbProvider(),
+        options: {
+          mongoDb: "serendip_framework",
+          mongoUrl: "mongodb://localhost:27017"
+        }
+      }
+    ]
   };
 
-  static configure(options: DbServiceOptionsInterface) {
+  static configure(options: DbServiceOptions) {
     DbService.options = _.extend(DbService.options, options);
   }
 
+  private providers: { [key: string]: DbProviderInterface } = {};
   async start() {
-    try {
-      // Creating mongoDB client from mongoUrl
-
-      let connectOptions: MongoClientOptions = {
-        useNewUrlParser: true
-      };
-
-      if (DbService.options.authSource) {
-        connectOptions.authSource = DbService.options.authSource;
-      }
-
-      if (DbService.options.user && DbService.options.password) {
-        connectOptions.auth = {
-          user: DbService.options.user,
-          password: DbService.options.password
-        };
-      }
-
-      var mongoClient = await MongoClient.connect(
-        DbService.options.mongoUrl,
-        connectOptions
+    for (const provider of DbService.options.providers) {
+      console.log(
+        chalk.gray(
+          `DbService > trying to connect to DbProvider named: ${
+            provider.providerName
+          }`
+        )
       );
+      await provider.providerObject.initiate(provider.options);
+      this.providers[provider.providerName] = provider.providerObject;
 
-      this.db = mongoClient.db(DbService.options.mongoDb);
-    } catch (error) {
-      throw new Error(
-        "\n\nUnable to connect to MongoDb. Error details: \n" + error.message
+      console.log(
+        chalk.green(
+          `DbService > connected to DbProvider name: ${provider.providerName}`
+        )
       );
     }
-
-    var mongoCollectionObjects = await this.db.collections();
-
-    mongoCollectionObjects.map(obj => {
-      this.mongoCollections.push(obj.collectionName);
-    });
-
-    this.entityChangeCollection = await this.collection<EntityChangeModel>(
-      "EntityChanges",
-      false
-    );
   }
 
+  collection<T>(collectionName: string, track?: boolean, provider?: string) {
+    return this.providers[
+      provider || DbService.options.defaultProvider
+    ].collection<T>(collectionName, track);
+  }
   constructor() {}
-
-  public async collection<T>(
-    collectionName: string,
-    track?: boolean
-  ): Promise<DbCollection<T>> {
-    collectionName = collectionName.trim();
-
-    if (this.mongoCollections.indexOf(collectionName) === -1) {
-      await this.db.createCollection(collectionName);
-      this.mongoCollections.push(collectionName);
-
-      if (Server.opts.logging == "info")
-        console.log(`☑ collection ${collectionName} created .`);
-    }
-
-    return new DbCollection<T>(this.db.collection<T>(collectionName), track);
-  }
 }

@@ -1,60 +1,42 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongodb_1 = require("mongodb");
-const core_1 = require("../core");
-const _1 = require(".");
 const _ = require("underscore");
+const Mongodb_1 = require("./providers/Mongodb");
+const chalk_1 = require("chalk");
 /**
  * Every functionality thats use database should use it trough this service
  */
 class DbService {
     constructor() {
-        this.mongoCollections = [];
+        this.providers = {};
     }
     static configure(options) {
         DbService.options = _.extend(DbService.options, options);
     }
     async start() {
-        try {
-            // Creating mongoDB client from mongoUrl
-            let connectOptions = {
-                useNewUrlParser: true
-            };
-            if (DbService.options.authSource) {
-                connectOptions.authSource = DbService.options.authSource;
-            }
-            if (DbService.options.user && DbService.options.password) {
-                connectOptions.auth = {
-                    user: DbService.options.user,
-                    password: DbService.options.password
-                };
-            }
-            var mongoClient = await mongodb_1.MongoClient.connect(DbService.options.mongoUrl, connectOptions);
-            this.db = mongoClient.db(DbService.options.mongoDb);
+        for (const provider of DbService.options.providers) {
+            console.log(chalk_1.default.gray(`DbService > trying to connect to DbProvider named: ${provider.providerName}`));
+            await provider.providerObject.initiate(provider.options);
+            this.providers[provider.providerName] = provider.providerObject;
+            console.log(chalk_1.default.green(`DbService > connected to DbProvider name: ${provider.providerName}`));
         }
-        catch (error) {
-            throw new Error("\n\nUnable to connect to MongoDb. Error details: \n" + error.message);
-        }
-        var mongoCollectionObjects = await this.db.collections();
-        mongoCollectionObjects.map(obj => {
-            this.mongoCollections.push(obj.collectionName);
-        });
-        this.entityChangeCollection = await this.collection("EntityChanges", false);
     }
-    async collection(collectionName, track) {
-        collectionName = collectionName.trim();
-        if (this.mongoCollections.indexOf(collectionName) === -1) {
-            await this.db.createCollection(collectionName);
-            this.mongoCollections.push(collectionName);
-            if (core_1.Server.opts.logging == "info")
-                console.log(`☑ collection ${collectionName} created .`);
-        }
-        return new _1.DbCollection(this.db.collection(collectionName), track);
+    collection(collectionName, track, provider) {
+        return this.providers[provider || DbService.options.defaultProvider].collection(collectionName, track);
     }
 }
 DbService.dependencies = [];
 DbService.options = {
-    mongoUrl: process.env.mongoUrl,
-    mongoDb: process.env.mongoDb
+    defaultProvider: "Mongodb",
+    providers: [
+        {
+            providerName: "Mongodb",
+            providerObject: new Mongodb_1.MongodbProvider(),
+            options: {
+                mongoDb: "serendip_framework",
+                mongoUrl: "mongodb://localhost:27017"
+            }
+        }
+    ]
 };
 exports.DbService = DbService;

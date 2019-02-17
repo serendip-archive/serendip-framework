@@ -66,9 +66,10 @@ export class AuthService implements ServerServiceInterface {
       "Tokens"
     );
 
-    this.usersCollection.createIndex({ username: 1 }, { unique: true });
-    this.usersCollection.createIndex({ mobile: 1 }, {});
-    this.usersCollection.createIndex({ email: 1 }, {});
+    this.usersCollection.ensureIndex({ username: 1 }, { unique: true });
+    this.usersCollection.ensureIndex({ mobile: 1 }, {});
+    this.usersCollection.ensureIndex({ email: 1 }, {});
+    
     //   this.usersCollection.createIndex({ "tokens.access_token": 1 }, {});
 
     this.restrictionCollection = await this.dbService.collection<

@@ -1,6 +1,6 @@
 import { ObjectId } from "bson";
 
-export enum entityChangeType {
+export enum EntityChangeType {
   Delete = 0,
   Create = 1,
   Update = 2
@@ -20,7 +20,7 @@ export class EntityChangeModel {
   }
   public _id?: string;
   public date: number;
-  public type: entityChangeType;
+  public type: EntityChangeType;
   public model: any;
   public diff: any;
   public userId: string;

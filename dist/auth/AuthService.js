@@ -21,9 +21,9 @@ class AuthService {
         this.clientsCollection = await this.dbService.collection("Clients");
         this.usersCollection = await this.dbService.collection("Users");
         this.tokenCollection = await this.dbService.collection("Tokens");
-        this.usersCollection.createIndex({ username: 1 }, { unique: true });
-        this.usersCollection.createIndex({ mobile: 1 }, {});
-        this.usersCollection.createIndex({ email: 1 }, {});
+        this.usersCollection.ensureIndex({ username: 1 }, { unique: true });
+        this.usersCollection.ensureIndex({ mobile: 1 }, {});
+        this.usersCollection.ensureIndex({ email: 1 }, {});
         //   this.usersCollection.createIndex({ "tokens.access_token": 1 }, {});
         this.restrictionCollection = await this.dbService.collection("Restrictions");
         await this.refreshRestrictions();
