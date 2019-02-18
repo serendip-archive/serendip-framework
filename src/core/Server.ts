@@ -22,7 +22,6 @@ export class Server {
   public static services: any = {};
 
   public static opts: ServerOptionsInterface;
-  public static wsServer: ws.Server;
 
   // usage : starting server from ./Start.js
   public static bootstrap(

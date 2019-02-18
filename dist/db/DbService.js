@@ -14,11 +14,12 @@ class DbService {
         DbService.options = _.extend(DbService.options, options);
     }
     async start() {
-        for (const provider of DbService.options.providers) {
-            console.log(chalk_1.default.gray(`DbService > trying to connect to DbProvider named: ${provider.providerName}`));
-            await provider.providerObject.initiate(provider.options);
-            this.providers[provider.providerName] = provider.providerObject;
-            console.log(chalk_1.default.green(`DbService > connected to DbProvider name: ${provider.providerName}`));
+        for (const key of Object.keys(DbService.options.providers)) {
+            const provider = DbService.options.providers[key];
+            console.log(chalk_1.default.gray(`DbService > trying to connect to DbProvider named: ${key}`));
+            await provider.object.initiate(provider.options);
+            this.providers[key] = provider.object;
+            console.log(chalk_1.default.green(`DbService > connected to DbProvider name: ${key}`));
         }
     }
     collection(collectionName, track, provider) {
@@ -28,15 +29,14 @@ class DbService {
 DbService.dependencies = [];
 DbService.options = {
     defaultProvider: "Mongodb",
-    providers: [
-        {
-            providerName: "Mongodb",
-            providerObject: new Mongodb_1.MongodbProvider(),
+    providers: {
+        Mongodb: {
+            object: new Mongodb_1.MongodbProvider(),
             options: {
                 mongoDb: "serendip_framework",
                 mongoUrl: "mongodb://localhost:27017"
             }
         }
-    ]
+    }
 };
 exports.DbService = DbService;

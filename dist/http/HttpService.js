@@ -15,8 +15,7 @@ const HttpRequestHelpers_1 = require("./HttpRequestHelpers");
 const HttpRouter_1 = require("./HttpRouter");
 const sUtil = require("serendip-utility");
 class HttpService {
-    constructor(webSocketService) {
-        this.webSocketService = webSocketService;
+    constructor() {
         // adding basic middlewares to begging of middlewares array
         HttpService.options.middlewares.unshift(bodyParser.json({ limit: HttpService.options.bodyParserLimit }));
         HttpService.options.middlewares.unshift(bodyParser.urlencoded({
@@ -113,8 +112,8 @@ class HttpService {
                 if (core_1.Server.services["WebSocketService"]) {
                     this.wsServer = new ws.Server({ noServer: true });
                     this.httpServer.on("upgrade", (req, socket, head) => {
-                        core_1.Server.wsServer.handleUpgrade(req, socket, head, ws => {
-                            this.webSocketService.connectionEmitter.emit("connection", ws, req);
+                        this.wsServer.handleUpgrade(req, socket, head, ws => {
+                            core_1.Server.services["WebSocketService"].connectionEmitter.emit("connection", ws, req);
                         });
                     });
                 }

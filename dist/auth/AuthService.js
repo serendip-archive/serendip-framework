@@ -7,6 +7,7 @@ const models_1 = require("./models");
 const _ = require("underscore");
 const events_1 = require("events");
 const http_1 = require("../http");
+const chalk_1 = require("chalk");
 class AuthService {
     constructor(dbService, emailService) {
         this.dbService = dbService;
@@ -26,6 +27,7 @@ class AuthService {
         this.usersCollection.ensureIndex({ email: 1 }, {});
         //   this.usersCollection.createIndex({ "tokens.access_token": 1 }, {});
         this.restrictionCollection = await this.dbService.collection("Restrictions");
+        console.log(chalk_1.default.gray(`\tAuthService > users: ${await this.usersCollection.count()}`));
         await this.refreshRestrictions();
     }
     sendVerifyEmail(userModel) {

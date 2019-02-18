@@ -16,12 +16,16 @@ import * as url from "url";
 import chalk from "chalk";
 import * as qs from "qs";
 import * as reqIp from "request-ip";
+import { HttpService } from "../http";
 
 export class WebSocketService implements ServerServiceInterface {
   connectionEmitter = new EventEmitter();
   messageEmitter = new EventEmitter();
 
-  constructor(private dbService: DbService, private authService: AuthService) {}
+  get httpService(): HttpService {
+    return Server.services["HttpService"] as HttpService;
+  }
+  constructor(private authService: AuthService) {}
 
   /**
    *
@@ -31,7 +35,7 @@ export class WebSocketService implements ServerServiceInterface {
    *
    */
   async sendToUser(userId: string, path: string, model: string) {
-    Server.wsServer.clients.forEach((client: WebSocketInterface) => {
+    this.httpService.wsServer.clients.forEach((client: WebSocketInterface) => {
       if (client.token && client.token.userId != userId) return;
 
       if (path) if (client.path != path) return;

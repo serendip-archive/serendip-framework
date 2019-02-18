@@ -34,7 +34,10 @@ class MongodbCollection extends DbCollection_1.DbCollection {
                 this.collection.find(query).toArray((err, results) => {
                     if (err)
                         return reject(err);
-                    return resolve(results);
+                    return resolve(results.map((p) => {
+                        p._id = p._id.toString();
+                        return p;
+                    }));
                 });
         });
     }

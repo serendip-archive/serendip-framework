@@ -9,8 +9,7 @@ _1.AuthService.configure({
     smsProvider: "SmsIrService"
 });
 _1.DbService.configure({
-    mongoDb: "serendipTests",
-    mongoUrl: "mongodb://localhost:27017"
+    defaultProvider: "Mongodb"
 });
 http_1.HttpService.configure({
     cert: path_1.join(__dirname, "..", "localhost_cert.pem"),

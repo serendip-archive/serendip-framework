@@ -5,10 +5,10 @@ export abstract class DbCollection<T> implements DbCollectionInterface<T> {
   ensureIndex(fieldOrSpec: any, options: any): Promise<void> {
     throw new Error("ensureIndex method not implemented.");
   }
-  find(query: any, skip?: any, limit?: any): Promise<T[]> {
+  find(query?: any, skip?: any, limit?: any): Promise<T[]> {
     throw new Error("find method not implemented.");
   }
-  count(query: any): Promise<Number> {
+  count(query?: any): Promise<Number> {
     throw new Error("count method not implemented.");
   }
   updateOne(model: T, userId?: string): Promise<T> {

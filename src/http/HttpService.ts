@@ -151,7 +151,7 @@ export class HttpService implements ServerServiceInterface {
   static configure(opts: HttpServiceOptionsInterface): void {
     HttpService.options = _.extend(HttpService.options, opts);
   }
-  constructor(private webSocketService: WebSocketService) {
+  constructor() {
     // adding basic middlewares to begging of middlewares array
     HttpService.options.middlewares.unshift(
       bodyParser.json({ limit: HttpService.options.bodyParserLimit })
@@ -203,8 +203,10 @@ export class HttpService implements ServerServiceInterface {
         if (Server.services["WebSocketService"]) {
           this.wsServer = new ws.Server({ noServer: true });
           this.httpServer.on("upgrade", (req, socket, head) => {
-            Server.wsServer.handleUpgrade(req, socket, head, ws => {
-              this.webSocketService.connectionEmitter.emit(
+            this.wsServer.handleUpgrade(req, socket, head, ws => {
+              (Server.services[
+                "WebSocketService"
+              ] as WebSocketService).connectionEmitter.emit(
                 "connection",
                 ws,
                 req

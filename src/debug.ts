@@ -19,8 +19,7 @@ AuthService.configure({
 });
 
 DbService.configure({
-  mongoDb: "serendipTests",
-  mongoUrl: "mongodb://localhost:27017"
+  defaultProvider: "Mongodb"
 });
 
 HttpService.configure({

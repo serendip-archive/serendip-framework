@@ -13,6 +13,7 @@ import { SmsServiceProviderInterface } from "../sms";
 import { EventEmitter } from "events";
 import { HttpError } from "../http";
 import { HttpRequestInterface } from "../http/interfaces";
+import chalk from "chalk";
 
 export interface AuthServiceOptionsInterface {
   /**
@@ -69,12 +70,16 @@ export class AuthService implements ServerServiceInterface {
     this.usersCollection.ensureIndex({ username: 1 }, { unique: true });
     this.usersCollection.ensureIndex({ mobile: 1 }, {});
     this.usersCollection.ensureIndex({ email: 1 }, {});
-    
+
     //   this.usersCollection.createIndex({ "tokens.access_token": 1 }, {});
 
     this.restrictionCollection = await this.dbService.collection<
       RestrictionModel
     >("Restrictions");
+
+    console.log(
+      chalk.gray(`\tAuthService > users: ${await this.usersCollection.count()}`)
+    );
 
     await this.refreshRestrictions();
   }

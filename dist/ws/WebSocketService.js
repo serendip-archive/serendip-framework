@@ -7,11 +7,13 @@ const chalk_1 = require("chalk");
 const qs = require("qs");
 const reqIp = require("request-ip");
 class WebSocketService {
-    constructor(dbService, authService) {
-        this.dbService = dbService;
+    constructor(authService) {
         this.authService = authService;
         this.connectionEmitter = new events_1.EventEmitter();
         this.messageEmitter = new events_1.EventEmitter();
+    }
+    get httpService() {
+        return __1.Server.services["HttpService"];
     }
     /**
      *
@@ -21,7 +23,7 @@ class WebSocketService {
      *
      */
     async sendToUser(userId, path, model) {
-        __1.Server.wsServer.clients.forEach((client) => {
+        this.httpService.wsServer.clients.forEach((client) => {
             if (client.token && client.token.userId != userId)
                 return;
             if (path)

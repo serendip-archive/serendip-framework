@@ -32,7 +32,12 @@ export class MongodbCollection<T> extends DbCollection<T> {
       else
         this.collection.find<T>(query).toArray((err, results) => {
           if (err) return reject(err);
-          return resolve(results);
+          return resolve(
+            results.map((p: any) => {
+              p._id = p._id.toString();
+              return p;
+            })
+          );
         });
     });
   }

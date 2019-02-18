@@ -39,11 +39,16 @@ export interface DbServiceOptions {
    */
   defaultProvider?: string;
 
-  providers: {
-    providerName: string;
-    providerObject?: DbProviderInterface;
-    options: DbProviderOptionsInterface;
-  }[];
+  providers?: {
+    Mongodb?: {
+      object?: MongodbProvider;
+      options?: MongodbProviderOptions;
+    };
+    [key: string]: {
+      object?: DbProviderInterface;
+      options?: DbProviderOptionsInterface;
+    };
+  };
 }
 
 /**
@@ -54,16 +59,15 @@ export class DbService implements ServerServiceInterface {
 
   static options: DbServiceOptions = {
     defaultProvider: "Mongodb",
-    providers: [
-      {
-        providerName: "Mongodb",
-        providerObject: new MongodbProvider(),
+    providers: {
+      Mongodb: {
+        object: new MongodbProvider(),
         options: {
           mongoDb: "serendip_framework",
           mongoUrl: "mongodb://localhost:27017"
         }
       }
-    ]
+    }
   };
 
   static configure(options: DbServiceOptions) {
@@ -72,21 +76,16 @@ export class DbService implements ServerServiceInterface {
 
   private providers: { [key: string]: DbProviderInterface } = {};
   async start() {
-    for (const provider of DbService.options.providers) {
+    for (const key of Object.keys(DbService.options.providers)) {
+      const provider = DbService.options.providers[key];
       console.log(
-        chalk.gray(
-          `DbService > trying to connect to DbProvider named: ${
-            provider.providerName
-          }`
-        )
+        chalk.gray(`DbService > trying to connect to DbProvider named: ${key}`)
       );
-      await provider.providerObject.initiate(provider.options);
-      this.providers[provider.providerName] = provider.providerObject;
+      await provider.object.initiate(provider.options);
+      this.providers[key] = provider.object;
 
       console.log(
-        chalk.green(
-          `DbService > connected to DbProvider name: ${provider.providerName}`
-        )
+        chalk.green(`DbService > connected to DbProvider name: ${key}`)
       );
     }
   }

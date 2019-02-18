@@ -3,7 +3,5 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(require("./models"));
-__export(require("./DbService"));
-__export(require("./DbCollection"));
-__export(require("./providers"));
+__export(require("./Mongodb"));
+__export(require("./MongodbCollection"));
