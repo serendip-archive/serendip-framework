@@ -417,8 +417,7 @@ export class AuthService implements ServerServiceInterface {
       expires_in: AuthService.options.tokenExpireIn,
       refresh_token: utils.randomAccessToken(),
       token_type: "bearer",
-      userId: opts.userId,
-      clientId: opts.clientId
+      userId: opts.userId
     };
 
     if (opts.userId) {
@@ -427,6 +426,7 @@ export class AuthService implements ServerServiceInterface {
       if (user) {
         newToken.username = user.username;
         newToken.groups = user.groups;
+        newToken.hasPassword = !!user.password;
       } else {
         throw new Error("user not found");
       }

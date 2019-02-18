@@ -2,7 +2,6 @@ export class TokenModel {
   _id?: string;
 
   userId?: string;
-  clientId?: string;
 
   // Request
   grant_type:
@@ -23,5 +22,7 @@ export class TokenModel {
   access_token: string;
 
   username?: string;
+
+  hasPassword? :boolean;
   groups?: string[];
 }

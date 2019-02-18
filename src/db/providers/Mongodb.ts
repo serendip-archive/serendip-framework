@@ -66,7 +66,7 @@ export class MongodbProvider implements DbProviderInterface {
 
       this.db = mongoClient.db(options.mongoDb);
 
-      this.changes = await this.collection<EntityChangeModel>("Changes", false);
+      this.changes = await this.collection<EntityChangeModel>("EntityChanges", false);
     } catch (error) {
       throw new Error(
         "\n\nUnable to connect to MongoDb. Error details: \n" + error.message

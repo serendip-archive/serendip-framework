@@ -274,14 +274,14 @@ class AuthService {
             expires_in: AuthService.options.tokenExpireIn,
             refresh_token: utils.randomAccessToken(),
             token_type: "bearer",
-            userId: opts.userId,
-            clientId: opts.clientId
+            userId: opts.userId
         };
         if (opts.userId) {
             var user = await this.findUserById(opts.userId);
             if (user) {
                 newToken.username = user.username;
                 newToken.groups = user.groups;
+                newToken.hasPassword = !!user.password;
             }
             else {
                 throw new Error("user not found");

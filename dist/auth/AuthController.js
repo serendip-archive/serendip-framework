@@ -107,26 +107,6 @@ class AuthController {
                 }
             ]
         };
-        this.changeSecret = {
-            method: "post",
-            publicAccess: false,
-            actions: [
-                async (req, res, next, done) => {
-                    var userId = req.user._id.toString();
-                    if (!req.body.secret)
-                        return next(new http_1.HttpError(400, "secret is missing"));
-                    if (!req.body.clientId)
-                        return next(new http_1.HttpError(400, "clientId is missing"));
-                    var client = await this.authService.findClientById(req.body.clientId);
-                    if (!client)
-                        return next(new http_1.HttpError(400, "client not found"));
-                    if (client.owner != userId)
-                        return next(new http_1.HttpError(400, "you need to be owner of client to change it's secret"));
-                    await this.authService.setClientSecret(userId, req.body.secret);
-                    done(202, "secret changed");
-                }
-            ]
-        };
         this.changePassword = {
             method: "post",
             publicAccess: false,

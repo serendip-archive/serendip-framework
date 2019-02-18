@@ -150,7 +150,8 @@ export class Server {
           .map(p => Server.services[p[1]])
       );
     } catch (e) {
-      throw chalk.red`Server Service Error in "${serviceName}"\n` + e.message;
+      throw chalk.red(`Server Service Error in "${serviceName}"\n\t`) +
+        e.message;
     }
 
     Server.services[serviceName] = serviceObject;

@@ -30,7 +30,7 @@ class MongodbProvider {
             }
             var mongoClient = await mongodb_1.MongoClient.connect(options.mongoUrl, connectOptions);
             this.db = mongoClient.db(options.mongoDb);
-            this.changes = await this.collection("Changes", false);
+            this.changes = await this.collection("EntityChanges", false);
         }
         catch (error) {
             throw new Error("\n\nUnable to connect to MongoDb. Error details: \n" + error.message);
