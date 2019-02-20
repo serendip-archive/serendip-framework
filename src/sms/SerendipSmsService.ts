@@ -2,7 +2,7 @@ import { ServerServiceInterface, Server } from "../core";
 import * as request from "request";
 import * as _ from "underscore";
 import { SmsServiceProviderInterface } from ".";
-import { TokenModel } from "../auth";
+import { TokenModel } from "serendip-business-model";
 
 export interface SerendipSmsServiceOptionsInterface {
   /**

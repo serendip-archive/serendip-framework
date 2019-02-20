@@ -1,4 +1,4 @@
-import { ServerServiceInterface } from "..";
+import { ServerServiceInterface } from ".";
 
 export interface ServerOptionsInterface {
   // server services to start.

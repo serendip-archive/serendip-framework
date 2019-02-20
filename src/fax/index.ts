@@ -1,1 +1,3 @@
-export * from './FaxService'
+// created from 'create-ts-index'
+
+export * from './FaxService';

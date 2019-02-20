@@ -1,38 +1,9 @@
-import {
-  MongoClient,
-  Db,
-  ObjectID,
-  Collection,
-  IndexOptions,
-  MongoClientOptions
-} from "mongodb";
 import { ServerServiceInterface, Server } from "../core";
-import { EntityChangeModel } from ".";
 import * as _ from "underscore";
-import { DbCollectionInterface } from "./interfaces/DbCollectionInterface";
-import { any } from "async";
-import { MongodbProviderOptions, MongodbProvider } from "./providers/Mongodb";
 import chalk from "chalk";
+import { DbProviderInterface } from "serendip-business-model/src/db/DbProviderInterface";
+import { DbProviderOptionsInterface } from "serendip-business-model/src/db/DbProviderOptionsInterface";
 
-export interface DbProviderInterface {
-  /**
-   * return db collection as interface
-   */
-  collection<T>(
-    collectionName: string,
-    trackChanges?: boolean
-  ): Promise<DbCollectionInterface<T>>;
-
-  changes: DbCollectionInterface<EntityChangeModel>;
-  /**
-   * options for this provider
-   */
-  initiate(options?): Promise<void>;
-}
-
-export interface DbProviderOptionsInterface {
-  [key: string]: any;
-}
 export interface DbServiceOptions {
   /**
    * name of default provider. will be used in case of executing collection without provider argument set
@@ -40,10 +11,6 @@ export interface DbServiceOptions {
   defaultProvider?: string;
 
   providers?: {
-    Mongodb?: {
-      object?: MongodbProvider;
-      options?: MongodbProviderOptions;
-    };
     [key: string]: {
       object?: DbProviderInterface;
       options?: DbProviderOptionsInterface;
@@ -57,18 +24,7 @@ export interface DbServiceOptions {
 export class DbService implements ServerServiceInterface {
   static dependencies = [];
 
-  static options: DbServiceOptions = {
-    defaultProvider: "Mongodb",
-    providers: {
-      Mongodb: {
-        object: new MongodbProvider(),
-        options: {
-          mongoDb: "serendip_framework",
-          mongoUrl: "mongodb://localhost:27017"
-        }
-      }
-    }
-  };
+  static options: DbServiceOptions = {};
 
   static configure(options: DbServiceOptions) {
     DbService.options = _.extend(DbService.options, options);
@@ -91,6 +47,12 @@ export class DbService implements ServerServiceInterface {
   }
 
   collection<T>(collectionName: string, track?: boolean, provider?: string) {
+    if (!provider && !DbService.options.defaultProvider) {
+      throw "collection specific provider and default provider not set";
+    }
+    if (!this.providers[provider || DbService.options.defaultProvider])
+      throw `> DbService provider named ${provider ||
+        DbService.options.defaultProvider} not configured`;
     return this.providers[
       provider || DbService.options.defaultProvider
     ].collection<T>(collectionName, track);

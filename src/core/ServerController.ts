@@ -3,7 +3,7 @@ import * as _ from "underscore";
 import { HttpService } from "../http/HttpService";
 import { HttpEndpointInterface } from "../http/interfaces/HttpEndpointInterface";
 import { AuthService } from "../auth";
-import { HttpError } from "../../dist/http/HttpErrorHandler";
+import { HttpError } from "..";
 
 export class ServerController {
   constructor(
@@ -68,7 +68,7 @@ export class ServerController {
     publicAccess: true,
     actions: [
       (req, res, next, done) => {
-        next(new HttpError("500", "just checking", 123));
+        next(new HttpError(500, "just checking"));
       },
       (req, res, next, done) => {
         done(200);

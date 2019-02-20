@@ -1,6 +1,6 @@
-export * from "./interfaces/ServerServiceInterface";
+// created from 'create-ts-index'
 
-export * from "./Server";
-
-export * from "./ServerController";
-export * from "./interfaces";
+export * from './Server';
+export * from './ServerController';
+export * from './ServerOptionsInterface';
+export * from './ServerServiceInterface';

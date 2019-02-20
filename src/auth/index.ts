@@ -1,8 +1,4 @@
-export * from './AuthController'
-export * from './AuthService'
+// created from 'create-ts-index'
 
-export * from './models'
-
-export * from './interfaces'
-
-
+export * from './AuthController';
+export * from './AuthService';

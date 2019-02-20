@@ -1,5 +1,5 @@
 import * as http from "http";
-import { TokenModel, ClientModel, UserModel } from "../../auth";
+import { TokenModel, ClientModel, UserModel } from "serendip-business-model";
 
 /**
  * HttpRequest

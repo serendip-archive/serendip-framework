@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("underscore");
-const Mongodb_1 = require("./providers/Mongodb");
 const chalk_1 = require("chalk");
 /**
  * Every functionality thats use database should use it trough this service
@@ -23,20 +22,15 @@ class DbService {
         }
     }
     collection(collectionName, track, provider) {
+        if (!provider && !DbService.options.defaultProvider) {
+            throw "collection specific provider and default provider not set";
+        }
+        if (!this.providers[provider || DbService.options.defaultProvider])
+            throw `> DbService provider named ${provider ||
+                DbService.options.defaultProvider} not configured`;
         return this.providers[provider || DbService.options.defaultProvider].collection(collectionName, track);
     }
 }
 DbService.dependencies = [];
-DbService.options = {
-    defaultProvider: "Mongodb",
-    providers: {
-        Mongodb: {
-            object: new Mongodb_1.MongodbProvider(),
-            options: {
-                mongoDb: "serendip_framework",
-                mongoUrl: "mongodb://localhost:27017"
-            }
-        }
-    }
-};
+DbService.options = {};
 exports.DbService = DbService;

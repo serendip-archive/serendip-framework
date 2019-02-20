@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("../core");
 const utils_1 = require("../utils");
-const _1 = require(".");
 const _ = require("underscore");
 const http_1 = require("../http");
+const AuthService_1 = require("./AuthService");
 /**
  * /api/auth/(endpoint)
  */
@@ -403,10 +403,10 @@ class AuthController {
                         await this.authService.usersCollection.updateOne(user, user._id);
                     }
                     else {
-                        if (_1.AuthService.options.mobileConfirmationRequired)
+                        if (AuthService_1.AuthService.options.mobileConfirmationRequired)
                             if (!user.mobileVerified)
                                 return next(new http_1.HttpError(403, "mobile not confirmed"));
-                        if (_1.AuthService.options.emailConfirmationRequired)
+                        if (AuthService_1.AuthService.options.emailConfirmationRequired)
                             if (!user.emailVerified)
                                 return next(new http_1.HttpError(403, "email not confirmed"));
                     }

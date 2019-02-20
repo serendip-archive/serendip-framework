@@ -1,1 +1,3 @@
-export * from './ViewEngineService'
+// created from 'create-ts-index'
+
+export * from './ViewEngineService';

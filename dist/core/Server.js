@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chalk_1 = require("chalk");
-const utils_1 = require("../utils");
 const sUtil = require("serendip-utility");
 /**
  *  Will contain everything that we need from server
@@ -47,7 +46,7 @@ class Server {
             serviceObjects[sv.name] = sv;
         });
         // TODO: replace toposort module with code :)
-        var sortedDependencies = utils_1.toposort(unsortedDependencies).reverse();
+        var sortedDependencies = sUtil.arrays.toposort(unsortedDependencies).reverse();
         // if there is only one service topoSort will return empty array so we should push that one service ourselves
         if (sortedDependencies.length == 0) {
             if (serviceClasses[0])

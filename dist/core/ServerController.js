@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const _1 = require(".");
 const _ = require("underscore");
-const HttpErrorHandler_1 = require("../../dist/http/HttpErrorHandler");
+const __1 = require("..");
 class ServerController {
     constructor(httpService, authService) {
         this.httpService = httpService;
@@ -59,7 +59,7 @@ class ServerController {
             publicAccess: true,
             actions: [
                 (req, res, next, done) => {
-                    next(new HttpErrorHandler_1.HttpError("500", "just checking", 123));
+                    next(new __1.HttpError(500, "just checking"));
                 },
                 (req, res, next, done) => {
                     done(200);

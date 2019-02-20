@@ -1,5 +1,5 @@
 import { start } from "./start";
-
+import { MongodbProvider } from "serendip-provider-mongodb";
 import {
   AuthService,
   DbService,
@@ -19,7 +19,16 @@ AuthService.configure({
 });
 
 DbService.configure({
-  defaultProvider: "Mongodb"
+  defaultProvider: "Mongodb",
+  providers: {
+    Mongodb: {
+      object: new MongodbProvider(),
+      options: {
+        mongoDb: "serendip_framework",
+        mongoUrl: "mongodb://localhost:27017"
+      }
+    }
+  }
 });
 
 HttpService.configure({

@@ -3,9 +3,8 @@ import * as cluster from "cluster";
 import * as ws from "ws";
 
 import { ServerServiceInterface } from ".";
-import { toposort } from "../utils";
 import * as sUtil from "serendip-utility";
-import { ServerOptionsInterface } from "./interfaces";
+import { ServerOptionsInterface } from "..";
 
 /**
  *  Will contain everything that we need from server
@@ -78,7 +77,7 @@ export class Server {
     });
 
     // TODO: replace toposort module with code :)
-    var sortedDependencies: string[] = (toposort(
+    var sortedDependencies: string[] = (sUtil.arrays.toposort(
       unsortedDependencies
     ) as any).reverse();
 

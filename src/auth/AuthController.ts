@@ -1,10 +1,11 @@
 import { Server } from "../core";
 import { Validator } from "../utils";
-import { AuthService, UserRegisterRequestInterface, UserModel } from ".";
+import { UserRegisterRequestInterface, UserModel } from "serendip-business-model";
 import * as _ from "underscore";
 import { reduce } from "async";
 import { HttpEndpointInterface } from "../http/interfaces";
 import { HttpError } from "../http";
+import { AuthService } from "./AuthService";
 
 /**
  * /api/auth/(endpoint)
@@ -153,7 +154,6 @@ export class AuthController {
     ]
   };
 
- 
   public changePassword: HttpEndpointInterface = {
     method: "post",
     publicAccess: false,

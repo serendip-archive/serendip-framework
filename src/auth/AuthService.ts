@@ -1,19 +1,22 @@
-import { Collection, ObjectID, ObjectId } from "mongodb";
-import { ServerServiceInterface, Server } from "../core";
-import * as utils from "../utils";
+import * as utils from "serendip-utility";
 import { DbService, DbCollection } from "../db";
-import { UserModel, RestrictionModel, ClientModel, TokenModel } from "./models";
-import {
-  UserRegisterRequestInterface,
-  AccessTokenRequestInterface
-} from "./interfaces";
+
 import * as _ from "underscore";
-import { EmailService, SmsIrService } from "..";
+import { EmailService, SmsIrService, ServerServiceInterface } from "..";
 import { SmsServiceProviderInterface } from "../sms";
 import { EventEmitter } from "events";
 import { HttpError } from "../http";
 import { HttpRequestInterface } from "../http/interfaces";
 import chalk from "chalk";
+import * as bcrypt from "bcryptjs";
+import {
+  ClientModel,
+  UserModel,
+  RestrictionModel,
+  TokenModel,
+  UserRegisterRequestInterface
+} from "serendip-business-model";
+import { Server } from "../core";
 
 export interface AuthServiceOptionsInterface {
   /**
@@ -210,7 +213,9 @@ export class AuthService implements ServerServiceInterface {
 
     user.mobile = newMobile;
     user.mobileVerified = false;
-    user.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
+    user.mobileVerificationCode = utils.text
+      .randomNumberString(6)
+      .toLowerCase();
 
     await this.usersCollection.updateOne(user);
   }
@@ -249,8 +254,10 @@ export class AuthService implements ServerServiceInterface {
     userModel.registeredByIp = ip;
     userModel.registeredByUseragent = useragent ? useragent.toString() : "";
 
-    userModel.emailVerificationCode = utils.randomNumberString(6).toLowerCase();
-    userModel.mobileVerificationCode = utils
+    userModel.emailVerificationCode = utils.text
+      .randomNumberString(6)
+      .toLowerCase();
+    userModel.mobileVerificationCode = utils.text
       .randomNumberString(6)
       .toLowerCase();
 
@@ -301,13 +308,15 @@ export class AuthService implements ServerServiceInterface {
 
   async resetMobileVerifyCode(userId) {
     var user = await this.findUserById(userId);
-    user.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
+    user.mobileVerificationCode = utils.text
+      .randomNumberString(6)
+      .toLowerCase();
     user.mobileVerified = false;
     await this.usersCollection.updateOne(user, userId);
   }
   public userMatchPassword(user: UserModel, password: string): boolean {
     if (!password || !user.password || !user.passwordSalt) return false;
-    return utils.bcryptCompare(password + user.passwordSalt, user.password);
+    return bcrypt.compareSync(password + user.passwordSalt, user.password);
   }
 
   public userMatchOneTimePassword(
@@ -316,7 +325,7 @@ export class AuthService implements ServerServiceInterface {
   ): boolean {
     if (!oneTimePassword || !user.oneTimePassword || !user.oneTimePasswordSalt)
       return;
-    return utils.bcryptCompare(
+    return bcrypt.compareSync(
       oneTimePassword + user.oneTimePasswordSalt,
       user.oneTimePassword
     );
@@ -324,7 +333,7 @@ export class AuthService implements ServerServiceInterface {
 
   public clientMatchSecret(client: ClientModel, secret: string): boolean {
     if (!secret) return false;
-    return utils.bcryptCompare(secret + client.secretSalt, client.secret);
+    return bcrypt.compareSync(secret + client.secretSalt, client.secret);
   }
 
   public async findTokenByAccessToken(
@@ -410,12 +419,12 @@ export class AuthService implements ServerServiceInterface {
   }): Promise<TokenModel> {
     var newToken: TokenModel = {
       issue_at: Date.now(),
-      access_token: utils.randomAccessToken(),
+      access_token: utils.text.randomAccessToken(),
       grant_type: opts.grant_type,
       useragent: opts.useragent,
       expires_at: Date.now() + AuthService.options.tokenExpireIn,
       expires_in: AuthService.options.tokenExpireIn,
-      refresh_token: utils.randomAccessToken(),
+      refresh_token: utils.text.randomAccessToken(),
       token_type: "bearer",
       userId: opts.userId
     };
@@ -439,11 +448,11 @@ export class AuthService implements ServerServiceInterface {
 
   async sendOneTimePassword(userId, useragent, ip) {
     var user: UserModel = await this.findUserById(userId);
-    var code = utils.randomNumberString(6).toLowerCase();
+    var code = utils.text.randomNumberString(6).toLowerCase();
 
-    user.oneTimePasswordSalt = utils.randomAsciiString(6);
+    user.oneTimePasswordSalt = utils.text.randomAsciiString(6);
     user.oneTimePasswordResetAt = Date.now();
-    user.oneTimePassword = utils.bcryptHash(code + user.oneTimePasswordSalt);
+    user.oneTimePassword = bcrypt.hashSync(code, user.oneTimePasswordSalt);
 
     await this.usersCollection.updateOne(user);
 
@@ -464,7 +473,7 @@ export class AuthService implements ServerServiceInterface {
   ): Promise<any> {
     var user: UserModel = await this.findUserById(userId);
 
-    user.passwordResetToken = utils.randomNumberString(6).toLowerCase();
+    user.passwordResetToken = utils.text.randomNumberString(6).toLowerCase();
 
     user.passwordResetTokenExpireAt =
       Date.now() + AuthService.options.tokenExpireIn;
@@ -492,8 +501,8 @@ export class AuthService implements ServerServiceInterface {
   ): Promise<void> {
     var user = await this.findUserById(userId);
 
-    user.passwordSalt = utils.randomAsciiString(6);
-    user.password = utils.bcryptHash(newPass + user.passwordSalt);
+    user.passwordSalt = utils.text.randomAsciiString(6);
+    user.password = bcrypt.hashSync(newPass, user.passwordSalt);
     user.passwordChangedAt = Date.now();
     user.passwordChangedByIp = ip;
     user.passwordChangedByUseragent = useragent ? useragent.toString() : "";
@@ -506,15 +515,15 @@ export class AuthService implements ServerServiceInterface {
 
   public async setClientSecret(clientId, newSecret): Promise<void> {
     var clientQuery = await this.clientsCollection.find({
-      _id: new ObjectId(clientId)
+      _id: clientId
     });
 
     if (!clientQuery[0]) throw new Error("client not found");
 
     var client = clientQuery[0];
 
-    client.secretSalt = utils.randomAsciiString(6);
-    client.secret = utils.bcryptHash(newSecret + client.secretSalt);
+    client.secretSalt = utils.text.randomAsciiString(6);
+    client.secret = bcrypt.hashSync(newSecret + client.secretSalt);
 
     // terminate current sessions
     await this.deleteClientTokens(client._id);
@@ -524,7 +533,7 @@ export class AuthService implements ServerServiceInterface {
 
   public async findClientById(clientId: string): Promise<ClientModel> {
     var query = await this.clientsCollection.find({
-      _id: new ObjectId(clientId)
+      _id: clientId
     });
 
     if (query.length == 0) return undefined;
@@ -587,7 +596,7 @@ export class AuthService implements ServerServiceInterface {
   }
 
   public async findUserById(id: string): Promise<UserModel> {
-    var query = await this.usersCollection.find({ _id: new ObjectId(id) });
+    var query = await this.usersCollection.find({ _id: id });
 
     if (query.length == 0) return undefined;
     else return query[0];

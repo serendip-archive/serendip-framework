@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongodb_1 = require("mongodb");
-const core_1 = require("../core");
-const utils = require("../utils");
-const models_1 = require("./models");
+const utils = require("serendip-utility");
 const _ = require("underscore");
 const events_1 = require("events");
 const http_1 = require("../http");
 const chalk_1 = require("chalk");
+const bcrypt = require("bcryptjs");
+const serendip_business_model_1 = require("serendip-business-model");
+const core_1 = require("../core");
 class AuthService {
     constructor(dbService, emailService) {
         this.dbService = dbService;
@@ -122,7 +122,9 @@ class AuthService {
         var user = await this.findUserById(userId);
         user.mobile = newMobile;
         user.mobileVerified = false;
-        user.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
+        user.mobileVerificationCode = utils.text
+            .randomNumberString(6)
+            .toLowerCase();
         await this.usersCollection.updateOne(user);
     }
     async VerifyUserMobile(mobile, code) {
@@ -144,15 +146,17 @@ class AuthService {
             model.mobileCountryCode = parseInt(model.mobileCountryCode).toString();
         if (model.email)
             model.email = model.email.toLowerCase();
-        var userModel = new models_1.UserModel();
+        var userModel = new serendip_business_model_1.UserModel();
         if (model.extra)
             userModel.extra = model.extra;
         userModel.username = model.username;
         userModel.registeredAt = Date.now();
         userModel.registeredByIp = ip;
         userModel.registeredByUseragent = useragent ? useragent.toString() : "";
-        userModel.emailVerificationCode = utils.randomNumberString(6).toLowerCase();
-        userModel.mobileVerificationCode = utils
+        userModel.emailVerificationCode = utils.text
+            .randomNumberString(6)
+            .toLowerCase();
+        userModel.mobileVerificationCode = utils.text
             .randomNumberString(6)
             .toLowerCase();
         userModel.mobile = model.mobile;
@@ -194,24 +198,26 @@ class AuthService {
     }
     async resetMobileVerifyCode(userId) {
         var user = await this.findUserById(userId);
-        user.mobileVerificationCode = utils.randomNumberString(6).toLowerCase();
+        user.mobileVerificationCode = utils.text
+            .randomNumberString(6)
+            .toLowerCase();
         user.mobileVerified = false;
         await this.usersCollection.updateOne(user, userId);
     }
     userMatchPassword(user, password) {
         if (!password || !user.password || !user.passwordSalt)
             return false;
-        return utils.bcryptCompare(password + user.passwordSalt, user.password);
+        return bcrypt.compareSync(password + user.passwordSalt, user.password);
     }
     userMatchOneTimePassword(user, oneTimePassword) {
         if (!oneTimePassword || !user.oneTimePassword || !user.oneTimePasswordSalt)
             return;
-        return utils.bcryptCompare(oneTimePassword + user.oneTimePasswordSalt, user.oneTimePassword);
+        return bcrypt.compareSync(oneTimePassword + user.oneTimePasswordSalt, user.oneTimePassword);
     }
     clientMatchSecret(client, secret) {
         if (!secret)
             return false;
-        return utils.bcryptCompare(secret + client.secretSalt, client.secret);
+        return bcrypt.compareSync(secret + client.secretSalt, client.secret);
     }
     async findTokenByAccessToken(access_token) {
         var tokenQuery = await this.tokenCollection.find({
@@ -267,12 +273,12 @@ class AuthService {
     async insertToken(opts) {
         var newToken = {
             issue_at: Date.now(),
-            access_token: utils.randomAccessToken(),
+            access_token: utils.text.randomAccessToken(),
             grant_type: opts.grant_type,
             useragent: opts.useragent,
             expires_at: Date.now() + AuthService.options.tokenExpireIn,
             expires_in: AuthService.options.tokenExpireIn,
-            refresh_token: utils.randomAccessToken(),
+            refresh_token: utils.text.randomAccessToken(),
             token_type: "bearer",
             userId: opts.userId
         };
@@ -292,10 +298,10 @@ class AuthService {
     }
     async sendOneTimePassword(userId, useragent, ip) {
         var user = await this.findUserById(userId);
-        var code = utils.randomNumberString(6).toLowerCase();
-        user.oneTimePasswordSalt = utils.randomAsciiString(6);
+        var code = utils.text.randomNumberString(6).toLowerCase();
+        user.oneTimePasswordSalt = utils.text.randomAsciiString(6);
         user.oneTimePasswordResetAt = Date.now();
-        user.oneTimePassword = utils.bcryptHash(code + user.oneTimePasswordSalt);
+        user.oneTimePassword = bcrypt.hashSync(code, user.oneTimePasswordSalt);
         await this.usersCollection.updateOne(user);
         if (user.mobile)
             if (AuthService.options.smsProvider)
@@ -305,7 +311,7 @@ class AuthService {
     }
     async sendPasswordResetToken(userId, useragent, ip) {
         var user = await this.findUserById(userId);
-        user.passwordResetToken = utils.randomNumberString(6).toLowerCase();
+        user.passwordResetToken = utils.text.randomNumberString(6).toLowerCase();
         user.passwordResetTokenExpireAt =
             Date.now() + AuthService.options.tokenExpireIn;
         user.passwordResetTokenIssueAt = Date.now();
@@ -318,8 +324,8 @@ class AuthService {
     }
     async setNewPassword(userId, newPass, ip, useragent) {
         var user = await this.findUserById(userId);
-        user.passwordSalt = utils.randomAsciiString(6);
-        user.password = utils.bcryptHash(newPass + user.passwordSalt);
+        user.passwordSalt = utils.text.randomAsciiString(6);
+        user.password = bcrypt.hashSync(newPass, user.passwordSalt);
         user.passwordChangedAt = Date.now();
         user.passwordChangedByIp = ip;
         user.passwordChangedByUseragent = useragent ? useragent.toString() : "";
@@ -329,20 +335,20 @@ class AuthService {
     }
     async setClientSecret(clientId, newSecret) {
         var clientQuery = await this.clientsCollection.find({
-            _id: new mongodb_1.ObjectId(clientId)
+            _id: clientId
         });
         if (!clientQuery[0])
             throw new Error("client not found");
         var client = clientQuery[0];
-        client.secretSalt = utils.randomAsciiString(6);
-        client.secret = utils.bcryptHash(newSecret + client.secretSalt);
+        client.secretSalt = utils.text.randomAsciiString(6);
+        client.secret = bcrypt.hashSync(newSecret + client.secretSalt);
         // terminate current sessions
         await this.deleteClientTokens(client._id);
         await this.clientsCollection.updateOne(client);
     }
     async findClientById(clientId) {
         var query = await this.clientsCollection.find({
-            _id: new mongodb_1.ObjectId(clientId)
+            _id: clientId
         });
         if (query.length == 0)
             return undefined;
@@ -403,7 +409,7 @@ class AuthService {
             return query[0];
     }
     async findUserById(id) {
-        var query = await this.usersCollection.find({ _id: new mongodb_1.ObjectId(id) });
+        var query = await this.usersCollection.find({ _id: id });
         if (query.length == 0)
             return undefined;
         else

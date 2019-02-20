@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const start_1 = require("./start");
+const serendip_provider_mongodb_1 = require("serendip-provider-mongodb");
 const _1 = require(".");
 const path_1 = require("path");
 const http_1 = require("./http");
@@ -9,7 +10,16 @@ _1.AuthService.configure({
     smsProvider: "SmsIrService"
 });
 _1.DbService.configure({
-    defaultProvider: "Mongodb"
+    defaultProvider: "Mongodb",
+    providers: {
+        Mongodb: {
+            object: new serendip_provider_mongodb_1.MongodbProvider(),
+            options: {
+                mongoDb: "serendip_framework",
+                mongoUrl: "mongodb://localhost:27017"
+            }
+        }
+    }
 });
 http_1.HttpService.configure({
     cert: path_1.join(__dirname, "..", "localhost_cert.pem"),

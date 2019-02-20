@@ -1,3 +1,4 @@
-export * from './models'
+// created from 'create-ts-index'
 
-export * from './EmailService'
+export * from './models';
+export * from './EmailService';
