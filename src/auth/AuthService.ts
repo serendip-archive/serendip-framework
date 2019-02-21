@@ -524,7 +524,7 @@ export class AuthService implements ServerServiceInterface {
     var client = clientQuery[0];
 
     client.secretSalt = utils.text.randomAsciiString(6);
-    client.secret = bcrypt.hashSync(newSecret + client.secretSalt,6);
+    client.secret = bcrypt.hashSync(newSecret + client.secretSalt, 6);
 
     // terminate current sessions
     await this.deleteClientTokens(client._id);
@@ -598,8 +598,6 @@ export class AuthService implements ServerServiceInterface {
 
   public async findUserById(id: string): Promise<UserModel> {
     var query = await this.usersCollection.find({ _id: id });
-
-    console.log(id);
 
     if (query.length == 0) return undefined;
     else return query[0];

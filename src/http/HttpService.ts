@@ -373,7 +373,7 @@ export class HttpService implements ServerServiceInterface {
     };
   }
 
-  private static async processRequestToStatic(
+  static async processRequestToStatic(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     callback,

@@ -410,7 +410,6 @@ class AuthService {
     }
     async findUserById(id) {
         var query = await this.usersCollection.find({ _id: id });
-        console.log(id);
         if (query.length == 0)
             return undefined;
         else
