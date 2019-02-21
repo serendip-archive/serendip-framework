@@ -2,9 +2,9 @@ import chalk from "chalk";
 import * as cluster from "cluster";
 import * as ws from "ws";
 
-import { ServerServiceInterface } from ".";
+import { ServerServiceInterface } from "..";
 import * as sUtil from "serendip-utility";
-import { ServerOptionsInterface } from "..";
+import { ServerOptionsInterface } from "../..";
 
 /**
  *  Will contain everything that we need from server

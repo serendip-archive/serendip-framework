@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const _1 = require(".");
 const _ = require("underscore");
-const __1 = require("..");
+const _1 = require(".");
+const http_1 = require("../http");
 class ServerController {
     constructor(httpService, authService) {
         this.httpService = httpService;
@@ -59,7 +59,7 @@ class ServerController {
             publicAccess: true,
             actions: [
                 (req, res, next, done) => {
-                    next(new __1.HttpError(500, "just checking"));
+                    next(new http_1.HttpError(500, "just checking"));
                 },
                 (req, res, next, done) => {
                     done(200);

@@ -13,6 +13,6 @@ export * from "./email";
 
 export * from "./ui";
 
-export * from "./ws/WebSocketService";
-export * from "./ws/WebSocketInterface";
+export * from "./ws";
+ 
 export * from "./http";

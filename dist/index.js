@@ -12,5 +12,5 @@ __export(require("./fax"));
 __export(require("./sms"));
 __export(require("./email"));
 __export(require("./ui"));
-__export(require("./ws/WebSocketService"));
+__export(require("./ws"));
 __export(require("./http"));

@@ -1,9 +1,10 @@
-import { Server } from ".";
-import * as _ from "underscore";
-import { HttpService } from "../http/HttpService";
-import { HttpEndpointInterface } from "../http/interfaces/HttpEndpointInterface";
-import { AuthService } from "../auth";
-import { HttpError } from "..";
+import * as _ from 'underscore';
+
+import { Server } from '.';
+import { AuthService } from '../auth';
+import { HttpError } from '../http';
+import { HttpService } from '../http/HttpService';
+import { HttpEndpointInterface } from '../http/interfaces/HttpEndpointInterface';
 
 export class ServerController {
   constructor(
