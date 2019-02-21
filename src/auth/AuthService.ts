@@ -1,5 +1,5 @@
 import * as utils from "serendip-utility";
-import { DbService, DbCollection } from "../db";
+import { DbService } from "../db";
 
 import * as _ from "underscore";
 import { EmailService, SmsIrService, ServerServiceInterface } from "..";
@@ -14,7 +14,8 @@ import {
   UserModel,
   RestrictionModel,
   TokenModel,
-  UserRegisterRequestInterface
+  UserRegisterRequestInterface,
+  DbCollectionInterface
 } from "serendip-business-model";
 import { Server } from "../core";
 
@@ -47,10 +48,10 @@ export class AuthService implements ServerServiceInterface {
 
   static events = new EventEmitter();
 
-  public usersCollection: DbCollection<UserModel>;
-  public clientsCollection: DbCollection<ClientModel>;
-  public restrictionCollection: DbCollection<RestrictionModel>;
-  public tokenCollection: DbCollection<TokenModel>;
+  public usersCollection: DbCollectionInterface<UserModel>;
+  public clientsCollection: DbCollectionInterface<ClientModel>;
+  public restrictionCollection: DbCollectionInterface<RestrictionModel>;
+  public tokenCollection: DbCollectionInterface<TokenModel>;
 
   private restrictions: RestrictionModel[];
 
@@ -452,7 +453,7 @@ export class AuthService implements ServerServiceInterface {
 
     user.oneTimePasswordSalt = utils.text.randomAsciiString(6);
     user.oneTimePasswordResetAt = Date.now();
-    user.oneTimePassword = bcrypt.hashSync(code, user.oneTimePasswordSalt);
+    user.oneTimePassword = bcrypt.hashSync(code + user.oneTimePasswordSalt, 6);
 
     await this.usersCollection.updateOne(user);
 
@@ -502,7 +503,7 @@ export class AuthService implements ServerServiceInterface {
     var user = await this.findUserById(userId);
 
     user.passwordSalt = utils.text.randomAsciiString(6);
-    user.password = bcrypt.hashSync(newPass, user.passwordSalt);
+    user.password = bcrypt.hashSync(newPass + user.passwordSalt, 6);
     user.passwordChangedAt = Date.now();
     user.passwordChangedByIp = ip;
     user.passwordChangedByUseragent = useragent ? useragent.toString() : "";
@@ -523,7 +524,7 @@ export class AuthService implements ServerServiceInterface {
     var client = clientQuery[0];
 
     client.secretSalt = utils.text.randomAsciiString(6);
-    client.secret = bcrypt.hashSync(newSecret + client.secretSalt);
+    client.secret = bcrypt.hashSync(newSecret + client.secretSalt,6);
 
     // terminate current sessions
     await this.deleteClientTokens(client._id);
@@ -597,6 +598,8 @@ export class AuthService implements ServerServiceInterface {
 
   public async findUserById(id: string): Promise<UserModel> {
     var query = await this.usersCollection.find({ _id: id });
+
+    console.log(id);
 
     if (query.length == 0) return undefined;
     else return query[0];

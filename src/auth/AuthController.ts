@@ -1,6 +1,9 @@
 import { Server } from "../core";
 import { Validator } from "../utils";
-import { UserRegisterRequestInterface, UserModel } from "serendip-business-model";
+import {
+  UserRegisterRequestInterface,
+  UserModel
+} from "serendip-business-model";
 import * as _ from "underscore";
 import { reduce } from "async";
 import { HttpEndpointInterface } from "../http/interfaces";
@@ -445,7 +448,7 @@ export class AuthController {
           mobileCountryCode
         );
 
-        console.log(mobile, user);
+    
 
         if (!user) {
           user = await this.authService.usersCollection.insertOne({
@@ -468,6 +471,7 @@ export class AuthController {
           )
           .then(() => done(200, "one-time password sent"))
           .catch(e => {
+            console.log("error in sending one-time password", e);
             done(500, e.message | e);
           });
       }

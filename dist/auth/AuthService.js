@@ -301,7 +301,7 @@ class AuthService {
         var code = utils.text.randomNumberString(6).toLowerCase();
         user.oneTimePasswordSalt = utils.text.randomAsciiString(6);
         user.oneTimePasswordResetAt = Date.now();
-        user.oneTimePassword = bcrypt.hashSync(code, user.oneTimePasswordSalt);
+        user.oneTimePassword = bcrypt.hashSync(code + user.oneTimePasswordSalt, 6);
         await this.usersCollection.updateOne(user);
         if (user.mobile)
             if (AuthService.options.smsProvider)
@@ -325,7 +325,7 @@ class AuthService {
     async setNewPassword(userId, newPass, ip, useragent) {
         var user = await this.findUserById(userId);
         user.passwordSalt = utils.text.randomAsciiString(6);
-        user.password = bcrypt.hashSync(newPass, user.passwordSalt);
+        user.password = bcrypt.hashSync(newPass + user.passwordSalt, 6);
         user.passwordChangedAt = Date.now();
         user.passwordChangedByIp = ip;
         user.passwordChangedByUseragent = useragent ? useragent.toString() : "";
@@ -341,7 +341,7 @@ class AuthService {
             throw new Error("client not found");
         var client = clientQuery[0];
         client.secretSalt = utils.text.randomAsciiString(6);
-        client.secret = bcrypt.hashSync(newSecret + client.secretSalt);
+        client.secret = bcrypt.hashSync(newSecret + client.secretSalt, 6);
         // terminate current sessions
         await this.deleteClientTokens(client._id);
         await this.clientsCollection.updateOne(client);
@@ -410,6 +410,7 @@ class AuthService {
     }
     async findUserById(id) {
         var query = await this.usersCollection.find({ _id: id });
+        console.log(id);
         if (query.length == 0)
             return undefined;
         else

@@ -2,10 +2,11 @@ import { EmailModel } from "./models";
 import { ServerServiceInterface } from "../core";
 import * as _ from "underscore";
 import * as nodeMailer from "nodemailer";
-import { DbService, Server, DbCollection, ViewEngineService } from "..";
+import { DbService, Server, ViewEngineService } from "..";
 import * as fs from "fs";
 import * as glob from "glob";
 import * as path from "path";
+import { DbCollectionInterface } from "serendip-business-model";
 
 export interface EmailServiceSmtpOptionsInterface {
   username: string;
@@ -21,7 +22,7 @@ export interface EmailServiceOptionsInterface {
 }
 
 export class EmailService implements ServerServiceInterface {
-  private outboxCollection: DbCollection<EmailModel>;
+  private outboxCollection: DbCollectionInterface<EmailModel>;
 
   static options: EmailServiceOptionsInterface = {};
 

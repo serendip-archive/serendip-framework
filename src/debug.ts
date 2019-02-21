@@ -1,5 +1,6 @@
 import { start } from "./start";
-import { MongodbProvider } from "serendip-provider-mongodb";
+import { MongodbProvider } from "serendip-mongodb-provider";
+
 import {
   AuthService,
   DbService,

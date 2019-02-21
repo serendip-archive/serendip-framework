@@ -338,7 +338,6 @@ class AuthController {
                     if (!mobile)
                         return done(400, "mobile required");
                     var user = await this.authService.findUserByMobile(mobile, mobileCountryCode);
-                    console.log(mobile, user);
                     if (!user) {
                         user = await this.authService.usersCollection.insertOne({
                             registeredAt: Date.now(),
@@ -355,6 +354,7 @@ class AuthController {
                         .sendOneTimePassword(user._id, req.useragent().toString(), req.ip().toString())
                         .then(() => done(200, "one-time password sent"))
                         .catch(e => {
+                        console.log("error in sending one-time password", e);
                         done(500, e.message | e);
                     });
                 }
