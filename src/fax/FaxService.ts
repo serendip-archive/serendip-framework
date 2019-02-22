@@ -1,4 +1,4 @@
-import { ServerServiceInterface } from "../core";
+import { ServerServiceInterface } from "../server";
 
 export class FaxService implements ServerServiceInterface {
 

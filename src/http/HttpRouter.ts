@@ -11,7 +11,7 @@ import { HttpRouteInterface } from "./interfaces/HttpRouteInterface";
 import { HttpResponseInterface } from "./interfaces/HttpResponseInterface";
 import { HttpRequestInterface } from "./interfaces/HttpRequestInterface";
 import { HttpEndpointActionInterface } from "./interfaces/HttpEndpointActionInterface";
-import { Server } from "../core";
+import { Server } from "../server";
 import { HttpError } from ".";
 
 export class HttpRouter {

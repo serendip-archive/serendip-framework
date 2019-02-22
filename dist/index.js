@@ -4,7 +4,7 @@ function __export(m) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./start"));
-__export(require("./core"));
+__export(require("./server"));
 __export(require("./utils"));
 __export(require("./db"));
 __export(require("./auth"));

@@ -1,4 +1,4 @@
-import { Server, ServerOptionsInterface } from "./core";
+import { Server, ServerOptionsInterface } from "./server";
 import * as cluster from "cluster";
 import { cpus } from "os";
 import { EventEmitter } from "events";

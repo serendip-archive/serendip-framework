@@ -4,7 +4,7 @@ const pathMatch = require("path-match");
 const url = require("url");
 const qs = require("qs");
 const _ = require("underscore");
-const core_1 = require("../core");
+const server_1 = require("../server");
 const _1 = require(".");
 class HttpRouter {
     constructor() { }
@@ -101,7 +101,7 @@ class HttpRouter {
                 reject(err);
                 return;
             }
-            var authService = core_1.Server.services["AuthService"];
+            var authService = server_1.Server.services["AuthService"];
             if (!authService)
                 HttpRouter.executeRoute(srvRoute, middlewares, req, res)
                     .then(data => {

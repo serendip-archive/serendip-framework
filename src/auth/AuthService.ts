@@ -17,7 +17,7 @@ import {
   UserRegisterRequestInterface,
   DbCollectionInterface
 } from "serendip-business-model";
-import { Server } from "../core";
+import { Server } from "../server";
 
 export interface AuthServiceOptionsInterface {
   /**

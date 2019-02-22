@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const core_1 = require("./core");
+const server_1 = require("./server");
 const cluster = require("cluster");
 const os_1 = require("os");
 const events_1 = require("events");
@@ -37,7 +37,7 @@ function start(opts) {
             });
         }
         else {
-            core_1.Server.bootstrap(opts, cluster.worker || { id: 0 }, err => {
+            server_1.Server.bootstrap(opts, cluster.worker || { id: 0 }, err => {
                 if (err)
                     return reject(err);
                 if (cpuCount == 1)

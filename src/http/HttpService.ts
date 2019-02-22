@@ -1,4 +1,4 @@
-import { ServerServiceInterface, Server } from "../core";
+import { ServerServiceInterface, Server } from "../server";
 import chalk from "chalk";
 import * as bodyParser from "body-parser";
 import * as http from "http";

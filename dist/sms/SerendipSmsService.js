@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const core_1 = require("../core");
+const server_1 = require("../server");
 const request = require("request");
 const _ = require("underscore");
 class SerendipSmsService {
@@ -31,12 +31,12 @@ class SerendipSmsService {
                 json: true
             }, (error, response, body) => {
                 if (error) {
-                    if (core_1.Server.opts.logging == "info" || core_1.Server.opts.logging == "error")
+                    if (server_1.Server.opts.logging == "info" || server_1.Server.opts.logging == "error")
                         console.log("SerendipSmsService getToken error =>", error);
                     reject(error);
                     return;
                 }
-                if (core_1.Server.opts.logging == "info")
+                if (server_1.Server.opts.logging == "info")
                     console.log("SerendipSmsService getToken success =>", body);
                 this.token = body;
                 this.tokenIssueAt = Date.now();

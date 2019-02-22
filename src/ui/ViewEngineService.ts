@@ -1,4 +1,4 @@
-import { ServerServiceInterface } from "../core";
+import { ServerServiceInterface } from "../server";
 
 import * as mustache from 'mustache'
 

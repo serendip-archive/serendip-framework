@@ -1,4 +1,4 @@
-import { ServerServiceInterface, Server } from "../core";
+import { ServerServiceInterface, Server } from "../server";
 import * as _ from "underscore";
 import chalk from "chalk";
 import { DbProviderInterface } from "serendip-business-model/src/db/DbProviderInterface";

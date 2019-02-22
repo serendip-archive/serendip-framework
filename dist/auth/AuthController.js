@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const core_1 = require("../core");
+const server_1 = require("../server");
 const utils_1 = require("../utils");
 const _ = require("underscore");
 const http_1 = require("../http");
@@ -51,7 +51,7 @@ class AuthController {
                             return next(new http_1.HttpError(400, "email already exists"));
                         if (err.message == "DuplicateMobile")
                             return next(new http_1.HttpError(400, "mobile already exists"));
-                        if (core_1.Server.opts.logging != "silent")
+                        if (server_1.Server.opts.logging != "silent")
                             console.log("User register => Error", err);
                         return next(new http_1.HttpError(500, err));
                     });

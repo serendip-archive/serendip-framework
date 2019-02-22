@@ -7,7 +7,7 @@ const http_1 = require("../http");
 const chalk_1 = require("chalk");
 const bcrypt = require("bcryptjs");
 const serendip_business_model_1 = require("serendip-business-model");
-const core_1 = require("../core");
+const server_1 = require("../server");
 class AuthService {
     constructor(dbService, emailService) {
         this.dbService = dbService;
@@ -53,7 +53,7 @@ class AuthService {
     sendVerifySms(userModel, useragent, ip) {
         if (AuthService.options.smsProvider)
             return new Promise((resolve, reject) => {
-                core_1.Server.services[AuthService.options.smsProvider]
+                server_1.Server.services[AuthService.options.smsProvider]
                     .sendVerification(userModel.mobile, userModel.mobileVerificationCode, useragent, ip)
                     .then(body => resolve(body))
                     .catch(err => reject(new http_1.HttpError(500, err)));
@@ -182,7 +182,7 @@ class AuthService {
                     this.sendVerifyEmail(userModel);
             }
             catch (error) {
-                if (core_1.Server.opts.logging != "silent")
+                if (server_1.Server.opts.logging != "silent")
                     console.log("error in register email verification send", error);
             }
             try {
@@ -190,7 +190,7 @@ class AuthService {
                     this.sendVerifySms(userModel, useragent, ip);
             }
             catch (error) {
-                if (core_1.Server.opts.logging != "silent")
+                if (server_1.Server.opts.logging != "silent")
                     console.log("error in register sms verification send", error);
             }
         }
@@ -305,7 +305,7 @@ class AuthService {
         await this.usersCollection.updateOne(user);
         if (user.mobile)
             if (AuthService.options.smsProvider)
-                return core_1.Server.services[AuthService.options.smsProvider].sendAuthCode(user.mobile, code, useragent, ip);
+                return server_1.Server.services[AuthService.options.smsProvider].sendAuthCode(user.mobile, code, useragent, ip);
             else
                 throw new Error("no sms provider");
     }
@@ -318,7 +318,7 @@ class AuthService {
         await this.usersCollection.updateOne(user);
         if (user.mobile)
             if (AuthService.options.smsProvider)
-                return core_1.Server.services[AuthService.options.smsProvider].sendAuthCode(user.mobile, user.passwordResetToken, useragent, ip);
+                return server_1.Server.services[AuthService.options.smsProvider].sendAuthCode(user.mobile, user.passwordResetToken, useragent, ip);
             else
                 throw new Error("no sms provider");
     }

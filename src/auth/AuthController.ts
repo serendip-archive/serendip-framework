@@ -1,4 +1,4 @@
-import { Server } from "../core";
+import { Server } from "../server";
 import { Validator } from "../utils";
 import {
   UserRegisterRequestInterface,

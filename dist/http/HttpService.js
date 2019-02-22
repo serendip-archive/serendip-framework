@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const core_1 = require("../core");
+const server_1 = require("../server");
 const chalk_1 = require("chalk");
 const bodyParser = require("body-parser");
 const http = require("http");
@@ -40,13 +40,13 @@ class HttpService {
         var result = [];
         if (HttpService.options.controllers &&
             HttpService.options.controllers.length > 0)
-            if (core_1.Server.opts.logging == "info")
+            if (server_1.Server.opts.logging == "info")
                 console.log(chalk_1.default.blueBright `HttpService > Registering controller routes...`);
         // iterating trough controller classes
         HttpService.options.controllers.forEach(controller => {
             var objToRegister = new controller(...sUtil.functions
                 .args(controller)
-                .map(p => core_1.Server.services[sUtil.text.capitalizeFirstLetter(p)]));
+                .map(p => server_1.Server.services[sUtil.text.capitalizeFirstLetter(p)]));
             // iterating trough controller endpoint in class
             Object.getOwnPropertyNames(objToRegister).forEach(controllerEndpointName => {
                 var endpoint = objToRegister[controllerEndpointName];
@@ -71,7 +71,7 @@ class HttpService {
                 serverRoute.route = serverRoute.route.toLowerCase();
                 serverRoute.method = serverRoute.method.toLowerCase();
                 result.push(serverRoute);
-                if (core_1.Server.opts.logging == "info")
+                if (server_1.Server.opts.logging == "info")
                     console.log(chalk_1.default `{green ☑}  [${serverRoute.method.toUpperCase()}] {magenta ${serverRoute.route}} | {gray ${serverRoute.controllerName} > ${serverRoute.endpoint}}`);
             });
         });
@@ -109,22 +109,22 @@ class HttpService {
         }
         await new Promise((resolve, reject) => {
             this.httpServer.listen(HttpService.options.httpPort, () => {
-                if (core_1.Server.services["WebSocketService"]) {
+                if (server_1.Server.services["WebSocketService"]) {
                     this.wsServer = new ws.Server({ noServer: true });
                     this.httpServer.on("upgrade", (req, socket, head) => {
                         this.wsServer.handleUpgrade(req, socket, head, ws => {
-                            core_1.Server.services["WebSocketService"].connectionEmitter.emit("connection", ws, req);
+                            server_1.Server.services["WebSocketService"].connectionEmitter.emit("connection", ws, req);
                         });
                     });
                 }
-                if (core_1.Server.opts.logging == "info")
-                    console.log(chalk_1.default.blueBright(`HttpService > worker ${core_1.Server.worker.id} running http server at port ${HttpService.options.httpPort}`));
+                if (server_1.Server.opts.logging == "info")
+                    console.log(chalk_1.default.blueBright(`HttpService > worker ${server_1.Server.worker.id} running http server at port ${HttpService.options.httpPort}`));
                 if (!this.httpsServer)
                     return resolve();
                 else
                     this.httpsServer.listen(HttpService.options.httpsPort, () => {
-                        if (core_1.Server.opts.logging == "info")
-                            console.log(chalk_1.default.blueBright(`HttpService > worker ${core_1.Server.worker.id} running https server at port ${HttpService.options.httpsPort}`));
+                        if (server_1.Server.opts.logging == "info")
+                            console.log(chalk_1.default.blueBright(`HttpService > worker ${server_1.Server.worker.id} running https server at port ${HttpService.options.httpsPort}`));
                         return resolve();
                     });
             });
@@ -147,7 +147,7 @@ class HttpService {
             if (res.finished)
                 return;
         }
-        if (core_1.Server.opts.logging == "info")
+        if (server_1.Server.opts.logging == "info")
             console.info(chalk_1.default.gray(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.useragent()}`));
         // finding controller by path
         if (HttpService.options.cors)
@@ -191,7 +191,7 @@ class HttpService {
                             res.json(data);
                         else
                             res.end();
-                if (core_1.Server.opts.logging == "info")
+                if (server_1.Server.opts.logging == "info")
                     console.info(`${logString()} ${srvRoute.isStream ? " stream started!" : ""}`);
             }
         })
@@ -203,9 +203,9 @@ class HttpService {
                 if (!res.finished)
                     res.end();
             }
-            if (core_1.Server.opts.logging == "info")
+            if (server_1.Server.opts.logging == "info")
                 console.error(`${logString()}`, chalk_1.default.red(JSON.stringify(e)));
-            else if (core_1.Server.opts.logging != "silent")
+            else if (server_1.Server.opts.logging != "silent")
                 console.error(`${logString()}`, chalk_1.default.red("\n[Error] " + (e.message || e.Message)));
         });
     }

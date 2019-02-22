@@ -1,4 +1,4 @@
-import { ServerServiceInterface, Server } from "../core";
+import { ServerServiceInterface, Server } from "../server";
 import * as request from "request";
 import * as _ from "underscore";
 import { SmsServiceProviderInterface } from ".";

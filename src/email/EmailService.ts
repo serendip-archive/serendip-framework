@@ -1,5 +1,5 @@
 import { EmailModel } from "./models";
-import { ServerServiceInterface } from "../core";
+import { ServerServiceInterface } from "../server";
 import * as _ from "underscore";
 import * as nodeMailer from "nodemailer";
 import { DbService, Server, ViewEngineService } from "..";
