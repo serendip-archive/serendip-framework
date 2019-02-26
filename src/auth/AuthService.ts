@@ -34,6 +34,8 @@ export interface AuthServiceOptionsInterface {
   defaultMobileCountryCode?: string;
 }
 
+export interface AuthServiceEventsInterface {}
+
 export class AuthService implements ServerServiceInterface {
   static configure(options: AuthServiceOptionsInterface): void {
     AuthService.options = _.extend(AuthService.options, options);

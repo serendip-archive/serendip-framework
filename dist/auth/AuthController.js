@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const server_1 = require("../server");
 const utils_1 = require("../utils");
@@ -62,7 +70,7 @@ class AuthController {
             method: "post",
             publicAccess: true,
             actions: [
-                async (req, res, next, done) => {
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
                     if (!req.body.email && !req.body.mobile)
                         return next(new http_1.HttpError(400, "email or mobile missing"));
                     if (req.body.email)
@@ -70,48 +78,48 @@ class AuthController {
                             return next(new http_1.HttpError(400, "email not valid"));
                     var user = null;
                     if (req.body.email)
-                        user = await this.authService.findUserByEmail(req.body.email);
+                        user = yield this.authService.findUserByEmail(req.body.email);
                     else
-                        user = await this.authService.findUserByMobile(req.body.mobile);
+                        user = yield this.authService.findUserByMobile(req.body.mobile);
                     if (!user)
                         return next(new http_1.HttpError(400, "user not found"));
                     if (user.passwordResetTokenIssueAt)
                         if (Date.now() - user.passwordResetTokenIssueAt < 1000 * 60)
                             return next(new http_1.HttpError(400, "minimum interval between reset password request is 60 seconds"));
-                    await this.authService.sendPasswordResetToken(user._id, req.useragent().toString(), req.ip().toString());
+                    yield this.authService.sendPasswordResetToken(user._id, req.useragent().toString(), req.ip().toString());
                     done();
-                }
+                })
             ]
         };
         this.addUserToGroup = {
             method: "post",
             publicAccess: false,
             actions: [
-                async (req, res, next, done) => {
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
                     if (req.user.groups.indexOf("admin") == -1)
                         return next(new http_1.HttpError(401, "admin access required"));
                     this.authService.addUserToGroup(req.body.user, req.body.group);
                     done(202, "added to group");
-                }
+                })
             ]
         };
         this.deleteUserFromGroup = {
             method: "post",
             publicAccess: false,
             actions: [
-                async (req, res, next, done) => {
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
                     if (req.user.groups.indexOf("admin") == -1)
                         return next(new http_1.HttpError(401, "admin access required"));
                     this.authService.deleteUserFromGroup(req.body.user, req.body.group);
                     done(202, "removed from group");
-                }
+                })
             ]
         };
         this.changePassword = {
             method: "post",
             publicAccess: false,
             actions: [
-                async (req, res, next, done) => {
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
                     var userId = req.user._id;
                     if (req.body.user)
                         if (req.user.groups.indexOf("admin") != -1)
@@ -122,16 +130,16 @@ class AuthController {
                         return next(new http_1.HttpError(400, "password is missing"));
                     if (req.body.password != req.body.passwordConfirm)
                         return next(new http_1.HttpError(400, "password and passwordConfirm do not match"));
-                    await this.authService.setNewPassword(userId, req.body.password, req.ip(), req.useragent());
+                    yield this.authService.setNewPassword(userId, req.body.password, req.ip(), req.useragent());
                     done(202, "password changed");
-                }
+                })
             ]
         };
         this.resetPassword = {
             method: "post",
             publicAccess: true,
             actions: [
-                async (req, res, next, done) => {
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
                     if (!req.body.code)
                         return next(new http_1.HttpError(400, "code is missing"));
                     if (!req.body.password)
@@ -145,24 +153,24 @@ class AuthController {
                             return next(new http_1.HttpError(400, "email not valid"));
                     var user = null;
                     if (req.body.email)
-                        user = await this.authService.findUserByEmail(req.body.email);
+                        user = yield this.authService.findUserByEmail(req.body.email);
                     else
-                        user = await this.authService.findUserByMobile(req.body.mobile);
+                        user = yield this.authService.findUserByMobile(req.body.mobile);
                     if (!user)
                         return next(new http_1.HttpError(400, "user not found"));
-                    await this.authService.setNewPassword(user._id, req.body.password, req.ip(), req.useragent());
+                    yield this.authService.setNewPassword(user._id, req.body.password, req.ip(), req.useragent());
                     done(202, "password changed");
-                }
+                })
             ]
         };
         this.sendVerifyEmail = {
             publicAccess: true,
             method: "post",
             actions: [
-                async (req, res, next, done) => {
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
                     if (!req.body.email)
                         return next(new http_1.HttpError(400, "email required"));
-                    var user = await this.authService.findUserByEmail(req.body.email);
+                    var user = yield this.authService.findUserByEmail(req.body.email);
                     if (!user)
                         return next(new http_1.HttpError(400, "no user found with this email"));
                     this.authService
@@ -173,7 +181,7 @@ class AuthController {
                         .catch(e => {
                         res.json(e);
                     });
-                }
+                })
             ]
         };
         this.sendVerifySms = {
@@ -235,25 +243,25 @@ class AuthController {
             method: "post",
             publicAccess: true,
             actions: [
-                async (req, res, next, done) => {
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
                     if (!req.body.email)
                         return next(new http_1.HttpError(400, "email required"));
                     if (!req.body.code)
                         return next(new http_1.HttpError(400, "code required"));
-                    var user = await this.authService.findUserByEmail(req.body.email);
+                    var user = yield this.authService.findUserByEmail(req.body.email);
                     if (!user)
                         return next(new http_1.HttpError(400, "no user found with this email"));
-                    await this.authService.VerifyUserEmail(req.body.email, req.body.code);
+                    yield this.authService.VerifyUserEmail(req.body.email, req.body.code);
                     done(202, "email verified");
-                }
+                })
             ]
         };
         this.clientToken = {
             method: "post",
             publicAccess: true,
             actions: [
-                async (req, res, next, done) => {
-                    var client = await this.authService.findClientById(req.body.clientId);
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
+                    var client = yield this.authService.findClientById(req.body.clientId);
                     if (!client)
                         return next(new http_1.HttpError(400, "client not found"));
                     if (!this.authService.clientMatchSecret(client, req.body.clientSecret))
@@ -271,17 +279,17 @@ class AuthController {
                         .catch(e => {
                         return next(new http_1.HttpError(500, e.message));
                     });
-                }
+                })
             ]
         };
         this.refreshToken = {
             method: "post",
             publicAccess: true,
             actions: [
-                async (req, res, next, done) => {
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
                     var token = undefined;
                     try {
-                        token = await this.authService.findTokenByAccessToken(req.body.access_token);
+                        token = yield this.authService.findTokenByAccessToken(req.body.access_token);
                     }
                     catch (err) {
                         return next(new http_1.HttpError(err.code || 500, err.message));
@@ -304,17 +312,17 @@ class AuthController {
                             return next(new http_1.HttpError(400, "refresh token invalid"));
                     else
                         return next(new http_1.HttpError(400, "access token invalid"));
-                }
+                })
             ]
         };
         this.sessions = {
             method: "get",
             publicAccess: false,
             actions: [
-                async (req, res, next, done) => {
-                    var model = await this.authService.findTokensByUserId(req.user._id.toString());
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
+                    var model = yield this.authService.findTokensByUserId(req.user._id.toString());
                     res.json(model);
-                }
+                })
             ]
         };
         this.checkToken = {
@@ -330,21 +338,23 @@ class AuthController {
             method: "post",
             publicAccess: true,
             actions: [
-                async (req, res, next, done) => {
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
                     var mobile = req.body.mobile;
-                    var mobileCountryCode = req.body.mobileCountryCode;
+                    var mobileCountryCode = req.body.mobileCountryCode || "+98";
                     if (mobile)
-                        mobile = parseInt(mobile.replace("/D/g", ""), 10);
+                        mobile = parseInt(mobile.replace("/D/g", ""), 10).toString();
+                    if (mobileCountryCode == "+98" && mobile.length != 10)
+                        return done(400, "mobile invalid");
                     if (!mobile)
                         return done(400, "mobile required");
-                    var user = await this.authService.findUserByMobile(mobile, mobileCountryCode);
+                    var user = yield this.authService.findUserByMobile(mobile, mobileCountryCode);
                     if (!user) {
-                        user = await this.authService.usersCollection.insertOne({
+                        user = yield this.authService.usersCollection.insertOne({
                             registeredAt: Date.now(),
-                            mobile: parseInt(mobile).toString(),
-                            mobileCountryCode: mobileCountryCode || "+98",
+                            mobile: mobile,
+                            mobileCountryCode: mobileCountryCode,
                             mobileVerified: false,
-                            username: mobileCountryCode || "+98" + parseInt(mobile).toString(),
+                            username: mobileCountryCode + mobile,
                             registeredByIp: req.ip().toString(),
                             registeredByUseragent: req.useragent().toString(),
                             groups: []
@@ -357,7 +367,7 @@ class AuthController {
                         console.log("error in sending one-time password", e);
                         done(500, e.message | e);
                     });
-                }
+                })
             ]
         };
         this.token = {
@@ -369,17 +379,17 @@ class AuthController {
                         req.body.grant_type = "password";
                     next();
                 },
-                async (req, res, next, done) => {
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
                     if (req.body.grant_type != "password")
                         return next();
                     var user = null;
-                    user = await this.authService.findUserByUsername(req.body.username);
+                    user = yield this.authService.findUserByUsername(req.body.username);
                     if (!user)
-                        user = await this.authService.findUserByEmail(req.body.username);
+                        user = yield this.authService.findUserByEmail(req.body.username);
                     if (!user && req.body.mobile)
-                        user = await this.authService.findUserByMobile(parseInt(req.body.mobile).toString(), req.body.mobileCountryCode);
+                        user = yield this.authService.findUserByMobile(parseInt(req.body.mobile).toString(), req.body.mobileCountryCode);
                     if (!user)
-                        user = await this.authService.findUserByMobile(parseInt(req.body.username).toString(), req.body.mobileCountryCode);
+                        user = yield this.authService.findUserByMobile(parseInt(req.body.username).toString(), req.body.mobileCountryCode);
                     if (!user)
                         return next(new http_1.HttpError(400, "user/password invalid"));
                     var userMatchPassword = false;
@@ -400,7 +410,7 @@ class AuthController {
                     }
                     if (userMatchOneTimePassword) {
                         user.mobileVerified = true;
-                        await this.authService.usersCollection.updateOne(user, user._id);
+                        yield this.authService.usersCollection.updateOne(user, user._id);
                     }
                     else {
                         if (AuthService_1.AuthService.options.mobileConfirmationRequired)
@@ -410,7 +420,7 @@ class AuthController {
                             if (!user.emailVerified)
                                 return next(new http_1.HttpError(403, "email not confirmed"));
                     }
-                    var userToken = await this.authService.insertToken({
+                    var userToken = yield this.authService.insertToken({
                         userId: user._id.toString(),
                         useragent: req.useragent(),
                         grant_type: !userMatchOneTimePassword ? "password" : "one-time"
@@ -418,7 +428,7 @@ class AuthController {
                     userToken.username = user.username;
                     console.log(userToken);
                     res.json(userToken);
-                }
+                })
             ]
         };
     }

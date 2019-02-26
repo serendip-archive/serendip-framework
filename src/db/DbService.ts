@@ -32,18 +32,21 @@ export class DbService implements ServerServiceInterface {
 
   private providers: { [key: string]: DbProviderInterface } = {};
   async start() {
-    for (const key of Object.keys(DbService.options.providers)) {
-      const provider = DbService.options.providers[key];
-      console.log(
-        chalk.gray(`DbService > trying to connect to DbProvider named: ${key}`)
-      );
-      await provider.object.initiate(provider.options);
-      this.providers[key] = provider.object;
+    if (DbService.options && DbService.options.providers)
+      for (const key of Object.keys(DbService.options.providers)) {
+        const provider = DbService.options.providers[key];
+        console.log(
+          chalk.gray(
+            `DbService > trying to connect to DbProvider named: ${key}`
+          )
+        );
+        await provider.object.initiate(provider.options);
+        this.providers[key] = provider.object;
 
-      console.log(
-        chalk.green(`DbService > connected to DbProvider name: ${key}`)
-      );
-    }
+        console.log(
+          chalk.green(`DbService > connected to DbProvider name: ${key}`)
+        );
+      }
   }
 
   collection<T>(collectionName: string, track?: boolean, provider?: string) {

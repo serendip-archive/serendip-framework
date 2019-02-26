@@ -437,9 +437,13 @@ export class AuthController {
       async (req, res, next, done) => {
         var mobile = req.body.mobile;
 
-        var mobileCountryCode = req.body.mobileCountryCode;
+        var mobileCountryCode = req.body.mobileCountryCode || "+98";
 
-        if (mobile) mobile = parseInt(mobile.replace("/D/g", ""), 10);
+        if (mobile)
+          mobile = parseInt(mobile.replace("/D/g", ""), 10).toString();
+
+        if (mobileCountryCode == "+98" && mobile.length != 10)
+          return done(400, "mobile invalid");
 
         if (!mobile) return done(400, "mobile required");
 
@@ -448,15 +452,13 @@ export class AuthController {
           mobileCountryCode
         );
 
-    
-
         if (!user) {
           user = await this.authService.usersCollection.insertOne({
             registeredAt: Date.now(),
-            mobile: parseInt(mobile).toString(),
-            mobileCountryCode: mobileCountryCode || "+98",
+            mobile: mobile,
+            mobileCountryCode: mobileCountryCode,
             mobileVerified: false,
-            username: mobileCountryCode || "+98" + parseInt(mobile).toString(),
+            username: mobileCountryCode + mobile,
             registeredByIp: req.ip().toString(),
             registeredByUseragent: req.useragent().toString(),
             groups: []

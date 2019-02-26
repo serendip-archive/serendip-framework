@@ -4,6 +4,7 @@ var serendip = require("..");
 describe("running authentication scenarios", function() {
   it("should run authentication example scenario", function(done) {
     serendip.DbService.configure({
+      
       mongoDb: "serendipTests",
       mongoUrl: "mongodb://localhost:27017"
     });
@@ -15,6 +16,7 @@ describe("running authentication scenarios", function() {
       smsProvider: null,
       tokenExpireIn: 30000
     });
+
 
     serendip
       .start({

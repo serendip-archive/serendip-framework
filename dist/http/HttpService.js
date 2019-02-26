@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const server_1 = require("../server");
 const chalk_1 = require("chalk");
@@ -80,133 +88,137 @@ class HttpService {
     static configure(opts) {
         HttpService.options = _.extend(HttpService.options, opts);
     }
-    async start() {
-        try {
-            this.addRoutes();
-        }
-        catch (error) {
-            console.log("error while adding routes to HttpService", error);
-            throw error;
-        }
-        if (HttpService.options.httpPort === null) {
-            return;
-        }
-        this.httpServer = http.createServer();
-        if (HttpService.options.cert && HttpService.options.key) {
-            this.httpsServer = https.createServer({
-                cert: fs.readFileSync(HttpService.options.cert),
-                key: fs.readFileSync(HttpService.options.key)
-            });
-        }
-        if (HttpService.options.httpsOnly) {
-            this.httpsServer.on("request", HttpService.processRequest);
-            this.httpServer.on("request", this.redirectToHttps(HttpService.options.httpPort, HttpService.options.httpsPort));
-        }
-        else {
-            if (this.httpsServer)
+    start() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this.addRoutes();
+            }
+            catch (error) {
+                console.log("error while adding routes to HttpService", error);
+                throw error;
+            }
+            if (HttpService.options.httpPort === null) {
+                return;
+            }
+            this.httpServer = http.createServer();
+            if (HttpService.options.cert && HttpService.options.key) {
+                this.httpsServer = https.createServer({
+                    cert: fs.readFileSync(HttpService.options.cert),
+                    key: fs.readFileSync(HttpService.options.key)
+                });
+            }
+            if (HttpService.options.httpsOnly) {
                 this.httpsServer.on("request", HttpService.processRequest);
-            this.httpServer.on("request", HttpService.processRequest);
-        }
-        await new Promise((resolve, reject) => {
-            this.httpServer.listen(HttpService.options.httpPort, () => {
-                if (server_1.Server.services["WebSocketService"]) {
-                    this.wsServer = new ws.Server({ noServer: true });
-                    this.httpServer.on("upgrade", (req, socket, head) => {
-                        this.wsServer.handleUpgrade(req, socket, head, ws => {
-                            server_1.Server.services["WebSocketService"].connectionEmitter.emit("connection", ws, req);
+                this.httpServer.on("request", this.redirectToHttps(HttpService.options.httpPort, HttpService.options.httpsPort));
+            }
+            else {
+                if (this.httpsServer)
+                    this.httpsServer.on("request", HttpService.processRequest);
+                this.httpServer.on("request", HttpService.processRequest);
+            }
+            yield new Promise((resolve, reject) => {
+                this.httpServer.listen(HttpService.options.httpPort, () => {
+                    if (server_1.Server.services["WebSocketService"]) {
+                        this.wsServer = new ws.Server({ noServer: true });
+                        this.httpServer.on("upgrade", (req, socket, head) => {
+                            this.wsServer.handleUpgrade(req, socket, head, ws => {
+                                server_1.Server.services["WebSocketService"].connectionEmitter.emit("connection", ws, req);
+                            });
                         });
-                    });
-                }
-                if (server_1.Server.opts.logging == "info")
-                    console.log(chalk_1.default.blueBright(`HttpService > worker ${server_1.Server.worker.id} running http server at port ${HttpService.options.httpPort}`));
-                if (!this.httpsServer)
-                    return resolve();
-                else
-                    this.httpsServer.listen(HttpService.options.httpsPort, () => {
-                        if (server_1.Server.opts.logging == "info")
-                            console.log(chalk_1.default.blueBright(`HttpService > worker ${server_1.Server.worker.id} running https server at port ${HttpService.options.httpsPort}`));
+                    }
+                    if (server_1.Server.opts.logging == "info")
+                        console.log(chalk_1.default.blueBright(`HttpService > worker ${server_1.Server.worker.id} running http server at port ${HttpService.options.httpPort}`));
+                    if (!this.httpsServer)
                         return resolve();
-                    });
+                    else
+                        this.httpsServer.listen(HttpService.options.httpsPort, () => {
+                            if (server_1.Server.opts.logging == "info")
+                                console.log(chalk_1.default.blueBright(`HttpService > worker ${server_1.Server.worker.id} running https server at port ${HttpService.options.httpsPort}`));
+                            return resolve();
+                        });
+                });
             });
         });
     }
-    static async processRequest(req, res) {
-        var requestReceived = Date.now();
-        req = HttpRequestHelpers_1.HttpRequestHelpers(req);
-        res = HttpResponseHelpers_1.HttpResponseHelpers(res);
-        const logString = () => {
-            return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : ""} ${req.useragent()} ${res.statusCode} ${Date.now() -
-                requestReceived}ms ${res.statusMessage}`;
-        };
-        res.on("finish", () => {
-            console.log(logString());
-        });
-        if (HttpService.options.beforeMiddlewares &&
-            HttpService.options.beforeMiddlewares.length > 0) {
-            await HttpRouter_1.HttpRouter.executeActions(req, res, null, HttpService.options.beforeMiddlewares, 0);
-            if (res.finished)
-                return;
-        }
-        if (server_1.Server.opts.logging == "info")
-            console.info(chalk_1.default.gray(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.useragent()}`));
-        // finding controller by path
-        if (HttpService.options.cors)
-            res.setHeader("Access-Control-Allow-Origin", HttpService.options.cors);
-        res.setHeader("Access-Control-Allow-Headers", "clientid, Authorization , Content-Type, Accept");
-        res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
-        var srvRoute = HttpRouter_1.HttpRouter.findSrvRoute(req, HttpService.routes, true);
-        if (req.method === "OPTIONS") {
-            if (HttpRouter_1.HttpRouter.findSrvRoute(req, HttpService.routes, false)) {
-                res.statusCode = 200;
-                res.end();
-                return;
+    static processRequest(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var requestReceived = Date.now();
+            req = HttpRequestHelpers_1.HttpRequestHelpers(req);
+            res = HttpResponseHelpers_1.HttpResponseHelpers(res);
+            const logString = () => {
+                return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.user ? req.user.username : ""} ${req.useragent()} ${res.statusCode} ${Date.now() -
+                    requestReceived}ms ${res.statusMessage}`;
+            };
+            res.on("finish", () => {
+                console.log(logString());
+            });
+            if (HttpService.options.beforeMiddlewares &&
+                HttpService.options.beforeMiddlewares.length > 0) {
+                yield HttpRouter_1.HttpRouter.executeActions(req, res, null, HttpService.options.beforeMiddlewares, 0);
+                if (res.finished)
+                    return;
             }
-            else {
-                res.statusCode = 400;
-                res.end();
-                return;
-            }
-        }
-        else {
-            if (!srvRoute) {
-                if (HttpService.options.staticPath) {
-                    HttpService.processRequestToStatic(req, res, (code, filePath) => { });
+            if (server_1.Server.opts.logging == "info")
+                console.info(chalk_1.default.gray(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${req.method}] "${req.url}" ${req.ip()}/${req.useragent()}`));
+            // finding controller by path
+            if (HttpService.options.cors)
+                res.setHeader("Access-Control-Allow-Origin", HttpService.options.cors);
+            res.setHeader("Access-Control-Allow-Headers", "clientid, Authorization , Content-Type, Accept");
+            res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+            var srvRoute = HttpRouter_1.HttpRouter.findSrvRoute(req, HttpService.routes, true);
+            if (req.method === "OPTIONS") {
+                if (HttpRouter_1.HttpRouter.findSrvRoute(req, HttpService.routes, false)) {
+                    res.statusCode = 200;
+                    res.end();
                     return;
                 }
                 else {
-                    res.statusCode = 404;
-                    res.statusMessage = req.url + " not found";
+                    res.statusCode = 400;
                     res.end();
                     return;
                 }
             }
-        }
-        HttpRouter_1.HttpRouter.routeIt(req, res, HttpService.options.middlewares, srvRoute)
-            .then(data => {
-            // Request gone through all middlewares and actions for matched route
-            if (req.method.toLowerCase() != "options" && srvRoute) {
-                if (!srvRoute.isStream)
+            else {
+                if (!srvRoute) {
+                    if (HttpService.options.staticPath) {
+                        HttpService.processRequestToStatic(req, res, (code, filePath) => { });
+                        return;
+                    }
+                    else {
+                        res.statusCode = 404;
+                        res.statusMessage = req.url + " not found";
+                        res.end();
+                        return;
+                    }
+                }
+            }
+            HttpRouter_1.HttpRouter.routeIt(req, res, HttpService.options.middlewares, srvRoute)
+                .then(data => {
+                // Request gone through all middlewares and actions for matched route
+                if (req.method.toLowerCase() != "options" && srvRoute) {
+                    if (!srvRoute.isStream)
+                        if (!res.finished)
+                            if (data)
+                                res.json(data);
+                            else
+                                res.end();
+                    if (server_1.Server.opts.logging == "info")
+                        console.info(`${logString()} ${srvRoute.isStream ? " stream started!" : ""}`);
+                }
+            })
+                .catch((e) => {
+                if (!res.finished) {
+                    res.statusCode = e.code || 500;
+                    res.statusMessage = e.message || e.Message;
+                    res.json(_.pick(e, "code", "description"));
                     if (!res.finished)
-                        if (data)
-                            res.json(data);
-                        else
-                            res.end();
+                        res.end();
+                }
                 if (server_1.Server.opts.logging == "info")
-                    console.info(`${logString()} ${srvRoute.isStream ? " stream started!" : ""}`);
-            }
-        })
-            .catch((e) => {
-            if (!res.finished) {
-                res.statusCode = e.code || 500;
-                res.statusMessage = e.message || e.Message;
-                res.json(_.pick(e, "code", "description"));
-                if (!res.finished)
-                    res.end();
-            }
-            if (server_1.Server.opts.logging == "info")
-                console.error(`${logString()}`, chalk_1.default.red(JSON.stringify(e)));
-            else if (server_1.Server.opts.logging != "silent")
-                console.error(`${logString()}`, chalk_1.default.red("\n[Error] " + (e.message || e.Message)));
+                    console.error(`${logString()}`, chalk_1.default.red(JSON.stringify(e)));
+                else if (server_1.Server.opts.logging != "silent")
+                    console.error(`${logString()}`, chalk_1.default.red("\n[Error] " + (e.message || e.Message)));
+            });
         });
     }
     redirectToHttps(httpPort, httpsPort) {
@@ -221,30 +233,32 @@ class HttpService {
             res.end();
         };
     }
-    static async processRequestToStatic(req, res, callback, staticPath) {
-        var filePath = path.join(staticPath || HttpService.options.staticPath, req.url.split("?")[0]);
-        fs.stat(filePath, (err, stat) => {
-            if (err) {
-                res.writeHead(404);
-                res.end();
-                return callback(404);
-            }
-            if (stat.isDirectory())
-                filePath = path.join(filePath, "index.html");
-            fs.exists(filePath, exist => {
-                if (exist) {
-                    res.writeHead(200, {
-                        "Content-Type": mime.lookup(filePath).toString()
-                    });
-                    var readStream = fs.createReadStream(filePath);
-                    readStream.pipe(res);
-                    callback(200, filePath);
-                }
-                else {
+    static processRequestToStatic(req, res, callback, staticPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var filePath = path.join(staticPath || HttpService.options.staticPath, req.url.split("?")[0]);
+            fs.stat(filePath, (err, stat) => {
+                if (err) {
                     res.writeHead(404);
                     res.end();
                     return callback(404);
                 }
+                if (stat.isDirectory())
+                    filePath = path.join(filePath, "index.html");
+                fs.exists(filePath, exist => {
+                    if (exist) {
+                        res.writeHead(200, {
+                            "Content-Type": mime.lookup(filePath).toString()
+                        });
+                        var readStream = fs.createReadStream(filePath);
+                        readStream.pipe(res);
+                        callback(200, filePath);
+                    }
+                    else {
+                        res.writeHead(404);
+                        res.end();
+                        return callback(404);
+                    }
+                });
             });
         });
     }

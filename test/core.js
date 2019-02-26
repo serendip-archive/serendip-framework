@@ -6,7 +6,6 @@ describe("running core scenarios", function() {
     serendip
       .start({
         services: [],
-        controllers: [],
         cpuCores: 1,
         httpPort: 1111,
         cors: "*",

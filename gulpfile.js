@@ -56,7 +56,8 @@ gulp.task("ts", function() {
     .pipe(
       ts({
         noImplicitAny: false,
-        target: "es2017",
+        target: "es6",
+        lib: ["es6","es2017.string"],
         sourceMap: true,
         module: "CommonJS",
         baseUrl: ".",

@@ -85,6 +85,13 @@ export class Server {
     if (sortedDependencies.length == 0) {
       if (serviceClasses[0]) sortedDependencies.push(serviceClasses[0].name);
     }
+  
+    serviceClasses.forEach(sc => {
+     
+      if (sortedDependencies.indexOf(sc.name) === -1) {
+        sortedDependencies.unshift(sc.name);
+      }
+    });
 
     if (Server.opts.logging == "info")
       console.log(chalk.cyan`Starting server services...`);
