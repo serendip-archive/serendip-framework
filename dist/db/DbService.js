@@ -41,6 +41,16 @@ class DbService {
                 DbService.options.defaultProvider} not configured`;
         return this.providers[provider || DbService.options.defaultProvider].collection(collectionName, track);
     }
+    collectionEvents(provider) {
+        if (!provider && !DbService.options.defaultProvider) {
+            throw "collection specific provider and default provider not set";
+        }
+        if (!this.providers[provider || DbService.options.defaultProvider])
+            throw `> DbService provider named ${provider ||
+                DbService.options.defaultProvider} not configured`;
+        return this.providers[provider || DbService.options.defaultProvider]
+            .collectionEvents;
+    }
 }
 DbService.dependencies = [];
 DbService.options = {};

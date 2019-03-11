@@ -28,9 +28,9 @@ class AuthService {
     }
     start() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.clientsCollection = yield this.dbService.collection("Clients");
-            this.usersCollection = yield this.dbService.collection("Users");
-            this.tokenCollection = yield this.dbService.collection("Tokens");
+            this.clientsCollection = yield this.dbService.collection("Clients", true);
+            this.usersCollection = yield this.dbService.collection("Users", true);
+            this.tokenCollection = yield this.dbService.collection("Tokens", true);
             this.usersCollection.ensureIndex({ username: 1 }, { unique: true });
             this.usersCollection.ensureIndex({ mobile: 1 }, {});
             this.usersCollection.ensureIndex({ email: 1 }, {});

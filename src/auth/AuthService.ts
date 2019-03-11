@@ -64,13 +64,18 @@ export class AuthService implements ServerServiceInterface {
 
   async start() {
     this.clientsCollection = await this.dbService.collection<ClientModel>(
-      "Clients"
+      "Clients",
+      true
     );
 
-    this.usersCollection = await this.dbService.collection<UserModel>("Users");
+    this.usersCollection = await this.dbService.collection<UserModel>(
+      "Users",
+      true
+    );
 
     this.tokenCollection = await this.dbService.collection<TokenModel>(
-      "Tokens"
+      "Tokens",
+      true
     );
 
     this.usersCollection.ensureIndex({ username: 1 }, { unique: true });

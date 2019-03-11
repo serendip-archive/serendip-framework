@@ -3,6 +3,7 @@ import * as _ from "underscore";
 import chalk from "chalk";
 import { DbProviderInterface } from "serendip-business-model/src/db/DbProviderInterface";
 import { DbProviderOptionsInterface } from "serendip-business-model/src/db/DbProviderOptionsInterface";
+import { EventEmitter } from "events";
 
 export interface DbServiceOptions {
   /**
@@ -60,5 +61,18 @@ export class DbService implements ServerServiceInterface {
       provider || DbService.options.defaultProvider
     ].collection<T>(collectionName, track);
   }
+
+  collectionEvents(provider?: string): { [key: string]: EventEmitter } {
+    if (!provider && !DbService.options.defaultProvider) {
+      throw "collection specific provider and default provider not set";
+    }
+    if (!this.providers[provider || DbService.options.defaultProvider])
+      throw `> DbService provider named ${provider ||
+        DbService.options.defaultProvider} not configured`;
+
+    return this.providers[provider || DbService.options.defaultProvider]
+      .collectionEvents;
+  }
+
   constructor() {}
 }

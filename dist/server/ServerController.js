@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("underscore");
 const _1 = require(".");
 const http_1 = require("../http");
+const cluster = require("cluster");
+const start_1 = require("../start");
 class ServerController {
     constructor(httpService, authService) {
         this.httpService = httpService;
@@ -15,6 +17,22 @@ class ServerController {
                 (req, res, next, done) => {
                     res.write("received in worker " + _1.Server.worker.id);
                     res.end();
+                }
+            ]
+        };
+        this.clusterWorkers = {
+            publicAccess: true,
+            route: "/api/server/cluster-workers",
+            method: "get",
+            actions: [
+                (req, res, next, done) => {
+                    res.json({
+                        isMaster: cluster.isMaster,
+                        isWorker: cluster.isWorker,
+                        id: start_1.Worker.id,
+                        others: start_1.Worker.others,
+                        msg: "answered in worker " + _1.Server.worker.id
+                    });
                 }
             ]
         };

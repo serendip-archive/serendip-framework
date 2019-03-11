@@ -22,6 +22,9 @@ export class WebSocketService implements ServerServiceInterface {
   connectionEmitter = new EventEmitter();
   messageEmitter = new EventEmitter();
 
+  // set routes you want to bypass default token negotiation
+  static bypassTokenOnRoutes: string[] = [];
+
   get httpService(): HttpService {
     return Server.services["HttpService"] as HttpService;
   }
@@ -52,16 +55,19 @@ export class WebSocketService implements ServerServiceInterface {
           //   console.log(client.path, client.token);
           // });
 
-          if (!ws.token)
+          var parsedUrl = url.parse(req.url);
+          ws.path = parsedUrl.pathname;
+
+          ws.query = qs.parse(parsedUrl.query);
+
+          if (
+            !ws.token &&
+            WebSocketService.bypassTokenOnRoutes.indexOf(ws.path) === -1
+          )
             try {
               ws.token = await this.authService.findTokenByAccessToken(
                 msg.toString()
               );
-
-              var parsedUrl = url.parse(req.url);
-              ws.path = parsedUrl.pathname;
-
-              ws.query = qs.parse(parsedUrl.query);
 
               console.log(
                 chalk.blue(
@@ -85,7 +91,7 @@ export class WebSocketService implements ServerServiceInterface {
                 )
               );
             }
-          else this.messageEmitter.emit(req.url, msg, ws);
+          else this.messageEmitter.emit(ws.path, msg, ws);
         });
 
         ws.on("close", (code, reason) => {

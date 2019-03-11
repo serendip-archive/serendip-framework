@@ -49,12 +49,13 @@ class WebSocketService {
                     // Server.wsServer.clients.forEach((client: WebSocketInterface) => {
                     //   console.log(client.path, client.token);
                     // });
-                    if (!ws.token)
+                    var parsedUrl = url.parse(req.url);
+                    ws.path = parsedUrl.pathname;
+                    ws.query = qs.parse(parsedUrl.query);
+                    if (!ws.token &&
+                        WebSocketService.bypassTokenOnRoutes.indexOf(ws.path) === -1)
                         try {
                             ws.token = yield this.authService.findTokenByAccessToken(msg.toString());
-                            var parsedUrl = url.parse(req.url);
-                            ws.path = parsedUrl.pathname;
-                            ws.query = qs.parse(parsedUrl.query);
                             console.log(chalk_1.default.blue(`\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
                                 `new socket at ${req.url} user:${ws.token.username} ip:${reqIp.getClientIp(req)}\n`));
                             ws.send("authenticated");
@@ -65,7 +66,7 @@ class WebSocketService {
                                 `unauthenticated socket closed ip:${req.connection.remoteAddress}\n`));
                         }
                     else
-                        this.messageEmitter.emit(req.url, msg, ws);
+                        this.messageEmitter.emit(ws.path, msg, ws);
                 }));
                 ws.on("close", (code, reason) => {
                     console.log(chalk_1.default.redBright(`\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
@@ -75,4 +76,6 @@ class WebSocketService {
         });
     }
 }
+// set routes you want to bypass default token negotiation
+WebSocketService.bypassTokenOnRoutes = [];
 exports.WebSocketService = WebSocketService;

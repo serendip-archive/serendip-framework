@@ -1,10 +1,12 @@
-import * as _ from 'underscore';
+import * as _ from "underscore";
 
-import { Server } from '.';
-import { AuthService } from '../auth';
-import { HttpError } from '../http';
-import { HttpService } from '../http/HttpService';
-import { HttpEndpointInterface } from '../http/interfaces/HttpEndpointInterface';
+import { Server } from ".";
+import { AuthService } from "../auth";
+import { HttpError } from "../http";
+import { HttpService } from "../http/HttpService";
+import { HttpEndpointInterface } from "../http/interfaces/HttpEndpointInterface";
+import * as cluster from "cluster";
+import { Worker } from "../start";
 
 export class ServerController {
   constructor(
@@ -20,6 +22,23 @@ export class ServerController {
       (req, res, next, done) => {
         res.write("received in worker " + Server.worker.id);
         res.end();
+      }
+    ]
+  };
+
+  clusterWorkers: HttpEndpointInterface = {
+    publicAccess: true,
+    route: "/api/server/cluster-workers",
+    method: "get",
+    actions: [
+      (req, res, next, done) => {
+        res.json({
+          isMaster: cluster.isMaster,
+          isWorker: cluster.isWorker,
+          id: Worker.id,
+          others: Worker.others,
+          msg: "answered in worker " + Server.worker.id
+        });
       }
     ]
   };
