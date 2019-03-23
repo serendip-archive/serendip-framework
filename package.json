@@ -29,6 +29,7 @@
     "@types/underscore": "^1.8.8",
     "@types/useragent": "^2.1.1",
     "assert": "^1.4.1",
+    "dotenv": "^6.2.0",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.4.0",
     "gulp-deploy-ftp": "^1.0.1",

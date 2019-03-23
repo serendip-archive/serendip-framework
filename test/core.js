@@ -1,5 +1,6 @@
 var assert = require("assert");
 var serendip = require("..");
+require("dotenv").config();
 
 describe("running core scenarios", function() {
   it("should run without services", function(done) {
@@ -7,16 +8,17 @@ describe("running core scenarios", function() {
       .start({
         services: [],
         cpuCores: 1,
-        httpPort: 1111,
-        cors: "*",
         logging: "silent"
       })
       .then(done)
-      .catch(e => console.error(e));
+      .catch(done);
   });
 
-  it("should run with just one service", function(done) {
+  it("should run with simple service", function(done) {
     class exampleService {
+      constructor(){
+        
+      }
       configure(options) {
         exampleService.options = options;
       }
@@ -32,13 +34,10 @@ describe("running core scenarios", function() {
     serendip
       .start({
         services: [exampleService],
-        controllers: [],
         cpuCores: 1,
-        httpPort: 1112,
-        cors: "*",
         logging: "silent"
       })
       .then(done)
-      .catch(e => console.error(e));
+      .catch(done);
   });
 });

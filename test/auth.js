@@ -1,13 +1,25 @@
 var assert = require("assert");
 var serendip = require("..");
+var smp = require("serendip-mongodb-provider");
+require("dotenv").config();
 
 describe("running authentication scenarios", function() {
   it("should run authentication example scenario", function(done) {
     serendip.DbService.configure({
-      mongoDb: "serendipTests",
-      mongoUrl: "mongodb://localhost:27017"
+      defaultProvider: "Mongodb",
+      providers: {
+        Mongodb: {
+          object: new smp.MongodbProvider(),
+          options: {
+            mongoDb: process.env["db.mongoDb"],
+            mongoUrl: process.env["db.mongoUrl"],
+            authSource: process.env["db.authSource"],
+            user: process.env["db.user"],
+            password: process.env["db.password"]
+          }
+        }
+      }
     });
-
     serendip.AuthService.configure({
       emailConfirmationRequired: false,
       maxTokenCount: 20,
