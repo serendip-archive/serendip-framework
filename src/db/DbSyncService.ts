@@ -15,7 +15,7 @@ export class DbSyncService {
   }
 
   async start() {
-    const changesEvent = this.dbService.collectionEvents()["EntityChanges"];
+    const changesEvent = this.dbService.events()["EntityChanges"];
 
     changesEvent.on("update", (model: EntityModel) => {
       console.log("DbSyncService", "update", model);

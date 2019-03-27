@@ -41,15 +41,41 @@ class DbService {
                 DbService.options.defaultProvider} not configured`;
         return this.providers[provider || DbService.options.defaultProvider].collection(collectionName, track);
     }
-    collectionEvents(provider) {
+    dropDatabase(provider) {
         if (!provider && !DbService.options.defaultProvider) {
             throw "collection specific provider and default provider not set";
         }
         if (!this.providers[provider || DbService.options.defaultProvider])
             throw `> DbService provider named ${provider ||
                 DbService.options.defaultProvider} not configured`;
-        return this.providers[provider || DbService.options.defaultProvider]
-            .collectionEvents;
+        return this.providers[provider || DbService.options.defaultProvider].dropDatabase();
+    }
+    dropCollection(name, provider) {
+        if (!provider && !DbService.options.defaultProvider) {
+            throw "collection specific provider and default provider not set";
+        }
+        if (!this.providers[provider || DbService.options.defaultProvider])
+            throw `> DbService provider named ${provider ||
+                DbService.options.defaultProvider} not configured`;
+        return this.providers[provider || DbService.options.defaultProvider].dropCollection(name);
+    }
+    collections(provider) {
+        if (!provider && !DbService.options.defaultProvider) {
+            throw "collection specific provider and default provider not set";
+        }
+        if (!this.providers[provider || DbService.options.defaultProvider])
+            throw `> DbService provider named ${provider ||
+                DbService.options.defaultProvider} not configured`;
+        return this.providers[provider || DbService.options.defaultProvider].collections();
+    }
+    events(provider) {
+        if (!provider && !DbService.options.defaultProvider) {
+            throw "collection specific provider and default provider not set";
+        }
+        if (!this.providers[provider || DbService.options.defaultProvider])
+            throw `> DbService provider named ${provider ||
+                DbService.options.defaultProvider} not configured`;
+        return this.providers[provider || DbService.options.defaultProvider].events;
     }
 }
 DbService.dependencies = [];

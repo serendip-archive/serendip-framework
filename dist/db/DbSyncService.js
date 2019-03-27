@@ -20,7 +20,7 @@ class DbSyncService {
     }
     start() {
         return __awaiter(this, void 0, void 0, function* () {
-            const changesEvent = this.dbService.collectionEvents()["EntityChanges"];
+            const changesEvent = this.dbService.events()["EntityChanges"];
             changesEvent.on("update", (model) => {
                 console.log("DbSyncService", "update", model);
             });

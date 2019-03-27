@@ -62,7 +62,43 @@ export class DbService implements ServerServiceInterface {
     ].collection<T>(collectionName, track);
   }
 
-  collectionEvents(provider?: string): { [key: string]: EventEmitter } {
+  dropDatabase(provider?: string) {
+    if (!provider && !DbService.options.defaultProvider) {
+      throw "collection specific provider and default provider not set";
+    }
+    if (!this.providers[provider || DbService.options.defaultProvider])
+      throw `> DbService provider named ${provider ||
+        DbService.options.defaultProvider} not configured`;
+    return this.providers[
+      provider || DbService.options.defaultProvider
+    ].dropDatabase();
+  }
+
+  dropCollection(name: string, provider?: string) {
+    if (!provider && !DbService.options.defaultProvider) {
+      throw "collection specific provider and default provider not set";
+    }
+    if (!this.providers[provider || DbService.options.defaultProvider])
+      throw `> DbService provider named ${provider ||
+        DbService.options.defaultProvider} not configured`;
+    return this.providers[
+      provider || DbService.options.defaultProvider
+    ].dropCollection(name);
+  }
+
+  collections(provider?: string) {
+    if (!provider && !DbService.options.defaultProvider) {
+      throw "collection specific provider and default provider not set";
+    }
+    if (!this.providers[provider || DbService.options.defaultProvider])
+      throw `> DbService provider named ${provider ||
+        DbService.options.defaultProvider} not configured`;
+    return this.providers[
+      provider || DbService.options.defaultProvider
+    ].collections();
+  }
+
+  events(provider?: string): { [key: string]: any } {
     if (!provider && !DbService.options.defaultProvider) {
       throw "collection specific provider and default provider not set";
     }
@@ -70,8 +106,7 @@ export class DbService implements ServerServiceInterface {
       throw `> DbService provider named ${provider ||
         DbService.options.defaultProvider} not configured`;
 
-    return this.providers[provider || DbService.options.defaultProvider]
-      .collectionEvents;
+    return this.providers[provider || DbService.options.defaultProvider].events;
   }
 
   constructor() {}
