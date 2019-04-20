@@ -10,7 +10,6 @@ export interface HttpRequestInterface extends http.IncomingMessage {
   params: any;
   useragent(): string;
   ip(): string;
-  client?: ClientModel;
   user?: UserModel;
   userToken?: TokenModel;
 }

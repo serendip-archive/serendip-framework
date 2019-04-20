@@ -14,7 +14,7 @@ import { AuthService } from "./AuthService";
  * /api/auth/(endpoint)
  */
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   public register: HttpEndpointInterface = {
     method: "post",
@@ -356,7 +356,6 @@ export class AuthController {
 
         this.authService
           .insertToken({
-            userId: req.user._id.toString(),
             useragent: req.useragent().toString(),
             clientId: client._id.toString(),
             grant_type: "client_credentials"
@@ -479,6 +478,23 @@ export class AuthController {
       }
     ]
   };
+
+
+
+  public newAuthCode: HttpEndpointInterface = {
+    method: "post",
+    publicAccess: false,
+
+    actions: [
+      async (req, res) => {
+
+        console.log(req.headers);
+        res.json(await this.authService.newAuthCode(req.userToken, (req.headers["clientid"] || '').toString(), req.body.redirectUri))
+
+      }
+    ]
+  }
+
   public token: HttpEndpointInterface = {
     method: "post",
     publicAccess: true,
@@ -488,6 +504,39 @@ export class AuthController {
         if (!req.body.grant_type) req.body.grant_type = "password";
 
         next();
+      },
+      async (req, res, next, done) => {
+        if (req.body.grant_type != "authorization_code") return next();
+
+
+        const code = req.body.code,
+          codeId = req.body.codeId,
+          clientId = req.headers["clientid"];
+
+
+        if (await this.authService.authCodeValid(codeId, code)) {
+
+          const authCode = await this.authService.findAuthCode((codeId));
+
+          if (authCode.clientId != clientId)
+            return done(400, 'auth code clientId invalid');
+
+          await this.authService.setAuthCodeUsed(codeId);
+          const token = await this.authService.insertToken({
+            grant_type: 'authorization_code',
+            clientId: clientId,
+            userId: authCode.userId,
+            useragent: req.useragent().toString(),
+          })
+
+          res.json(token);
+
+
+
+        } else
+          return done(400, 'auth code invalid');
+
+
       },
       async (req, res, next, done) => {
         if (req.body.grant_type != "password") return next();
@@ -558,8 +607,6 @@ export class AuthController {
         });
 
         userToken.username = user.username;
-
-        console.log(userToken);
 
         res.json(userToken);
       }

@@ -268,7 +268,6 @@ class AuthController {
                         return next(new http_1.HttpError(400, "client secret mismatch"));
                     this.authService
                         .insertToken({
-                        userId: req.user._id.toString(),
                         useragent: req.useragent().toString(),
                         clientId: client._id.toString(),
                         grant_type: "client_credentials"
@@ -370,6 +369,16 @@ class AuthController {
                 })
             ]
         };
+        this.newAuthCode = {
+            method: "post",
+            publicAccess: false,
+            actions: [
+                (req, res) => __awaiter(this, void 0, void 0, function* () {
+                    console.log(req.headers);
+                    res.json(yield this.authService.newAuthCode(req.userToken, (req.headers["clientid"] || '').toString(), req.body.redirectUri));
+                })
+            ]
+        };
         this.token = {
             method: "post",
             publicAccess: true,
@@ -379,6 +388,26 @@ class AuthController {
                         req.body.grant_type = "password";
                     next();
                 },
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
+                    if (req.body.grant_type != "authorization_code")
+                        return next();
+                    const code = req.body.code, codeId = req.body.codeId, clientId = req.headers["clientid"];
+                    if (yield this.authService.authCodeValid(codeId, code)) {
+                        const authCode = yield this.authService.findAuthCode((codeId));
+                        if (authCode.clientId != clientId)
+                            return done(400, 'auth code clientId invalid');
+                        yield this.authService.setAuthCodeUsed(codeId);
+                        const token = yield this.authService.insertToken({
+                            grant_type: 'authorization_code',
+                            clientId: clientId,
+                            userId: authCode.userId,
+                            useragent: req.useragent().toString(),
+                        });
+                        res.json(token);
+                    }
+                    else
+                        return done(400, 'auth code invalid');
+                }),
                 (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
                     if (req.body.grant_type != "password")
                         return next();
@@ -426,7 +455,6 @@ class AuthController {
                         grant_type: !userMatchOneTimePassword ? "password" : "one-time"
                     });
                     userToken.username = user.username;
-                    console.log(userToken);
                     res.json(userToken);
                 })
             ]

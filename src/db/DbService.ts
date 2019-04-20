@@ -98,6 +98,18 @@ export class DbService implements ServerServiceInterface {
     ].collections();
   }
 
+  stats(provider?: string) {
+    if (!provider && !DbService.options.defaultProvider) {
+      throw "collection specific provider and default provider not set";
+    }
+    if (!this.providers[provider || DbService.options.defaultProvider])
+      throw `> DbService provider named ${provider ||
+        DbService.options.defaultProvider} not configured`;
+    return this.providers[
+      provider || DbService.options.defaultProvider
+    ].stats();
+  }
+
   events(provider?: string): { [key: string]: any } {
     if (!provider && !DbService.options.defaultProvider) {
       throw "collection specific provider and default provider not set";

@@ -18,6 +18,7 @@ import {
   DbCollectionInterface
 } from "serendip-business-model";
 import { Server } from "../server";
+import { AuthorizationCodeModel } from "./AuthorizationCodeModel";
 
 export interface AuthServiceOptionsInterface {
   /**
@@ -34,9 +35,10 @@ export interface AuthServiceOptionsInterface {
   defaultMobileCountryCode?: string;
 }
 
-export interface AuthServiceEventsInterface {}
+export interface AuthServiceEventsInterface { }
 
 export class AuthService implements ServerServiceInterface {
+  authCodesCollection: DbCollectionInterface<AuthorizationCodeModel>;
   static configure(options: AuthServiceOptionsInterface): void {
     AuthService.options = _.extend(AuthService.options, options);
     if (options.smsProvider) AuthService.dependencies.push(options.smsProvider);
@@ -60,7 +62,7 @@ export class AuthService implements ServerServiceInterface {
   constructor(
     private dbService: DbService,
     private emailService: EmailService
-  ) {}
+  ) { }
 
   async start() {
     this.clientsCollection = await this.dbService.collection<ClientModel>(
@@ -68,19 +70,32 @@ export class AuthService implements ServerServiceInterface {
       true
     );
 
-    this.usersCollection = await this.dbService.collection<UserModel>(
-      "Users",
-      true
-    );
+
 
     this.tokenCollection = await this.dbService.collection<TokenModel>(
       "Tokens",
       true
     );
 
+
+
+    this.usersCollection = await this.dbService.collection<UserModel>(
+      "Users",
+      true
+    );
+
+
     this.usersCollection.ensureIndex({ username: 1 }, { unique: true });
     this.usersCollection.ensureIndex({ mobile: 1 }, {});
     this.usersCollection.ensureIndex({ email: 1 }, {});
+
+
+
+    this.authCodesCollection = await this.dbService.collection<AuthorizationCodeModel>(
+      "AuthCodes",
+      true
+    );
+
 
     //   this.usersCollection.createIndex({ "tokens.access_token": 1 }, {});
 
@@ -102,7 +117,7 @@ export class AuthService implements ServerServiceInterface {
         to: userModel.email,
         text: `Welcome to ${process.env.company_name}, ${
           userModel.username
-        }!\n\n
+          }!\n\n
              Your verification code is : ${userModel.emailVerificationCode} \n\n
              ${process.env.company_domain}`,
         subject: `Verify your email address on ${process.env.company_name}`,
@@ -327,6 +342,87 @@ export class AuthService implements ServerServiceInterface {
     return bcrypt.compareSync(password + user.passwordSalt, user.password);
   }
 
+  public async newAuthCode(token: TokenModel, clientId?: string, redirectUri?: string): Promise<{
+    _id: string,
+    code: string,
+    clientAuthBackUrl?: string
+  }> {
+
+
+    let authCode: AuthorizationCodeModel = {
+      clientId,
+      redirectUri,
+      userId: token.userId.toString(),
+      tokenId: token._id.toString(),
+      date: Date.now()
+    };
+    const code = utils.text.randomAsciiString(16);
+
+    authCode.codeSalt = utils.text.randomAsciiString(6);
+    authCode.date = Date.now();
+    authCode.codeHash = bcrypt.hashSync(code + authCode.codeSalt, 6);
+
+    authCode = await this.authCodesCollection.insertOne(authCode)
+
+
+    return {
+      code,
+      _id: authCode._id
+    };
+
+  }
+
+  async setAuthCodeUsed(_id: string): Promise<void> {
+
+    if (!_id) {
+      throw new Error('no _id provided');
+    }
+    const authCodeQuery = await this.authCodesCollection.find({
+      _id
+    });
+
+
+    if (!authCodeQuery[0])
+      throw new Error('auth code related to this codeId not found');
+
+    const authCode = authCodeQuery[0];
+
+
+    authCode.used = Date.now();
+
+    await this.authCodesCollection.updateOne(authCode);
+
+  }
+
+  public async authCodeValid(_id: string, code: string): Promise<boolean> {
+
+    if (!_id || !code)
+      return false;
+    const authCodeQuery = await this.authCodesCollection.find({
+      _id
+    });
+
+    if (!authCodeQuery[0])
+      return false;
+
+    const authCode = authCodeQuery[0];
+
+    return bcrypt.compareSync(code + authCode.codeSalt, authCode.codeHash);
+  }
+
+
+
+  public async findAuthCode(_id: string): Promise<AuthorizationCodeModel> {
+
+
+    const authCodeQuery = await this.authCodesCollection.find({
+      _id
+    });
+
+    return authCodeQuery[0]
+  }
+
+
   public userMatchOneTimePassword(
     user: UserModel,
     oneTimePassword: string
@@ -419,11 +515,11 @@ export class AuthService implements ServerServiceInterface {
     userId?: string;
     useragent: string;
     grant_type:
-      | "one-time"
-      | "password"
-      | "client_credentials"
-      | "refresh_token"
-      | "authorization_code";
+    | "one-time"
+    | "password"
+    | "client_credentials"
+    | "refresh_token"
+    | "authorization_code";
   }): Promise<TokenModel> {
     var newToken: TokenModel = {
       issue_at: Date.now(),

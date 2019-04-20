@@ -29,11 +29,12 @@ class AuthService {
     start() {
         return __awaiter(this, void 0, void 0, function* () {
             this.clientsCollection = yield this.dbService.collection("Clients", true);
-            this.usersCollection = yield this.dbService.collection("Users", true);
             this.tokenCollection = yield this.dbService.collection("Tokens", true);
+            this.usersCollection = yield this.dbService.collection("Users", true);
             this.usersCollection.ensureIndex({ username: 1 }, { unique: true });
             this.usersCollection.ensureIndex({ mobile: 1 }, {});
             this.usersCollection.ensureIndex({ email: 1 }, {});
+            this.authCodesCollection = yield this.dbService.collection("AuthCodes", true);
             //   this.usersCollection.createIndex({ "tokens.access_token": 1 }, {});
             this.restrictionCollection = yield this.dbService.collection("Restrictions");
             console.log(chalk_1.default.gray(`\tAuthService > users: ${yield this.usersCollection.count()}`));
@@ -232,6 +233,62 @@ class AuthService {
         if (!password || !user.password || !user.passwordSalt)
             return false;
         return bcrypt.compareSync(password + user.passwordSalt, user.password);
+    }
+    newAuthCode(token, clientId, redirectUri) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let authCode = {
+                clientId,
+                redirectUri,
+                userId: token.userId.toString(),
+                tokenId: token._id.toString(),
+                date: Date.now()
+            };
+            const code = utils.text.randomAsciiString(16);
+            authCode.codeSalt = utils.text.randomAsciiString(6);
+            authCode.date = Date.now();
+            authCode.codeHash = bcrypt.hashSync(code + authCode.codeSalt, 6);
+            authCode = yield this.authCodesCollection.insertOne(authCode);
+            return {
+                code,
+                _id: authCode._id
+            };
+        });
+    }
+    setAuthCodeUsed(_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!_id) {
+                throw new Error('no _id provided');
+            }
+            const authCodeQuery = yield this.authCodesCollection.find({
+                _id
+            });
+            if (!authCodeQuery[0])
+                throw new Error('auth code related to this codeId not found');
+            const authCode = authCodeQuery[0];
+            authCode.used = Date.now();
+            yield this.authCodesCollection.updateOne(authCode);
+        });
+    }
+    authCodeValid(_id, code) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!_id || !code)
+                return false;
+            const authCodeQuery = yield this.authCodesCollection.find({
+                _id
+            });
+            if (!authCodeQuery[0])
+                return false;
+            const authCode = authCodeQuery[0];
+            return bcrypt.compareSync(code + authCode.codeSalt, authCode.codeHash);
+        });
+    }
+    findAuthCode(_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const authCodeQuery = yield this.authCodesCollection.find({
+                _id
+            });
+            return authCodeQuery[0];
+        });
     }
     userMatchOneTimePassword(user, oneTimePassword) {
         if (!oneTimePassword || !user.oneTimePassword || !user.oneTimePasswordSalt)
