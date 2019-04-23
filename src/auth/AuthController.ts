@@ -521,6 +521,10 @@ export class AuthController {
           if (authCode.clientId != clientId)
             return done(400, 'auth code clientId invalid');
 
+          if (authCode.used)
+            return done(400, 'auth code has been used before');
+
+
           await this.authService.setAuthCodeUsed(codeId);
           const token = await this.authService.insertToken({
             grant_type: 'authorization_code',

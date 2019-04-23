@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const pathMatch = require("path-match");
 const url = require("url");
-const qs = require("qs");
 const _ = require("underscore");
 const server_1 = require("../server");
 const _1 = require(".");
@@ -17,7 +16,7 @@ class HttpRouter {
             var matcher = HttpRouter.routerPathMatcher(route.route);
             var params = matcher(path);
             if (params !== false) {
-                req.query = qs.parse(parsedUrl.query);
+                // req.query = qs.parse(parsedUrl.query);
                 req.params = params;
                 if (matchMethod) {
                     if (route.method.toLowerCase() != req.method.toLowerCase())

@@ -32,6 +32,7 @@ export interface AuthServiceOptionsInterface {
   mobileConfirmationRequired?: boolean;
   emailConfirmationRequired?: boolean;
   smsProvider?: string;
+  emailProvider?: string;
   defaultMobileCountryCode?: string;
 }
 
@@ -42,14 +43,14 @@ export class AuthService implements ServerServiceInterface {
   static configure(options: AuthServiceOptionsInterface): void {
     AuthService.options = _.extend(AuthService.options, options);
     if (options.smsProvider) AuthService.dependencies.push(options.smsProvider);
+    if (options.emailProvider) AuthService.dependencies.push(options.emailProvider);
   }
 
   static options: AuthServiceOptionsInterface = {
     tokenExpireIn: 1000 * 60 * 60 * 2
   };
 
-  static dependencies = ["DbService", "EmailService"];
-
+  static dependencies = ['DbService'];
   static events = new EventEmitter();
 
   public usersCollection: DbCollectionInterface<UserModel>;
@@ -60,11 +61,12 @@ export class AuthService implements ServerServiceInterface {
   private restrictions: RestrictionModel[];
 
   constructor(
-    private dbService: DbService,
-    private emailService: EmailService
+    private dbService: DbService
   ) { }
 
   async start() {
+
+    console.log(this.dbService);
     this.clientsCollection = await this.dbService.collection<ClientModel>(
       "Clients",
       true
@@ -110,8 +112,12 @@ export class AuthService implements ServerServiceInterface {
     await this.refreshRestrictions();
   }
 
-  public sendVerifyEmail(userModel: UserModel): Promise<any> {
-    return this.emailService
+  public async sendVerifyEmail(userModel: UserModel): Promise<any> {
+
+    if (!AuthService.options.emailProvider)
+      throw new HttpError(500, "no email provider")
+
+    return Server.services[AuthService.options.emailProvider]
       .send({
         from: process.env.company_mail_auth || process.env.company_mail_noreply,
         to: userModel.email,
@@ -133,26 +139,30 @@ export class AuthService implements ServerServiceInterface {
       .catch(e => AuthService.events.emit("sendVerifyEmail", null, e));
   }
 
-  public sendVerifySms(
+  public async sendVerifySms(
     userModel: UserModel,
     useragent?: string,
     ip?: string
   ): Promise<any> {
-    if (AuthService.options.smsProvider)
-      return new Promise((resolve, reject) => {
-        Server.services[AuthService.options.smsProvider]
-          .sendVerification(
-            userModel.mobile,
-            userModel.mobileVerificationCode,
-            useragent,
-            ip
-          )
-          .then(body => resolve(body))
-          .catch(err => reject(new HttpError(500, err)));
-      })
-        .then(r => AuthService.events.emit("sendVerifySms", r, null))
-        .catch(e => AuthService.events.emit("sendVerifySms", null, e));
-    else throw new HttpError(500, "no sms provider");
+
+    if (!AuthService.options.smsProvider)
+      throw new HttpError(500, "no sms provider")
+
+
+    return new Promise((resolve, reject) => {
+      Server.services[AuthService.options.smsProvider]
+        .sendVerification(
+          userModel.mobile,
+          userModel.mobileVerificationCode,
+          useragent,
+          ip
+        )
+        .then(body => resolve(body))
+        .catch(err => reject(new HttpError(500, err)));
+    })
+      .then(r => AuthService.events.emit("sendVerifySms", r, null))
+      .catch(e => AuthService.events.emit("sendVerifySms", null, e));
+
   }
 
   public async refreshRestrictions() {
@@ -173,13 +183,13 @@ export class AuthService implements ServerServiceInterface {
         "access_token not found in body and authorization header"
       );
 
-    var access_token: string;
+    let access_token: string;
 
     if (req.body.access_token) access_token = req.body.access_token;
     else access_token = req.headers.authorization.toString().split(" ")[1];
 
-    var userToken;
-    var user;
+    let userToken: TokenModel;
+    let user: UserModel;
 
     try {
       userToken = req.userToken = await this.findTokenByAccessToken(
@@ -189,6 +199,8 @@ export class AuthService implements ServerServiceInterface {
     } catch (error) {
       throw error;
     }
+
+    if (userToken.expires_at > Date.now()) throw new HttpError(401, "token expired");
 
     if (!user) throw new HttpError(401, "user deleted");
 
@@ -539,7 +551,7 @@ export class AuthService implements ServerServiceInterface {
       if (user) {
         newToken.username = user.username;
         newToken.groups = user.groups;
-        newToken.hasPassword = !!user.password;
+
       } else {
         throw new Error("user not found");
       }

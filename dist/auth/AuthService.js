@@ -17,17 +17,19 @@ const bcrypt = require("bcryptjs");
 const serendip_business_model_1 = require("serendip-business-model");
 const server_1 = require("../server");
 class AuthService {
-    constructor(dbService, emailService) {
+    constructor(dbService) {
         this.dbService = dbService;
-        this.emailService = emailService;
     }
     static configure(options) {
         AuthService.options = _.extend(AuthService.options, options);
         if (options.smsProvider)
             AuthService.dependencies.push(options.smsProvider);
+        if (options.emailProvider)
+            AuthService.dependencies.push(options.emailProvider);
     }
     start() {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(this.dbService);
             this.clientsCollection = yield this.dbService.collection("Clients", true);
             this.tokenCollection = yield this.dbService.collection("Tokens", true);
             this.usersCollection = yield this.dbService.collection("Users", true);
@@ -42,27 +44,33 @@ class AuthService {
         });
     }
     sendVerifyEmail(userModel) {
-        return this.emailService
-            .send({
-            from: process.env.company_mail_auth || process.env.company_mail_noreply,
-            to: userModel.email,
-            text: `Welcome to ${process.env.company_name}, ${userModel.username}!\n\n
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!AuthService.options.emailProvider)
+                throw new http_1.HttpError(500, "no email provider");
+            return server_1.Server.services[AuthService.options.emailProvider]
+                .send({
+                from: process.env.company_mail_auth || process.env.company_mail_noreply,
+                to: userModel.email,
+                text: `Welcome to ${process.env.company_name}, ${userModel.username}!\n\n
              Your verification code is : ${userModel.emailVerificationCode} \n\n
              ${process.env.company_domain}`,
-            subject: `Verify your email address on ${process.env.company_name}`,
-            template: {
-                data: {
-                    name: userModel.username,
-                    code: userModel.emailVerificationCode
-                },
-                name: "verify_email"
-            }
-        })
-            .then(r => AuthService.events.emit("sendVerifyEmail", r, null))
-            .catch(e => AuthService.events.emit("sendVerifyEmail", null, e));
+                subject: `Verify your email address on ${process.env.company_name}`,
+                template: {
+                    data: {
+                        name: userModel.username,
+                        code: userModel.emailVerificationCode
+                    },
+                    name: "verify_email"
+                }
+            })
+                .then(r => AuthService.events.emit("sendVerifyEmail", r, null))
+                .catch(e => AuthService.events.emit("sendVerifyEmail", null, e));
+        });
     }
     sendVerifySms(userModel, useragent, ip) {
-        if (AuthService.options.smsProvider)
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!AuthService.options.smsProvider)
+                throw new http_1.HttpError(500, "no sms provider");
             return new Promise((resolve, reject) => {
                 server_1.Server.services[AuthService.options.smsProvider]
                     .sendVerification(userModel.mobile, userModel.mobileVerificationCode, useragent, ip)
@@ -71,8 +79,7 @@ class AuthService {
             })
                 .then(r => AuthService.events.emit("sendVerifySms", r, null))
                 .catch(e => AuthService.events.emit("sendVerifySms", null, e));
-        else
-            throw new http_1.HttpError(500, "no sms provider");
+        });
     }
     refreshRestrictions() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -85,13 +92,13 @@ class AuthService {
                 return true;
             if (!req.headers.authorization && !req.body.access_token)
                 throw new http_1.HttpError(401, "access_token not found in body and authorization header");
-            var access_token;
+            let access_token;
             if (req.body.access_token)
                 access_token = req.body.access_token;
             else
                 access_token = req.headers.authorization.toString().split(" ")[1];
-            var userToken;
-            var user;
+            let userToken;
+            let user;
             try {
                 userToken = req.userToken = yield this.findTokenByAccessToken(access_token);
                 user = req.user = yield this.findUserById(userToken.userId);
@@ -99,6 +106,8 @@ class AuthService {
             catch (error) {
                 throw error;
             }
+            if (userToken.expires_at > Date.now())
+                throw new http_1.HttpError(401, "token expired");
             if (!user)
                 throw new http_1.HttpError(401, "user deleted");
             if (!user.groups)
@@ -385,7 +394,6 @@ class AuthService {
                 if (user) {
                     newToken.username = user.username;
                     newToken.groups = user.groups;
-                    newToken.hasPassword = !!user.password;
                 }
                 else {
                     throw new Error("user not found");
@@ -536,6 +544,6 @@ class AuthService {
 AuthService.options = {
     tokenExpireIn: 1000 * 60 * 60 * 2
 };
-AuthService.dependencies = ["DbService", "EmailService"];
+AuthService.dependencies = ['DbService'];
 AuthService.events = new events_1.EventEmitter();
 exports.AuthService = AuthService;

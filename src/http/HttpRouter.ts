@@ -41,7 +41,7 @@ export class HttpRouter {
       var params = matcher(path);
 
       if (params !== false) {
-        req.query = qs.parse(parsedUrl.query);
+       // req.query = qs.parse(parsedUrl.query);
         req.params = params;
 
         if (matchMethod) {
