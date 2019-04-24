@@ -200,7 +200,7 @@ export class AuthService implements ServerServiceInterface {
       throw error;
     }
 
-    if (userToken.expires_at > Date.now()) throw new HttpError(401, "token expired");
+    if (userToken.expires_at < Date.now()) throw new HttpError(401, "token expired");
 
     if (!user) throw new HttpError(401, "user deleted");
 

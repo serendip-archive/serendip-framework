@@ -106,7 +106,7 @@ class AuthService {
             catch (error) {
                 throw error;
             }
-            if (userToken.expires_at > Date.now())
+            if (userToken.expires_at < Date.now())
                 throw new http_1.HttpError(401, "token expired");
             if (!user)
                 throw new http_1.HttpError(401, "user deleted");
