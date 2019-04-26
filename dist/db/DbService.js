@@ -8,8 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const _ = require("underscore");
 const chalk_1 = require("chalk");
+const _ = require("underscore");
 /**
  * Every functionality thats use database should use it trough this service
  */
@@ -58,6 +58,24 @@ class DbService {
             throw `> DbService provider named ${provider ||
                 DbService.options.defaultProvider} not configured`;
         return this.providers[provider || DbService.options.defaultProvider].dropCollection(name);
+    }
+    openUploadStreamByFilePath(filePath, metadata, provider) {
+        if (!provider && !DbService.options.defaultProvider) {
+            throw "collection specific provider and default provider not set";
+        }
+        if (!this.providers[provider || DbService.options.defaultProvider])
+            throw `> DbService provider named ${provider ||
+                DbService.options.defaultProvider} not configured`;
+        return this.providers[provider || DbService.options.defaultProvider].openUploadStreamByFilePath(filePath, metadata);
+    }
+    openDownloadStreamByFilePath(filePath, opts, provider) {
+        if (!provider && !DbService.options.defaultProvider) {
+            throw "collection specific provider and default provider not set";
+        }
+        if (!this.providers[provider || DbService.options.defaultProvider])
+            throw `> DbService provider named ${provider ||
+                DbService.options.defaultProvider} not configured`;
+        return this.providers[provider || DbService.options.defaultProvider].openDownloadStreamByFilePath(filePath, opts);
     }
     collections(provider) {
         if (!provider && !DbService.options.defaultProvider) {

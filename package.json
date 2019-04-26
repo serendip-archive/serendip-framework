@@ -56,7 +56,7 @@
     "promise-serial": "^0.1.5",
     "request": "^2.87.0",
     "request-ip": "^2.1.3",
-    "serendip-business-model": "^1.1.10",
+    "serendip-business-model": "^1.1.11",
     "serendip-utility": "^1.1.2",
     "underscore": "^1.9.1",
     "useragent": "^2.3.0",

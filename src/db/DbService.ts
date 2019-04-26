@@ -1,9 +1,8 @@
-import { ServerServiceInterface, Server } from "../server";
-import * as _ from "underscore";
-import chalk from "chalk";
-import { DbProviderInterface } from "serendip-business-model/src/db/DbProviderInterface";
-import { DbProviderOptionsInterface } from "serendip-business-model/src/db/DbProviderOptionsInterface";
-import { EventEmitter } from "events";
+import chalk from 'chalk';
+import { DbProviderInterface, DbProviderOptionsInterface } from 'serendip-business-model';
+import * as _ from 'underscore';
+
+import { ServerServiceInterface } from '../server';
 
 export interface DbServiceOptions {
   /**
@@ -56,7 +55,7 @@ export class DbService implements ServerServiceInterface {
     }
     if (!this.providers[provider || DbService.options.defaultProvider])
       throw `> DbService provider named ${provider ||
-        DbService.options.defaultProvider} not configured`;
+      DbService.options.defaultProvider} not configured`;
     return this.providers[
       provider || DbService.options.defaultProvider
     ].collection<T>(collectionName, track);
@@ -68,7 +67,7 @@ export class DbService implements ServerServiceInterface {
     }
     if (!this.providers[provider || DbService.options.defaultProvider])
       throw `> DbService provider named ${provider ||
-        DbService.options.defaultProvider} not configured`;
+      DbService.options.defaultProvider} not configured`;
     return this.providers[
       provider || DbService.options.defaultProvider
     ].dropDatabase();
@@ -80,11 +79,40 @@ export class DbService implements ServerServiceInterface {
     }
     if (!this.providers[provider || DbService.options.defaultProvider])
       throw `> DbService provider named ${provider ||
-        DbService.options.defaultProvider} not configured`;
+      DbService.options.defaultProvider} not configured`;
     return this.providers[
       provider || DbService.options.defaultProvider
     ].dropCollection(name);
   }
+
+  openUploadStreamByFilePath(filePath: string, metadata: any, provider?: string) {
+    if (!provider && !DbService.options.defaultProvider) {
+      throw "collection specific provider and default provider not set";
+    }
+    if (!this.providers[provider || DbService.options.defaultProvider])
+      throw `> DbService provider named ${provider ||
+      DbService.options.defaultProvider} not configured`;
+    return this.providers[
+      provider || DbService.options.defaultProvider
+    ].openUploadStreamByFilePath(filePath, metadata);
+  }
+
+
+
+  openDownloadStreamByFilePath(filePath: string, opts?: { start?: number, end?: number, revision?: number }, provider?: string) {
+    if (!provider && !DbService.options.defaultProvider) {
+      throw "collection specific provider and default provider not set";
+    }
+    if (!this.providers[provider || DbService.options.defaultProvider])
+      throw `> DbService provider named ${provider ||
+      DbService.options.defaultProvider} not configured`;
+    return this.providers[
+      provider || DbService.options.defaultProvider
+    ].openDownloadStreamByFilePath(filePath, opts);
+  }
+
+
+
 
   collections(provider?: string) {
     if (!provider && !DbService.options.defaultProvider) {
@@ -92,11 +120,16 @@ export class DbService implements ServerServiceInterface {
     }
     if (!this.providers[provider || DbService.options.defaultProvider])
       throw `> DbService provider named ${provider ||
-        DbService.options.defaultProvider} not configured`;
+      DbService.options.defaultProvider} not configured`;
     return this.providers[
       provider || DbService.options.defaultProvider
     ].collections();
   }
+
+
+
+
+
 
   stats(provider?: string) {
     if (!provider && !DbService.options.defaultProvider) {
@@ -104,7 +137,7 @@ export class DbService implements ServerServiceInterface {
     }
     if (!this.providers[provider || DbService.options.defaultProvider])
       throw `> DbService provider named ${provider ||
-        DbService.options.defaultProvider} not configured`;
+      DbService.options.defaultProvider} not configured`;
     return this.providers[
       provider || DbService.options.defaultProvider
     ].stats();
@@ -116,10 +149,10 @@ export class DbService implements ServerServiceInterface {
     }
     if (!this.providers[provider || DbService.options.defaultProvider])
       throw `> DbService provider named ${provider ||
-        DbService.options.defaultProvider} not configured`;
+      DbService.options.defaultProvider} not configured`;
 
     return this.providers[provider || DbService.options.defaultProvider].events;
   }
 
-  constructor() {}
+  constructor() { }
 }
