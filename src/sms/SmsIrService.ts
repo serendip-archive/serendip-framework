@@ -1,3 +1,6 @@
+/**
+ *  @module Sms
+ */
 import { ServerServiceInterface } from "../server";
 import * as request from "request";
 import * as _ from "underscore";

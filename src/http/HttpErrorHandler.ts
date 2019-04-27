@@ -1,4 +1,8 @@
-export class  HttpError extends Error {
+/**
+ *  @module Http
+ */
+
+ export class  HttpError extends Error {
 
     constructor(code: number, message: string, id?: string) {
 

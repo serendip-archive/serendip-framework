@@ -1,3 +1,6 @@
+/**
+ *  @module Http
+ */
 import { HttpRequestInterface } from "./HttpRequestInterface";
 import { HttpResponseInterface } from "./HttpResponseInterface";
 

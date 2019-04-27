@@ -1,8 +1,15 @@
+/**
+ * @module Start
+ */
 import { Server, ServerOptionsInterface } from "./server";
 import * as cluster from "cluster";
 import { cpus } from "os";
 import { EventEmitter } from "events";
 
+
+/**
+ * Worker class is used to store static properties about worker and it's cluster.
+ */
 export class Worker {
   static others: number[] = [];
 
@@ -10,6 +17,11 @@ export class Worker {
   static isWorker = cluster.isWorker;
   static id = cluster.worker ? cluster.worker.id : null;
 }
+
+/**
+ * 
+ * @param opts Options to bootstrap and start the server. [[ServerOptionsInterface]]  
+ */
 export function start(opts?: ServerOptionsInterface) {
   if (!opts.services) opts.services = [];
 
@@ -49,7 +61,7 @@ export function start(opts?: ServerOptionsInterface) {
         }
       }, 1000);
 
-      cluster.on("disconnect", function(worker) {
+      cluster.on("disconnect", function (worker) {
         if (opts.logging != "silent")
           console.error(
             "\n\tWorker %s has died! Creating a new one.",

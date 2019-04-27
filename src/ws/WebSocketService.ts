@@ -1,4 +1,8 @@
-import {
+/**
+ *  @module WebSocket
+ */
+
+ import {
   ServerServiceInterface,
   EmailService,
   Server,

@@ -34,12 +34,17 @@
     "gulp-clean": "^0.4.0",
     "gulp-deploy-ftp": "^1.0.1",
     "gulp-nodemon": "^2.2.1",
+    "gulp-typedoc": "^2.2.2",
     "gulp-typescript": "^4.0.2",
     "pump": "^3.0.0",
     "serendip-mongodb-provider": "^1.0.12",
+    "typedoc": "^0.14.2",
+    "typedoc-plugin-external-module-name": "^2.0.0",
+    "typedoc-plugin-markdown": "^1.2.0",
     "typescript": "^2.9.2"
   },
   "dependencies": {
+    "@types/mocha": "^5.2.6",
     "@types/ws": "^6.0.1",
     "async": "^2.6.1",
     "bcryptjs": "^2.4.3",

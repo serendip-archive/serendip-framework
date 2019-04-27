@@ -1,4 +1,8 @@
-import * as _ from "underscore";
+/**
+ *  @module Server
+ */
+
+ import * as _ from "underscore";
 
 import { Server } from ".";
 import { AuthService } from "../auth";

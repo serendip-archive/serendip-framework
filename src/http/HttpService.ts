@@ -1,4 +1,8 @@
-import { ServerServiceInterface, Server } from "../server";
+/**
+ *  @module Http
+ */
+
+ import { ServerServiceInterface, Server } from "../server";
 import chalk from "chalk";
 import * as bodyParser from "body-parser";
 import * as http from "http";
@@ -101,10 +105,10 @@ export class HttpService implements ServerServiceInterface {
           // Defining controllerUrl for this controllerMethod
           var controllerUrl = `/api/${
             controller.apiPrefix ? controller.apiPrefix + "/" : ""
-          }${controller.name.replace(
-            "Controller",
-            ""
-          )}/${controllerEndpointName}`.toLowerCase();
+            }${controller.name.replace(
+              "Controller",
+              ""
+            )}/${controllerEndpointName}`.toLowerCase();
 
           if (endpoint.route)
             if (!endpoint.route.startsWith("/"))
@@ -129,9 +133,9 @@ export class HttpService implements ServerServiceInterface {
             console.log(
               chalk`{green ☑}  [${serverRoute.method.toUpperCase()}] {magenta ${
                 serverRoute.route
-              }} | {gray ${serverRoute.controllerName} > ${
+                }} | {gray ${serverRoute.controllerName} > ${
                 serverRoute.endpoint
-              }}`
+                }}`
             );
         }
       );
@@ -219,7 +223,7 @@ export class HttpService implements ServerServiceInterface {
           console.log(
             chalk.blueBright(
               `HttpService > worker ${
-                Server.worker.id
+              Server.worker.id
               } running http server at port ${HttpService.options.httpPort}`
             )
           );
@@ -230,9 +234,9 @@ export class HttpService implements ServerServiceInterface {
               console.log(
                 chalk.blueBright(
                   `HttpService > worker ${
-                    Server.worker.id
+                  Server.worker.id
                   } running https server at port ${
-                    HttpService.options.httpsPort
+                  HttpService.options.httpsPort
                   }`
                 )
               );
@@ -254,9 +258,9 @@ export class HttpService implements ServerServiceInterface {
     const logString = () => {
       return `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
         req.method
-      }] "${req.url}" ${req.ip()}/${
+        }] "${req.url}" ${req.ip()}/${
         req.user ? req.user.username : ""
-      } ${req.useragent()} ${res.statusCode} ${Date.now() -
+        } ${req.useragent()} ${res.statusCode} ${Date.now() -
         requestReceived}ms ${res.statusMessage}`;
     };
 
@@ -282,7 +286,7 @@ export class HttpService implements ServerServiceInterface {
       console.info(
         chalk.gray(
           `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | [${
-            req.method
+          req.method
           }] "${req.url}" ${req.ip()}/${req.useragent()}`
         )
       );
@@ -315,7 +319,7 @@ export class HttpService implements ServerServiceInterface {
     } else {
       if (!srvRoute) {
         if (HttpService.options.staticPath) {
-          HttpService.processRequestToStatic(req, res, (code, filePath) => {});
+          HttpService.processRequestToStatic(req, res, (code, filePath) => { });
           return;
         } else {
           res.statusCode = 404;

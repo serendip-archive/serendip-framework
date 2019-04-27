@@ -1,4 +1,8 @@
-import * as http from "http";
+/**
+ *  @module Http
+ */
+
+ import * as http from "http";
 
 /**
  * HttpRequest

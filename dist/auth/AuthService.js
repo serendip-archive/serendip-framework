@@ -1,4 +1,7 @@
 "use strict";
+/**
+ *  @module Auth
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -16,6 +19,19 @@ const chalk_1 = require("chalk");
 const bcrypt = require("bcryptjs");
 const serendip_business_model_1 = require("serendip-business-model");
 const server_1 = require("../server");
+/**
+ * @internal
+ * Codeblocks are great for examples
+ *
+ * ```
+ * <my-custom-element>Highlight JS will autodetect the language</my-custom-element>
+ * ```
+ *
+ * ```typescript
+ * // Or you can specify the language explicitly
+ * const instance = new MyClass();
+ * ```
+ */
 class AuthService {
     constructor(dbService) {
         this.dbService = dbService;
@@ -90,13 +106,13 @@ class AuthService {
         return __awaiter(this, void 0, void 0, function* () {
             if (publicAccess)
                 return true;
-            if (!req.headers.authorization && !req.body.access_token)
-                throw new http_1.HttpError(401, "access_token not found in body and authorization header");
+            if (!req.headers.authorization && !req.body.access_token && !req.query.access_token)
+                throw new http_1.HttpError(401, "access_token not found in body, query and authorization header");
             let access_token;
             if (!access_token && req.headers && req.headers.authorization && req.headers.authorization.split(' ').length > 0)
                 access_token = req.headers.authorization.toString().split(" ")[1];
             if (!access_token && req.query && req.query.access_token)
-                access_token = req.query.access_token;
+                access_token = decodeURIComponent(req.query.access_token);
             if (!access_token && req.body && req.body.access_token)
                 access_token = req.body.access_token;
             let userToken;

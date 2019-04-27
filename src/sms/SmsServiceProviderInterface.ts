@@ -1,4 +1,8 @@
-export interface SmsServiceProviderInterface {
+/**
+ *  @module Sms
+ */
+
+ export interface SmsServiceProviderInterface {
   sendAuthCode(  mobileNumber: string,
     code: string,
     useragent?: string,

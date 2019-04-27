@@ -1,4 +1,7 @@
 "use strict";
+/**
+ *  @module Http
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 const pathMatch = require("path-match");
 const url = require("url");

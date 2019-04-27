@@ -1,4 +1,8 @@
-import { ServerServiceInterface } from "../server";
+/**
+ *  @module ViewEngine
+ */
+
+ import { ServerServiceInterface } from "../server";
 
 import * as mustache from 'mustache'
 

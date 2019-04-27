@@ -1,3 +1,7 @@
+/**
+ *  @module Auth
+ */
+
 import * as utils from "serendip-utility";
 import { DbService } from "../db";
 
@@ -18,26 +22,22 @@ import {
   DbCollectionInterface
 } from "serendip-business-model";
 import { Server } from "../server";
-import { AuthorizationCodeModel } from "./AuthorizationCodeModel";
+import { AuthorizationCodeModel } from "serendip-business-model";
+import { AuthServiceOptionsInterface } from "./AuthServiceOptionsInterface";
 
-export interface AuthServiceOptionsInterface {
-  /**
-   * in milliseconds
-   */
-  tokenExpireIn?: number;
-  /**
-   * maximum token count per user
-   */
-  maxTokenCount?: number;
-  mobileConfirmationRequired?: boolean;
-  emailConfirmationRequired?: boolean;
-  smsProvider?: string;
-  emailProvider?: string;
-  defaultMobileCountryCode?: string;
-}
-
-export interface AuthServiceEventsInterface { }
-
+/**
+ * @internal
+ * Codeblocks are great for examples
+ * 
+ * ```
+ * <my-custom-element>Highlight JS will autodetect the language</my-custom-element>
+ * ```
+ * 
+ * ```typescript
+ * // Or you can specify the language explicitly
+ * const instance = new MyClass();
+ * ```
+ */
 export class AuthService implements ServerServiceInterface {
   authCodesCollection: DbCollectionInterface<AuthorizationCodeModel>;
   static configure(options: AuthServiceOptionsInterface): void {
@@ -177,10 +177,10 @@ export class AuthService implements ServerServiceInterface {
   ) {
     if (publicAccess) return true;
 
-    if (!req.headers.authorization && !req.body.access_token)
+    if (!req.headers.authorization && !req.body.access_token && !req.query.access_token)
       throw new HttpError(
         401,
-        "access_token not found in body and authorization header"
+        "access_token not found in body, query and authorization header"
       );
 
     let access_token: string;
@@ -188,9 +188,10 @@ export class AuthService implements ServerServiceInterface {
     if (!access_token && req.headers && req.headers.authorization && req.headers.authorization.split(' ').length > 0)
       access_token = req.headers.authorization.toString().split(" ")[1]
 
-    if (!access_token && req.query && req.query.access_token) access_token = req.query.access_token
+    if (!access_token && req.query && req.query.access_token) access_token = decodeURIComponent(req.query.access_token)
 
     if (!access_token && req.body && req.body.access_token) access_token = req.body.access_token;
+
 
     let userToken: TokenModel;
     let user: UserModel;

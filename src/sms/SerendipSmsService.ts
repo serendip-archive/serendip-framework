@@ -1,3 +1,7 @@
+/**
+ *  @module Sms
+ */
+
 import { ServerServiceInterface, Server } from "../server";
 import * as request from "request";
 import * as _ from "underscore";
@@ -53,7 +57,7 @@ export class SerendipSmsService
   getToken(): Promise<TokenModel> {
     return new Promise((resolve, reject) => {
       if (this.tokenIssueAt)
-        if (Date.now() - this.tokenIssueAt <  1000 * 60 * 60)
+        if (Date.now() - this.tokenIssueAt < 1000 * 60 * 60)
           return resolve(this.token);
 
       request(
@@ -145,7 +149,7 @@ export class SerendipSmsService
               },
               json: true
             },
-            function(error, response, body) {
+            function (error, response, body) {
               if (error) return reject(error);
 
               resolve(body);
@@ -156,5 +160,5 @@ export class SerendipSmsService
     });
   }
 
-  async start() {}
+  async start() { }
 }

@@ -1,9 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * @module Start
+ */
 const server_1 = require("./server");
 const cluster = require("cluster");
 const os_1 = require("os");
 const events_1 = require("events");
+/**
+ * Worker class is used to store static properties about worker and it's cluster.
+ */
 class Worker {
 }
 Worker.others = [];
@@ -11,6 +17,10 @@ Worker.isMaster = cluster.isMaster;
 Worker.isWorker = cluster.isWorker;
 Worker.id = cluster.worker ? cluster.worker.id : null;
 exports.Worker = Worker;
+/**
+ *
+ * @param opts Options to bootstrap and start the server. [[ServerOptionsInterface]]
+ */
 function start(opts) {
     if (!opts.services)
         opts.services = [];

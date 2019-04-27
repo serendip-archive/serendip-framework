@@ -1,5 +1,11 @@
 
-export interface HttpEndpointErrorInterface {
+/**
+ *  @module Http
+ */
+
+
+
+ export interface HttpEndpointErrorInterface {
 
     error: string;
     error_description: string;

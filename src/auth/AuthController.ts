@@ -1,3 +1,8 @@
+
+/**
+ * @module Auth
+ */
+
 import { Server } from "../server";
 import { Validator } from "../utils";
 import {

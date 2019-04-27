@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "types": [
+      "mocha",
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+    ],
+    "lib": [
+      "es5",
+    ]
+  }
+}

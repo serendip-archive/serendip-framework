@@ -1,3 +1,7 @@
+
+/**
+ * @module Email
+ */
 import { EmailModel } from "./models";
 import { ServerServiceInterface } from "../server";
 import * as _ from "underscore";

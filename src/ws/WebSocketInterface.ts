@@ -1,4 +1,8 @@
-import * as WS from "ws";
+/**
+ *  @module WebSocket
+ */
+
+ import * as WS from "ws";
 import { TokenModel } from "serendip-business-model";
 
 export interface WebSocketInterface extends WS {

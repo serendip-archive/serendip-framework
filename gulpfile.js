@@ -6,7 +6,7 @@ var nodemon = require("gulp-nodemon");
 var child = require("child_process");
 var moment = require("moment");
 var fs = require("fs");
-
+var typedoc = require("gulp-typedoc");
 var paths = {
   dist: "dist",
   logs: "logs/*",
@@ -71,12 +71,47 @@ gulp.task("ts", function () {
 
 // whats typescripts , compile and then run
 gulp.watch(paths.tsSources, ["run"]);
+gulp.watch(paths.tsSources, ["typedoc"]);
 
 // clean before build
 gulp.task("preBuild", ["clean"]);
 
 // clean and compile
 gulp.task("build", ["preBuild", "ts"], function () { });
+
+
+gulp.task("typedoc", function () {
+  //
+  //  "doc": "typedoc --theme minimal --hideGenerator --includeDeclarations --excludeExternals --excludePrivate --excludeNotExported  --out ./doc ./src"
+  //
+  return gulp
+    .src([paths.tsSources,
+      './node_modules/serendip-business-model/src/auth/*.ts',
+      './node_modules/serendip-business-model/src/db/*.ts',
+      './node_modules/serendip-business-model/src/Server*.ts'])
+    .pipe(typedoc({
+      // TypeScript options (see typescript docs)
+      module: "commonjs",
+      target: "es5",
+      includeDeclarations: true,
+      excludePrivate: true,
+      excludeProtected: true,
+      excludeExternals: true,
+      hideGenerator: true,
+      exclude: ['./src/debug_ignore.ts', './src/debug.ts'],
+      // Output options (see typedoc docs)
+      out: "./doc",
+      json: "./doc.json",
+
+      // TypeDoc options (see typedoc docs)
+      name: "Serendip Framework",
+      theme: "minimal",
+      // theme: "markdown",
+      ignoreCompilerErrors: false,
+      version: true,
+    }))
+
+});
 
 gulp.task("production", function () {
   glob("./dist/**/*.js", {}, function (er, files) {
@@ -108,6 +143,6 @@ gulp.task("production", function () {
   });
 });
 // compile and run node process
-gulp.task("run", ["ts"], run);
+gulp.task("run", ["ts", "typedoc"], run);
 
 gulp.task("default", ["build", "run"], function () { });

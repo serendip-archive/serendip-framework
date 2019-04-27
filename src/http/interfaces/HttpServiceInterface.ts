@@ -1,3 +1,7 @@
+/**
+ *  @module Http
+ */
+
 export interface HttpServiceInterface {
   start?(): Promise<void>;
 

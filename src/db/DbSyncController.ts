@@ -1,4 +1,9 @@
-import {
+
+/**
+ * @internal @module Db
+ */
+
+ import {
   HttpControllerInterface,
   HttpRequestInterface,
   HttpResponseInterface

@@ -1,4 +1,8 @@
-import { HttpRequestInterface } from "./HttpRequestInterface";
+/**
+ *  @module Http
+ */
+
+ import { HttpRequestInterface } from "./HttpRequestInterface";
 import { HttpResponseInterface } from "./HttpResponseInterface";
 
 export interface HttpMiddlewareInterface extends Function {

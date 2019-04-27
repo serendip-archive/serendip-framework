@@ -1,4 +1,8 @@
-import chalk from "chalk";
+/**
+ *  @module Server
+ */
+
+ import chalk from "chalk";
 import * as cluster from "cluster";
 import * as ws from "ws";
 

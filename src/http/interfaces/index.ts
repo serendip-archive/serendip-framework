@@ -1,5 +1,9 @@
 // created from 'create-ts-index'
+/**
+ *  @module Http
+ */
 
+ 
 export * from './HttpControllerInterface';
 export * from './HttpEndpointActionInterface';
 export * from './HttpEndpointErrorInterface';

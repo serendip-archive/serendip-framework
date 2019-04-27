@@ -1,3 +1,7 @@
+
+/**
+ * @internal @module Email
+ */
 export interface EmailTemplateInterface {
   name: string;
   data?: any;

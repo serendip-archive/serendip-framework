@@ -1,4 +1,8 @@
-import * as pathMatch from "path-match";
+/**
+ *  @module Http
+ */
+
+ import * as pathMatch from "path-match";
 import * as url from "url";
 import * as qs from "qs";
 import { AuthService } from "..";

@@ -1,6 +1,8 @@
 
 
-
+/**
+ *  @module Utils
+ */
 export class Validator {
 
     constructor() {

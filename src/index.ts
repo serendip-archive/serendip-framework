@@ -1,3 +1,7 @@
+/**
+ * @module Server
+ */
+
 export * from "./start";
 
 export * from "./server";
@@ -14,5 +18,5 @@ export * from "./email";
 export * from "./ui";
 
 export * from "./ws";
- 
+
 export * from "./http";

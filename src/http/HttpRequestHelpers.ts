@@ -1,4 +1,9 @@
-import * as http from "http";
+
+/**
+ *  @module Http
+ */
+
+ import * as http from "http";
 import * as ua from "useragent";
 import * as reqIp from "request-ip";
 import { querystring } from "serendip-utility"

@@ -1,4 +1,8 @@
-import * as http from "http";
+/**
+ *  @module Http
+ */
+
+ import * as http from "http";
 import { TokenModel, ClientModel, UserModel } from "serendip-business-model";
 
 /**

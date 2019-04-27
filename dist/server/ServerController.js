@@ -1,4 +1,7 @@
 "use strict";
+/**
+ *  @module Server
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 const _ = require("underscore");
 const _1 = require(".");

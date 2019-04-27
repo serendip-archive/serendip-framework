@@ -8,6 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * @internal @module Db
+ */
 const chalk_1 = require("chalk");
 const _ = require("underscore");
 /**

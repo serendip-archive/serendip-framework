@@ -1,5 +1,9 @@
 /**
- * routes to introduce to express :) 
+ *  @module Http
+ */
+
+/**
+ * routes to introduce to HttpService 
  */
 export interface HttpRouteInterface {
 

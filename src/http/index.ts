@@ -1,4 +1,8 @@
-// created from 'create-ts-index'
+/**
+ *  @module Http
+ */
+
+ // created from 'create-ts-index'
 
 export * from './interfaces';
 export * from './HttpErrorHandler';

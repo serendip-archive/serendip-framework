@@ -1,4 +1,8 @@
-import { ServerServiceInterface } from '..';
+/**
+ *  @module Server
+ */
+
+ import { ServerServiceInterface } from '..';
 
 export interface ServerOptionsInterface {
   // server services to start.

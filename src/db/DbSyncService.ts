@@ -1,3 +1,7 @@
+
+/**
+ * @internal @module Db
+ */
 import { DbService } from "./DbService";
 import { WebSocketService } from "../ws";
 import * as WS from "ws";

@@ -1,4 +1,8 @@
-import { HttpEndpointActionInterface } from "./HttpEndpointActionInterface";
+/**
+ *  @module Http
+ */
+
+ import { HttpEndpointActionInterface } from "./HttpEndpointActionInterface";
 
 export interface HttpEndpointInterface {
 

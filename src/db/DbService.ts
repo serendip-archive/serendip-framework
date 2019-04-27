@@ -1,3 +1,6 @@
+/**
+ * @internal @module Db
+ */
 import chalk from 'chalk';
 import { DbProviderInterface, DbProviderOptionsInterface } from 'serendip-business-model';
 import * as _ from 'underscore';
