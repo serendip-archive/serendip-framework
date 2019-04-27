@@ -105,8 +105,8 @@ gulp.task("typedoc", function () {
 
       // TypeDoc options (see typedoc docs)
       name: "Serendip Framework",
-      theme: "minimal",
-      // theme: "markdown",
+     // theme: "minimal",
+       theme: "markdown",
       ignoreCompilerErrors: false,
       version: true,
     }))
