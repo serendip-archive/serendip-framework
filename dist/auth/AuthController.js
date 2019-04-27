@@ -299,7 +299,7 @@ class AuthController {
                                 .insertToken({
                                 userId: token.userId,
                                 useragent: req.useragent().toString(),
-                                grant_type: "password"
+                                grant_type: "refresh_token"
                             })
                                 .then(token => {
                                 return res.json(token);
@@ -386,8 +386,13 @@ class AuthController {
                 (req, res, next) => {
                     if (!req.body.grant_type)
                         req.body.grant_type = "password";
-                    next();
+                    return next();
                 },
+                (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
+                    if (req.body.grant_type != "refresh_token")
+                        return next();
+                    return this.refreshToken.actions[0](req, res, next, done);
+                }),
                 (req, res, next, done) => __awaiter(this, void 0, void 0, function* () {
                     if (req.body.grant_type != "authorization_code")
                         return next();

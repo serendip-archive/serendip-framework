@@ -93,10 +93,12 @@ class AuthService {
             if (!req.headers.authorization && !req.body.access_token)
                 throw new http_1.HttpError(401, "access_token not found in body and authorization header");
             let access_token;
-            if (req.body.access_token)
-                access_token = req.body.access_token;
-            else
+            if (!access_token && req.headers && req.headers.authorization && req.headers.authorization.split(' ').length > 0)
                 access_token = req.headers.authorization.toString().split(" ")[1];
+            if (!access_token && req.query && req.query.access_token)
+                access_token = req.query.access_token;
+            if (!access_token && req.body && req.body.access_token)
+                access_token = req.body.access_token;
             let userToken;
             let user;
             try {
