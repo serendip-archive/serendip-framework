@@ -9,8 +9,7 @@
 ![SF](https://raw.githubusercontent.com/serendip-agency/serendip-framework/master/readme_icon.png " ")
 # Serendip framework
 
-
-  Serendip is a Node.js web service framework written in typescript. and of course, you can use it in your javascript projects.
+  It's a Node.js web service framework written in typescript. The main goal for creating this framework was to have a shared package that could provide all frequently used services in a specific setting which was needed for speeding up developing the rest of the Serendip platform [repositories](https://github.com/serendip-agency).
 
 | Services | Description |
 |-|-| 
@@ -24,20 +23,55 @@
  
 ---
 
-## Installing
-using npm : 
+### Installing
+Assuming that you have already installed Nodejs, you can start installing Serendip with NPM.
+Open your Terminal/Command Prompt(CMD) and write:
+
 ```
 npm install serendip --save
 ```
 
-> ### :information_source: more information at [Wiki](https://github.com/m-esm/serendip/wiki)
+### Code documentation
+this documentation are auto generated from typescript source and comments using [typedoc](https://github.com/TypeStrong/typedoc)
+* [Auth](doc/modules/auth.md)
+* [Db](doc/modules/db.md)
+* [Email](doc/modules/email.md)
+* [Fax](doc/modules/fax.md)
+* [Http](doc/modules/http.md)
+* [Server](doc/modules/server.md)
+* [Sms](doc/modules/sms.md)
+* [Start](doc/modules/start.md)
+* [Utils](doc/modules/utils.md)
+* [ViewEngine](doc/modules/viewengine.md)
+* [WebSocket](doc/modules/websocket.md)
 
-* collaboration, issue reporting kindly accepted
-* Contact m-esm@hotmail.com 
 
+### Testing
+our tests are written using [mocha](https://github.com/mochajs/mocha) and u can run them by following commands.
+ note that some of the tests need a database connection.
+```
+# Clone ( you need git installed )
+git clone https://github.com/serendip-agency/serendip-framework.git
 
-## License
+# go to downloaded directory
+cd serendip-framework
+
+# Installs npm dependencies
+npm install
+
+# running mocha tests
+npm test
+
+```
+
+ 
+
+### License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fm-esm%2Fserendip.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fm-esm%2Fserendip?ref=badge_large)
+
+___
+
+#### collaboration, issue reporting kindly accepted.
 
 ![_](https://raw.githubusercontent.com/serendip-agency/serendip-framework/master/readme_footer.png "footer img")
  
