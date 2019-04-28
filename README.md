@@ -6,7 +6,7 @@
 ![TypeScript](https://badges.frapsoft.com/typescript/love/typescript.svg?v=101)
 
 
-![SF](https://raw.githubusercontent.com/m-esm/serendip/master/readme_icon.png " ")
+![SF](https://raw.githubusercontent.com/serendip-agency/serendip-framework/master/readme_icon.png " ")
 # Serendip framework
 
 
@@ -39,5 +39,5 @@ npm install serendip --save
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fm-esm%2Fserendip.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fm-esm%2Fserendip?ref=badge_large)
 
-![_](https://raw.githubusercontent.com/m-esm/serendip/master/readme_footer.png "footer img")
+![_](https://raw.githubusercontent.com/serendip-agency/serendip-framework/master/readme_footer.png "footer img")
  
