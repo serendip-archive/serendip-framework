@@ -23,7 +23,7 @@
 
 **● smtp**: *[EmailServiceSmtpOptionsInterface](email.emailservicesmtpoptionsinterface.md)*
 
-*Defined in [src/email/EmailService.ts:24](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/EmailService.ts#L24)*
+*Defined in [src/email/EmailService.ts:24](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L24)*
 
 ___
 <a id="templatespath"></a>
@@ -32,7 +32,7 @@ ___
 
 **● templatesPath**: *`string`*
 
-*Defined in [src/email/EmailService.ts:25](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/EmailService.ts#L25)*
+*Defined in [src/email/EmailService.ts:25](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L25)*
 
 ___
 

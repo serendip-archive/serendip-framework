@@ -30,7 +30,7 @@
 
 ⊕ **new DbSyncService**(dbService: *[DbService](db.dbservice.md)*, webSocketService: *[WebSocketService](websocket.websocketservice.md)*): [DbSyncService](db.dbsyncservice.md)
 
-*Defined in [src/db/DbSyncService.ts:11](https://github.com/m-esm/serendip/blob/c44cfd4/src/db/DbSyncService.ts#L11)*
+*Defined in [src/db/DbSyncService.ts:11](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbSyncService.ts#L11)*
 
 **Parameters:**
 
@@ -51,7 +51,7 @@ ___
 
 **● route**: *`string`* = "/db_sync"
 
-*Defined in [src/db/DbSyncService.ts:11](https://github.com/m-esm/serendip/blob/c44cfd4/src/db/DbSyncService.ts#L11)*
+*Defined in [src/db/DbSyncService.ts:11](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbSyncService.ts#L11)*
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 ▸ **start**(): `Promise`<`void`>
 
-*Defined in [src/db/DbSyncService.ts:21](https://github.com/m-esm/serendip/blob/c44cfd4/src/db/DbSyncService.ts#L21)*
+*Defined in [src/db/DbSyncService.ts:21](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbSyncService.ts#L21)*
 
 **Returns:** `Promise`<`void`>
 

@@ -31,7 +31,7 @@
 
 **● dependencies**: *`any`[]* =  []
 
-*Defined in [src/ui/ViewEngineService.ts:11](https://github.com/m-esm/serendip/blob/c44cfd4/src/ui/ViewEngineService.ts#L11)*
+*Defined in [src/ui/ViewEngineService.ts:11](https://github.com/m-esm/serendip/blob/17b0858/src/ui/ViewEngineService.ts#L11)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 ▸ **renderMustache**(toRender: *`string`*, model: *`any`*, partials?: *`any`*): `string`
 
-*Defined in [src/ui/ViewEngineService.ts:18](https://github.com/m-esm/serendip/blob/c44cfd4/src/ui/ViewEngineService.ts#L18)*
+*Defined in [src/ui/ViewEngineService.ts:18](https://github.com/m-esm/serendip/blob/17b0858/src/ui/ViewEngineService.ts#L18)*
 
 **Parameters:**
 
@@ -64,7 +64,7 @@ ___
 
 *Implementation of [ServerServiceInterface](../interfaces/server.serverserviceinterface-1.md).[start](../interfaces/server.serverserviceinterface-1.md#start)*
 
-*Defined in [src/ui/ViewEngineService.ts:13](https://github.com/m-esm/serendip/blob/c44cfd4/src/ui/ViewEngineService.ts#L13)*
+*Defined in [src/ui/ViewEngineService.ts:13](https://github.com/m-esm/serendip/blob/17b0858/src/ui/ViewEngineService.ts#L13)*
 
 **Returns:** `Promise`<`void`>
 

@@ -42,7 +42,7 @@
 
 **● dependencies**: *`string`[]*
 
-*Defined in [src/server/ServerServiceInterface.ts:10](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/ServerServiceInterface.ts#L10)*
+*Defined in [src/server/ServerServiceInterface.ts:10](https://github.com/m-esm/serendip/blob/17b0858/src/server/ServerServiceInterface.ts#L10)*
 
 ___
 <a id="options"></a>
@@ -51,7 +51,7 @@ ___
 
 **● options**: *`any`*
 
-*Defined in [src/server/ServerServiceInterface.ts:13](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/ServerServiceInterface.ts#L13)*
+*Defined in [src/server/ServerServiceInterface.ts:13](https://github.com/m-esm/serendip/blob/17b0858/src/server/ServerServiceInterface.ts#L13)*
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 ▸ **configure**(options: *`any`*): `void`
 
-*Defined in [src/server/ServerServiceInterface.ts:16](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/ServerServiceInterface.ts#L16)*
+*Defined in [src/server/ServerServiceInterface.ts:16](https://github.com/m-esm/serendip/blob/17b0858/src/server/ServerServiceInterface.ts#L16)*
 
 **Parameters:**
 
@@ -80,7 +80,7 @@ ___
 
 ▸ **start**(): `Promise`<`any`>
 
-*Defined in [src/server/ServerServiceInterface.ts:7](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/ServerServiceInterface.ts#L7)*
+*Defined in [src/server/ServerServiceInterface.ts:7](https://github.com/m-esm/serendip/blob/17b0858/src/server/ServerServiceInterface.ts#L7)*
 
 **Returns:** `Promise`<`any`>
 

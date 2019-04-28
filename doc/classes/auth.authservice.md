@@ -90,7 +90,7 @@ const instance = new MyClass();
 
 ⊕ **new AuthService**(dbService: *[DbService](db.dbservice.md)*): [AuthService](auth.authservice.md)
 
-*Defined in [src/auth/AuthService.ts:61](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L61)*
+*Defined in [src/auth/AuthService.ts:61](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L61)*
 
 **Parameters:**
 
@@ -110,7 +110,7 @@ ___
 
 **● authCodesCollection**: *[DbCollectionInterface](../interfaces/db.dbcollectioninterface.md)<[AuthorizationCodeModel](auth.authorizationcodemodel.md)>*
 
-*Defined in [src/auth/AuthService.ts:42](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L42)*
+*Defined in [src/auth/AuthService.ts:42](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L42)*
 
 ___
 <a id="clientscollection"></a>
@@ -119,7 +119,7 @@ ___
 
 **● clientsCollection**: *[DbCollectionInterface](../interfaces/db.dbcollectioninterface.md)<[ClientModel](auth.clientmodel.md)>*
 
-*Defined in [src/auth/AuthService.ts:57](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L57)*
+*Defined in [src/auth/AuthService.ts:57](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L57)*
 
 ___
 <a id="restrictioncollection"></a>
@@ -128,7 +128,7 @@ ___
 
 **● restrictionCollection**: *[DbCollectionInterface](../interfaces/db.dbcollectioninterface.md)<[RestrictionModel](auth.restrictionmodel.md)>*
 
-*Defined in [src/auth/AuthService.ts:58](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L58)*
+*Defined in [src/auth/AuthService.ts:58](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L58)*
 
 ___
 <a id="tokencollection"></a>
@@ -137,7 +137,7 @@ ___
 
 **● tokenCollection**: *[DbCollectionInterface](../interfaces/db.dbcollectioninterface.md)<[TokenModel](auth.tokenmodel.md)>*
 
-*Defined in [src/auth/AuthService.ts:59](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L59)*
+*Defined in [src/auth/AuthService.ts:59](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L59)*
 
 ___
 <a id="userscollection"></a>
@@ -146,7 +146,7 @@ ___
 
 **● usersCollection**: *[DbCollectionInterface](../interfaces/db.dbcollectioninterface.md)<[UserModel](auth.usermodel.md)>*
 
-*Defined in [src/auth/AuthService.ts:56](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L56)*
+*Defined in [src/auth/AuthService.ts:56](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L56)*
 
 ___
 <a id="dependencies"></a>
@@ -155,7 +155,7 @@ ___
 
 **● dependencies**: *`string`[]* =  ['DbService']
 
-*Defined in [src/auth/AuthService.ts:53](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L53)*
+*Defined in [src/auth/AuthService.ts:53](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L53)*
 
 ___
 <a id="events"></a>
@@ -164,7 +164,7 @@ ___
 
 **● events**: *`EventEmitter`* =  new EventEmitter()
 
-*Defined in [src/auth/AuthService.ts:54](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L54)*
+*Defined in [src/auth/AuthService.ts:54](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L54)*
 
 ___
 
@@ -176,7 +176,7 @@ ___
 
 ▸ **VerifyUserEmail**(email: *`string`*, code: *`string`*): `Promise`<`void`>
 
-*Defined in [src/auth/AuthService.ts:268](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L268)*
+*Defined in [src/auth/AuthService.ts:268](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L268)*
 
 **Parameters:**
 
@@ -194,7 +194,7 @@ ___
 
 ▸ **VerifyUserMobile**(mobile: *`string`*, code: *`string`*): `Promise`<`void`>
 
-*Defined in [src/auth/AuthService.ts:263](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L263)*
+*Defined in [src/auth/AuthService.ts:263](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L263)*
 
 **Parameters:**
 
@@ -212,7 +212,7 @@ ___
 
 ▸ **addUserToGroup**(userId: *`string`*, group: *`string`*): `Promise`<`void`>
 
-*Defined in [src/auth/AuthService.ts:497](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L497)*
+*Defined in [src/auth/AuthService.ts:497](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L497)*
 
 **Parameters:**
 
@@ -230,7 +230,7 @@ ___
 
 ▸ **authCodeValid**(_id: *`string`*, code: *`string`*): `Promise`<`boolean`>
 
-*Defined in [src/auth/AuthService.ts:414](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L414)*
+*Defined in [src/auth/AuthService.ts:414](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L414)*
 
 **Parameters:**
 
@@ -248,7 +248,7 @@ ___
 
 ▸ **authorizeRequest**(req: *[HttpRequestInterface](../interfaces/http.httprequestinterface.md)*, controllerName: *`any`*, endpoint: *`any`*, publicAccess: *`boolean`*): `Promise`<`boolean`>
 
-*Defined in [src/auth/AuthService.ts:172](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L172)*
+*Defined in [src/auth/AuthService.ts:172](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L172)*
 
 **Parameters:**
 
@@ -268,7 +268,7 @@ ___
 
 ▸ **changeUserMobile**(userId: *`string`*, newMobile: *`string`*): `Promise`<`void`>
 
-*Defined in [src/auth/AuthService.ts:251](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L251)*
+*Defined in [src/auth/AuthService.ts:251](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L251)*
 
 **Parameters:**
 
@@ -286,7 +286,7 @@ ___
 
 ▸ **clientMatchSecret**(client: *[ClientModel](auth.clientmodel.md)*, secret: *`string`*): `boolean`
 
-*Defined in [src/auth/AuthService.ts:455](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L455)*
+*Defined in [src/auth/AuthService.ts:455](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L455)*
 
 **Parameters:**
 
@@ -304,7 +304,7 @@ ___
 
 ▸ **deleteClientTokens**(clientId: *`string`*): `Promise`<[TokenModel](auth.tokenmodel.md)[]>
 
-*Defined in [src/auth/AuthService.ts:490](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L490)*
+*Defined in [src/auth/AuthService.ts:490](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L490)*
 
 **Parameters:**
 
@@ -321,7 +321,7 @@ ___
 
 ▸ **deleteUserFromGroup**(userId: *`string`*, group: *`string`*): `Promise`<`void`>
 
-*Defined in [src/auth/AuthService.ts:507](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L507)*
+*Defined in [src/auth/AuthService.ts:507](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L507)*
 
 **Parameters:**
 
@@ -339,7 +339,7 @@ ___
 
 ▸ **deleteUserTokens**(userId: *`string`*): `Promise`<[TokenModel](auth.tokenmodel.md)[]>
 
-*Defined in [src/auth/AuthService.ts:482](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L482)*
+*Defined in [src/auth/AuthService.ts:482](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L482)*
 
 **Parameters:**
 
@@ -356,7 +356,7 @@ ___
 
 ▸ **findAuthCode**(_id: *`string`*): `Promise`<[AuthorizationCodeModel](auth.authorizationcodemodel.md)>
 
-*Defined in [src/auth/AuthService.ts:432](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L432)*
+*Defined in [src/auth/AuthService.ts:432](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L432)*
 
 **Parameters:**
 
@@ -373,7 +373,7 @@ ___
 
 ▸ **findClientById**(clientId: *`string`*): `Promise`<[ClientModel](auth.clientmodel.md)>
 
-*Defined in [src/auth/AuthService.ts:655](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L655)*
+*Defined in [src/auth/AuthService.ts:655](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L655)*
 
 **Parameters:**
 
@@ -390,7 +390,7 @@ ___
 
 ▸ **findTokenByAccessToken**(access_token: *`string`*): `Promise`<[TokenModel](auth.tokenmodel.md)>
 
-*Defined in [src/auth/AuthService.ts:460](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L460)*
+*Defined in [src/auth/AuthService.ts:460](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L460)*
 
 **Parameters:**
 
@@ -407,7 +407,7 @@ ___
 
 ▸ **findTokensByClientId**(clientId: *`string`*): `Promise`<[TokenModel](auth.tokenmodel.md)[]>
 
-*Defined in [src/auth/AuthService.ts:478](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L478)*
+*Defined in [src/auth/AuthService.ts:478](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L478)*
 
 **Parameters:**
 
@@ -424,7 +424,7 @@ ___
 
 ▸ **findTokensByUserId**(userId: *`string`*): `Promise`<[TokenModel](auth.tokenmodel.md)[]>
 
-*Defined in [src/auth/AuthService.ts:474](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L474)*
+*Defined in [src/auth/AuthService.ts:474](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L474)*
 
 **Parameters:**
 
@@ -441,7 +441,7 @@ ___
 
 ▸ **findUserByEmail**(email: *`string`*): `Promise`<[UserModel](auth.usermodel.md)>
 
-*Defined in [src/auth/AuthService.ts:664](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L664)*
+*Defined in [src/auth/AuthService.ts:664](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L664)*
 
 **Parameters:**
 
@@ -458,7 +458,7 @@ ___
 
 ▸ **findUserById**(id: *`string`*): `Promise`<[UserModel](auth.usermodel.md)>
 
-*Defined in [src/auth/AuthService.ts:719](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L719)*
+*Defined in [src/auth/AuthService.ts:719](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L719)*
 
 **Parameters:**
 
@@ -475,7 +475,7 @@ ___
 
 ▸ **findUserByMobile**(mobile: *`string`*, mobileCountryCode?: *`string`*): `Promise`<[UserModel](auth.usermodel.md)>
 
-*Defined in [src/auth/AuthService.ts:673](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L673)*
+*Defined in [src/auth/AuthService.ts:673](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L673)*
 
 **Parameters:**
 
@@ -493,7 +493,7 @@ ___
 
 ▸ **findUserByUsername**(username: *`string`*): `Promise`<[UserModel](auth.usermodel.md)>
 
-*Defined in [src/auth/AuthService.ts:708](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L708)*
+*Defined in [src/auth/AuthService.ts:708](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L708)*
 
 **Parameters:**
 
@@ -510,7 +510,7 @@ ___
 
 ▸ **getUsersInGroup**(group: *`string`*): `Promise`<[UserModel](auth.usermodel.md)[]>
 
-*Defined in [src/auth/AuthService.ts:521](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L521)*
+*Defined in [src/auth/AuthService.ts:521](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L521)*
 
 **Parameters:**
 
@@ -527,7 +527,7 @@ ___
 
 ▸ **insertToken**(opts: *`object`*): `Promise`<[TokenModel](auth.tokenmodel.md)>
 
-*Defined in [src/auth/AuthService.ts:530](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L530)*
+*Defined in [src/auth/AuthService.ts:530](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L530)*
 
 **Parameters:**
 
@@ -549,7 +549,7 @@ ___
 
 ▸ **newAuthCode**(token: *[TokenModel](auth.tokenmodel.md)*, clientId?: *`string`*, redirectUri?: *`string`*): `Promise`<`object`>
 
-*Defined in [src/auth/AuthService.ts:362](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L362)*
+*Defined in [src/auth/AuthService.ts:362](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L362)*
 
 **Parameters:**
 
@@ -568,7 +568,7 @@ ___
 
 ▸ **refreshRestrictions**(): `Promise`<`void`>
 
-*Defined in [src/auth/AuthService.ts:168](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L168)*
+*Defined in [src/auth/AuthService.ts:168](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L168)*
 
 **Returns:** `Promise`<`void`>
 
@@ -579,7 +579,7 @@ ___
 
 ▸ **registerUser**(model: *[UserRegisterRequestInterface](../interfaces/auth.userregisterrequestinterface.md)*, ip?: *`any`*, useragent?: *`any`*, confirmed?: *`boolean`*): `Promise`<[UserModel](auth.usermodel.md)>
 
-*Defined in [src/auth/AuthService.ts:273](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L273)*
+*Defined in [src/auth/AuthService.ts:273](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L273)*
 
 **Parameters:**
 
@@ -599,7 +599,7 @@ ___
 
 ▸ **resetMobileVerifyCode**(userId: *`any`*): `Promise`<`void`>
 
-*Defined in [src/auth/AuthService.ts:349](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L349)*
+*Defined in [src/auth/AuthService.ts:349](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L349)*
 
 **Parameters:**
 
@@ -616,7 +616,7 @@ ___
 
 ▸ **sendOneTimePassword**(userId: *`any`*, useragent: *`any`*, ip: *`any`*): `Promise`<`any`>
 
-*Defined in [src/auth/AuthService.ts:570](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L570)*
+*Defined in [src/auth/AuthService.ts:570](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L570)*
 
 **Parameters:**
 
@@ -635,7 +635,7 @@ ___
 
 ▸ **sendPasswordResetToken**(userId: *`string`*, useragent?: *`string`*, ip?: *`string`*): `Promise`<`any`>
 
-*Defined in [src/auth/AuthService.ts:590](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L590)*
+*Defined in [src/auth/AuthService.ts:590](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L590)*
 
 **Parameters:**
 
@@ -654,7 +654,7 @@ ___
 
 ▸ **sendVerifyEmail**(userModel: *[UserModel](auth.usermodel.md)*): `Promise`<`any`>
 
-*Defined in [src/auth/AuthService.ts:115](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L115)*
+*Defined in [src/auth/AuthService.ts:115](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L115)*
 
 **Parameters:**
 
@@ -671,7 +671,7 @@ ___
 
 ▸ **sendVerifySms**(userModel: *[UserModel](auth.usermodel.md)*, useragent?: *`string`*, ip?: *`string`*): `Promise`<`any`>
 
-*Defined in [src/auth/AuthService.ts:142](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L142)*
+*Defined in [src/auth/AuthService.ts:142](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L142)*
 
 **Parameters:**
 
@@ -690,7 +690,7 @@ ___
 
 ▸ **setAuthCodeUsed**(_id: *`string`*): `Promise`<`void`>
 
-*Defined in [src/auth/AuthService.ts:392](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L392)*
+*Defined in [src/auth/AuthService.ts:392](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L392)*
 
 **Parameters:**
 
@@ -707,7 +707,7 @@ ___
 
 ▸ **setClientSecret**(clientId: *`any`*, newSecret: *`any`*): `Promise`<`void`>
 
-*Defined in [src/auth/AuthService.ts:637](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L637)*
+*Defined in [src/auth/AuthService.ts:637](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L637)*
 
 **Parameters:**
 
@@ -725,7 +725,7 @@ ___
 
 ▸ **setNewPassword**(userId: *`any`*, newPass: *`any`*, ip?: *`string`*, useragent?: *`string`*): `Promise`<`void`>
 
-*Defined in [src/auth/AuthService.ts:617](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L617)*
+*Defined in [src/auth/AuthService.ts:617](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L617)*
 
 **Parameters:**
 
@@ -747,7 +747,7 @@ ___
 
 *Implementation of [ServerServiceInterface](../interfaces/server.serverserviceinterface-1.md).[start](../interfaces/server.serverserviceinterface-1.md#start)*
 
-*Defined in [src/auth/AuthService.ts:67](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L67)*
+*Defined in [src/auth/AuthService.ts:67](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L67)*
 
 **Returns:** `Promise`<`void`>
 
@@ -758,7 +758,7 @@ ___
 
 ▸ **userMatchOneTimePassword**(user: *[UserModel](auth.usermodel.md)*, oneTimePassword: *`string`*): `boolean`
 
-*Defined in [src/auth/AuthService.ts:443](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L443)*
+*Defined in [src/auth/AuthService.ts:443](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L443)*
 
 **Parameters:**
 
@@ -776,7 +776,7 @@ ___
 
 ▸ **userMatchPassword**(user: *[UserModel](auth.usermodel.md)*, password: *`string`*): `boolean`
 
-*Defined in [src/auth/AuthService.ts:357](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L357)*
+*Defined in [src/auth/AuthService.ts:357](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L357)*
 
 **Parameters:**
 
@@ -794,7 +794,7 @@ ___
 
 ▸ **configure**(options: *[AuthServiceOptionsInterface](../interfaces/auth.authserviceoptionsinterface.md)*): `void`
 
-*Defined in [src/auth/AuthService.ts:43](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L43)*
+*Defined in [src/auth/AuthService.ts:43](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L43)*
 
 **Parameters:**
 
@@ -814,7 +814,7 @@ ___
 
 **options**: *`object`*
 
-*Defined in [src/auth/AuthService.ts:49](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L49)*
+*Defined in [src/auth/AuthService.ts:49](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L49)*
 
 <a id="options.tokenexpirein"></a>
 
@@ -822,7 +822,7 @@ ___
 
 **● tokenExpireIn**: *`number`* =  1000 * 60 * 60 * 2
 
-*Defined in [src/auth/AuthService.ts:50](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthService.ts#L50)*
+*Defined in [src/auth/AuthService.ts:50](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthService.ts#L50)*
 
 ___
 

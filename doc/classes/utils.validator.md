@@ -31,7 +31,7 @@
 
 ⊕ **new Validator**(): [Validator](utils.validator.md)
 
-*Defined in [src/utils/Validator.ts:6](https://github.com/m-esm/serendip/blob/c44cfd4/src/utils/Validator.ts#L6)*
+*Defined in [src/utils/Validator.ts:6](https://github.com/m-esm/serendip/blob/17b0858/src/utils/Validator.ts#L6)*
 
 **Returns:** [Validator](utils.validator.md)
 
@@ -45,7 +45,7 @@ ___
 
 ▸ **isAlphanumeric**(input: *`string`*): `boolean`
 
-*Defined in [src/utils/Validator.ts:27](https://github.com/m-esm/serendip/blob/c44cfd4/src/utils/Validator.ts#L27)*
+*Defined in [src/utils/Validator.ts:27](https://github.com/m-esm/serendip/blob/17b0858/src/utils/Validator.ts#L27)*
 
 **Parameters:**
 
@@ -62,7 +62,7 @@ ___
 
 ▸ **isEmail**(input: *`string`*): `boolean`
 
-*Defined in [src/utils/Validator.ts:19](https://github.com/m-esm/serendip/blob/c44cfd4/src/utils/Validator.ts#L19)*
+*Defined in [src/utils/Validator.ts:19](https://github.com/m-esm/serendip/blob/17b0858/src/utils/Validator.ts#L19)*
 
 **Parameters:**
 
@@ -79,7 +79,7 @@ ___
 
 ▸ **isLength**(input: *`string`*, min: *`number`*, max: *`number`*): `boolean`
 
-*Defined in [src/utils/Validator.ts:13](https://github.com/m-esm/serendip/blob/c44cfd4/src/utils/Validator.ts#L13)*
+*Defined in [src/utils/Validator.ts:13](https://github.com/m-esm/serendip/blob/17b0858/src/utils/Validator.ts#L13)*
 
 **Parameters:**
 
@@ -98,7 +98,7 @@ ___
 
 ▸ **isNumeric**(input: *`string`*): `boolean`
 
-*Defined in [src/utils/Validator.ts:35](https://github.com/m-esm/serendip/blob/c44cfd4/src/utils/Validator.ts#L35)*
+*Defined in [src/utils/Validator.ts:35](https://github.com/m-esm/serendip/blob/17b0858/src/utils/Validator.ts#L35)*
 
 **Parameters:**
 

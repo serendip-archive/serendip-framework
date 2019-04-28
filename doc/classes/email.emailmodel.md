@@ -29,7 +29,7 @@
 
 **● attachments**: *[EmailAttachmentInterface](../interfaces/email.emailattachmentinterface.md)[] \| `any`*
 
-*Defined in [src/email/models/EmailModel.ts:60](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/models/EmailModel.ts#L60)*
+*Defined in [src/email/models/EmailModel.ts:60](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L60)*
 
 array of attachments
 
@@ -40,7 +40,7 @@ ___
 
 **● cc**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:55](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/models/EmailModel.ts#L55)*
+*Defined in [src/email/models/EmailModel.ts:55](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L55)*
 
 ___
 <a id="from"></a>
@@ -49,7 +49,7 @@ ___
 
 **● from**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:45](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/models/EmailModel.ts#L45)*
+*Defined in [src/email/models/EmailModel.ts:45](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L45)*
 
 example : "you [username@your-email.com](mailto:username@your-email.com)"
 
@@ -60,7 +60,7 @@ ___
 
 **● html**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:40](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/models/EmailModel.ts#L40)*
+*Defined in [src/email/models/EmailModel.ts:40](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L40)*
 
 ___
 <a id="subject"></a>
@@ -69,7 +69,7 @@ ___
 
 **● subject**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:38](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/models/EmailModel.ts#L38)*
+*Defined in [src/email/models/EmailModel.ts:38](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L38)*
 
 ___
 <a id="template"></a>
@@ -78,7 +78,7 @@ ___
 
 **● template**: *[EmailTemplateInterface](../interfaces/email.emailtemplateinterface.md)*
 
-*Defined in [src/email/models/EmailModel.ts:62](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/models/EmailModel.ts#L62)*
+*Defined in [src/email/models/EmailModel.ts:62](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L62)*
 
 ___
 <a id="text"></a>
@@ -87,7 +87,7 @@ ___
 
 **● text**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:36](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/models/EmailModel.ts#L36)*
+*Defined in [src/email/models/EmailModel.ts:36](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L36)*
 
 ___
 <a id="to"></a>
@@ -96,7 +96,7 @@ ___
 
 **● to**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:50](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/models/EmailModel.ts#L50)*
+*Defined in [src/email/models/EmailModel.ts:50](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L50)*
 
 ___
 

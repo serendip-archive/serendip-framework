@@ -40,7 +40,7 @@
 
 ⊕ **new SmsIrService**(dbService: *[DbService](db.dbservice.md)*): [SmsIrService](sms.smsirservice.md)
 
-*Defined in [src/sms/SmsIrService.ts:31](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L31)*
+*Defined in [src/sms/SmsIrService.ts:31](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L31)*
 
 **Parameters:**
 
@@ -60,7 +60,7 @@ ___
 
 ▸ **credit**(): `Promise`<`Object`>
 
-*Defined in [src/sms/SmsIrService.ts:89](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L89)*
+*Defined in [src/sms/SmsIrService.ts:89](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L89)*
 
 **Returns:** `Promise`<`Object`>
 
@@ -71,7 +71,7 @@ ___
 
 ▸ **getToken**(): `Promise`<`Object`>
 
-*Defined in [src/sms/SmsIrService.ts:45](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L45)*
+*Defined in [src/sms/SmsIrService.ts:45](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L45)*
 
 **Returns:** `Promise`<`Object`>
 
@@ -84,7 +84,7 @@ ___
 
 *Implementation of [SmsServiceProviderInterface](../interfaces/sms.smsserviceproviderinterface.md).[send](../interfaces/sms.smsserviceproviderinterface.md#send)*
 
-*Defined in [src/sms/SmsIrService.ts:227](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L227)*
+*Defined in [src/sms/SmsIrService.ts:227](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L227)*
 
 **Parameters:**
 
@@ -104,7 +104,7 @@ ___
 
 *Implementation of [SmsServiceProviderInterface](../interfaces/sms.smsserviceproviderinterface.md).[sendAuthCode](../interfaces/sms.smsserviceproviderinterface.md#sendauthcode)*
 
-*Defined in [src/sms/SmsIrService.ts:115](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L115)*
+*Defined in [src/sms/SmsIrService.ts:115](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L115)*
 
 **Parameters:**
 
@@ -126,7 +126,7 @@ ___
 
 *Implementation of [ServerServiceInterface](../interfaces/server.serverserviceinterface-1.md).[start](../interfaces/server.serverserviceinterface-1.md#start)*
 
-*Defined in [src/sms/SmsIrService.ts:261](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L261)*
+*Defined in [src/sms/SmsIrService.ts:261](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L261)*
 
 **Returns:** `Promise`<`void`>
 
@@ -137,7 +137,7 @@ ___
 
 ▸ **configure**(options: *[SmsIrServiceOptionsInterface](../interfaces/sms.smsirserviceoptionsinterface.md)*): `void`
 
-*Defined in [src/sms/SmsIrService.ts:29](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L29)*
+*Defined in [src/sms/SmsIrService.ts:29](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L29)*
 
 **Parameters:**
 
@@ -157,7 +157,7 @@ ___
 
 **options**: *`object`*
 
-*Defined in [src/sms/SmsIrService.ts:21](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L21)*
+*Defined in [src/sms/SmsIrService.ts:21](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L21)*
 
 <a id="options.apikey"></a>
 
@@ -165,7 +165,7 @@ ___
 
 **● apiKey**: *`string`* = ""
 
-*Defined in [src/sms/SmsIrService.ts:22](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L22)*
+*Defined in [src/sms/SmsIrService.ts:22](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L22)*
 
 ___
 <a id="options.linenumber"></a>
@@ -174,7 +174,7 @@ ___
 
 **● lineNumber**: *`string`* = ""
 
-*Defined in [src/sms/SmsIrService.ts:23](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L23)*
+*Defined in [src/sms/SmsIrService.ts:23](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L23)*
 
 ___
 <a id="options.secretkey"></a>
@@ -183,7 +183,7 @@ ___
 
 **● secretKey**: *`string`* = ""
 
-*Defined in [src/sms/SmsIrService.ts:24](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L24)*
+*Defined in [src/sms/SmsIrService.ts:24](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L24)*
 
 ___
 <a id="options.verifytemplate"></a>
@@ -192,7 +192,7 @@ ___
 
 **● verifyTemplate**: *`number`* = 0
 
-*Defined in [src/sms/SmsIrService.ts:25](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L25)*
+*Defined in [src/sms/SmsIrService.ts:25](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L25)*
 
 ___
 <a id="options.verifytemplatewithipanduseragent"></a>
@@ -201,7 +201,7 @@ ___
 
 **● verifyTemplateWithIpAndUseragent**: *`number`* = 0
 
-*Defined in [src/sms/SmsIrService.ts:26](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L26)*
+*Defined in [src/sms/SmsIrService.ts:26](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L26)*
 
 ___
 

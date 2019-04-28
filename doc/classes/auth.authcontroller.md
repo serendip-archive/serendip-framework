@@ -44,7 +44,7 @@
 
 ⊕ **new AuthController**(authService: *[AuthService](auth.authservice.md)*): [AuthController](auth.authcontroller.md)
 
-*Defined in [src/auth/AuthController.ts:21](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L21)*
+*Defined in [src/auth/AuthController.ts:21](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L21)*
 
 **Parameters:**
 
@@ -64,7 +64,7 @@ ___
 
 **addUserToGroup**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:135](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L135)*
+*Defined in [src/auth/AuthController.ts:135](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L135)*
 
 <a id="addusertogroup.actions"></a>
 
@@ -81,7 +81,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:138](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L138)*
+*Defined in [src/auth/AuthController.ts:138](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L138)*
 
 ___
 <a id="addusertogroup.method"></a>
@@ -90,7 +90,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:136](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L136)*
+*Defined in [src/auth/AuthController.ts:136](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L136)*
 
 ___
 <a id="addusertogroup.publicaccess"></a>
@@ -99,7 +99,7 @@ ___
 
 **● publicAccess**: *`false`* = false
 
-*Defined in [src/auth/AuthController.ts:137](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L137)*
+*Defined in [src/auth/AuthController.ts:137](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L137)*
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 **changePassword**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:165](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L165)*
+*Defined in [src/auth/AuthController.ts:165](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L165)*
 
 <a id="changepassword.actions-1"></a>
 
@@ -143,7 +143,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:168](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L168)*
+*Defined in [src/auth/AuthController.ts:168](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L168)*
 
 ___
 <a id="changepassword.method-1"></a>
@@ -152,7 +152,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:166](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L166)*
+*Defined in [src/auth/AuthController.ts:166](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L166)*
 
 ___
 <a id="changepassword.publicaccess-1"></a>
@@ -161,7 +161,7 @@ ___
 
 **● publicAccess**: *`false`* = false
 
-*Defined in [src/auth/AuthController.ts:167](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L167)*
+*Defined in [src/auth/AuthController.ts:167](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L167)*
 
 ___
 
@@ -172,7 +172,7 @@ ___
 
 **checkToken**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:427](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L427)*
+*Defined in [src/auth/AuthController.ts:427](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L427)*
 
 <a id="checktoken.actions-2"></a>
 
@@ -184,7 +184,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:430](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L430)*
+*Defined in [src/auth/AuthController.ts:430](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L430)*
 
 ___
 <a id="checktoken.method-2"></a>
@@ -193,7 +193,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:428](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L428)*
+*Defined in [src/auth/AuthController.ts:428](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L428)*
 
 ___
 <a id="checktoken.publicaccess-2"></a>
@@ -202,7 +202,7 @@ ___
 
 **● publicAccess**: *`false`* = false
 
-*Defined in [src/auth/AuthController.ts:429](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L429)*
+*Defined in [src/auth/AuthController.ts:429](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L429)*
 
 ___
 
@@ -213,7 +213,7 @@ ___
 
 **clientToken**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:350](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L350)*
+*Defined in [src/auth/AuthController.ts:350](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L350)*
 
 <a id="clienttoken.actions-3"></a>
 
@@ -243,7 +243,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:353](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L353)*
+*Defined in [src/auth/AuthController.ts:353](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L353)*
 
 ___
 <a id="clienttoken.method-3"></a>
@@ -252,7 +252,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:351](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L351)*
+*Defined in [src/auth/AuthController.ts:351](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L351)*
 
 ___
 <a id="clienttoken.publicaccess-3"></a>
@@ -261,7 +261,7 @@ ___
 
 **● publicAccess**: *`true`* = true
 
-*Defined in [src/auth/AuthController.ts:352](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L352)*
+*Defined in [src/auth/AuthController.ts:352](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L352)*
 
 ___
 
@@ -272,7 +272,7 @@ ___
 
 **deleteUserFromGroup**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:150](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L150)*
+*Defined in [src/auth/AuthController.ts:150](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L150)*
 
 <a id="deleteuserfromgroup.actions-4"></a>
 
@@ -289,7 +289,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:153](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L153)*
+*Defined in [src/auth/AuthController.ts:153](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L153)*
 
 ___
 <a id="deleteuserfromgroup.method-4"></a>
@@ -298,7 +298,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:151](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L151)*
+*Defined in [src/auth/AuthController.ts:151](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L151)*
 
 ___
 <a id="deleteuserfromgroup.publicaccess-4"></a>
@@ -307,7 +307,7 @@ ___
 
 **● publicAccess**: *`false`* = false
 
-*Defined in [src/auth/AuthController.ts:152](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L152)*
+*Defined in [src/auth/AuthController.ts:152](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L152)*
 
 ___
 
@@ -318,7 +318,7 @@ ___
 
 **newAuthCode**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:489](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L489)*
+*Defined in [src/auth/AuthController.ts:489](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L489)*
 
 <a id="newauthcode.actions-5"></a>
 
@@ -333,7 +333,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:493](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L493)*
+*Defined in [src/auth/AuthController.ts:493](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L493)*
 
 ___
 <a id="newauthcode.method-5"></a>
@@ -342,7 +342,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:490](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L490)*
+*Defined in [src/auth/AuthController.ts:490](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L490)*
 
 ___
 <a id="newauthcode.publicaccess-5"></a>
@@ -351,7 +351,7 @@ ___
 
 **● publicAccess**: *`false`* = false
 
-*Defined in [src/auth/AuthController.ts:491](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L491)*
+*Defined in [src/auth/AuthController.ts:491](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L491)*
 
 ___
 
@@ -362,7 +362,7 @@ ___
 
 **oneTimePassword**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:437](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L437)*
+*Defined in [src/auth/AuthController.ts:437](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L437)*
 
 <a id="onetimepassword.actions-6"></a>
 
@@ -414,7 +414,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:440](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L440)*
+*Defined in [src/auth/AuthController.ts:440](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L440)*
 
 ___
 <a id="onetimepassword.method-6"></a>
@@ -423,7 +423,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:438](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L438)*
+*Defined in [src/auth/AuthController.ts:438](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L438)*
 
 ___
 <a id="onetimepassword.publicaccess-6"></a>
@@ -432,7 +432,7 @@ ___
 
 **● publicAccess**: *`true`* = true
 
-*Defined in [src/auth/AuthController.ts:439](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L439)*
+*Defined in [src/auth/AuthController.ts:439](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L439)*
 
 ___
 
@@ -443,7 +443,7 @@ ___
 
 **refreshToken**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:378](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L378)*
+*Defined in [src/auth/AuthController.ts:378](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L378)*
 
 <a id="refreshtoken.actions-7"></a>
 
@@ -480,7 +480,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:381](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L381)*
+*Defined in [src/auth/AuthController.ts:381](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L381)*
 
 ___
 <a id="refreshtoken.method-7"></a>
@@ -489,7 +489,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:379](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L379)*
+*Defined in [src/auth/AuthController.ts:379](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L379)*
 
 ___
 <a id="refreshtoken.publicaccess-7"></a>
@@ -498,7 +498,7 @@ ___
 
 **● publicAccess**: *`true`* = true
 
-*Defined in [src/auth/AuthController.ts:380](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L380)*
+*Defined in [src/auth/AuthController.ts:380](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L380)*
 
 ___
 
@@ -509,7 +509,7 @@ ___
 
 **register**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:24](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L24)*
+*Defined in [src/auth/AuthController.ts:24](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L24)*
 
 <a id="register.actions-8"></a>
 
@@ -582,7 +582,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:27](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L27)*
+*Defined in [src/auth/AuthController.ts:27](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L27)*
 
 ___
 <a id="register.method-8"></a>
@@ -591,7 +591,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:25](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L25)*
+*Defined in [src/auth/AuthController.ts:25](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L25)*
 
 ___
 <a id="register.publicaccess-8"></a>
@@ -600,7 +600,7 @@ ___
 
 **● publicAccess**: *`true`* = true
 
-*Defined in [src/auth/AuthController.ts:26](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L26)*
+*Defined in [src/auth/AuthController.ts:26](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L26)*
 
 ___
 
@@ -611,7 +611,7 @@ ___
 
 **resetPassword**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:196](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L196)*
+*Defined in [src/auth/AuthController.ts:196](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L196)*
 
 <a id="resetpassword.actions-9"></a>
 
@@ -655,7 +655,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:199](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L199)*
+*Defined in [src/auth/AuthController.ts:199](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L199)*
 
 ___
 <a id="resetpassword.method-9"></a>
@@ -664,7 +664,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:197](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L197)*
+*Defined in [src/auth/AuthController.ts:197](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L197)*
 
 ___
 <a id="resetpassword.publicaccess-9"></a>
@@ -673,7 +673,7 @@ ___
 
 **● publicAccess**: *`true`* = true
 
-*Defined in [src/auth/AuthController.ts:198](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L198)*
+*Defined in [src/auth/AuthController.ts:198](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L198)*
 
 ___
 
@@ -684,7 +684,7 @@ ___
 
 **sendResetPasswordToken**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:95](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L95)*
+*Defined in [src/auth/AuthController.ts:95](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L95)*
 
 <a id="sendresetpasswordtoken.actions-10"></a>
 
@@ -726,7 +726,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:98](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L98)*
+*Defined in [src/auth/AuthController.ts:98](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L98)*
 
 ___
 <a id="sendresetpasswordtoken.method-10"></a>
@@ -735,7 +735,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:96](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L96)*
+*Defined in [src/auth/AuthController.ts:96](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L96)*
 
 ___
 <a id="sendresetpasswordtoken.publicaccess-10"></a>
@@ -744,7 +744,7 @@ ___
 
 **● publicAccess**: *`true`* = true
 
-*Defined in [src/auth/AuthController.ts:97](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L97)*
+*Defined in [src/auth/AuthController.ts:97](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L97)*
 
 ___
 
@@ -755,7 +755,7 @@ ___
 
 **sendVerifyEmail**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:238](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L238)*
+*Defined in [src/auth/AuthController.ts:238](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L238)*
 
 <a id="sendverifyemail.actions-11"></a>
 
@@ -780,7 +780,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:241](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L241)*
+*Defined in [src/auth/AuthController.ts:241](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L241)*
 
 ___
 <a id="sendverifyemail.method-11"></a>
@@ -789,7 +789,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:240](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L240)*
+*Defined in [src/auth/AuthController.ts:240](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L240)*
 
 ___
 <a id="sendverifyemail.publicaccess-11"></a>
@@ -798,7 +798,7 @@ ___
 
 **● publicAccess**: *`true`* = true
 
-*Defined in [src/auth/AuthController.ts:239](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L239)*
+*Defined in [src/auth/AuthController.ts:239](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L239)*
 
 ___
 
@@ -809,7 +809,7 @@ ___
 
 **sendVerifySms**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:261](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L261)*
+*Defined in [src/auth/AuthController.ts:261](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L261)*
 
 <a id="sendverifysms.actions-12"></a>
 
@@ -846,7 +846,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:265](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L265)*
+*Defined in [src/auth/AuthController.ts:265](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L265)*
 
 ___
 <a id="sendverifysms.method-12"></a>
@@ -855,7 +855,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:262](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L262)*
+*Defined in [src/auth/AuthController.ts:262](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L262)*
 
 ___
 <a id="sendverifysms.publicaccess-12"></a>
@@ -864,7 +864,7 @@ ___
 
 **● publicAccess**: *`true`* = true
 
-*Defined in [src/auth/AuthController.ts:263](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L263)*
+*Defined in [src/auth/AuthController.ts:263](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L263)*
 
 ___
 
@@ -875,7 +875,7 @@ ___
 
 **sessions**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:413](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L413)*
+*Defined in [src/auth/AuthController.ts:413](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L413)*
 
 <a id="sessions.actions-13"></a>
 
@@ -891,7 +891,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:416](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L416)*
+*Defined in [src/auth/AuthController.ts:416](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L416)*
 
 ___
 <a id="sessions.method-13"></a>
@@ -900,7 +900,7 @@ ___
 
 **● method**: *`string`* = "get"
 
-*Defined in [src/auth/AuthController.ts:414](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L414)*
+*Defined in [src/auth/AuthController.ts:414](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L414)*
 
 ___
 <a id="sessions.publicaccess-13"></a>
@@ -909,7 +909,7 @@ ___
 
 **● publicAccess**: *`false`* = false
 
-*Defined in [src/auth/AuthController.ts:415](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L415)*
+*Defined in [src/auth/AuthController.ts:415](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L415)*
 
 ___
 
@@ -920,7 +920,7 @@ ___
 
 **token**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:503](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L503)*
+*Defined in [src/auth/AuthController.ts:503](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L503)*
 
 <a id="token.actions-14"></a>
 
@@ -1043,7 +1043,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:507](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L507)*
+*Defined in [src/auth/AuthController.ts:507](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L507)*
 
 ___
 <a id="token.method-14"></a>
@@ -1052,7 +1052,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:504](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L504)*
+*Defined in [src/auth/AuthController.ts:504](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L504)*
 
 ___
 <a id="token.publicaccess-14"></a>
@@ -1061,7 +1061,7 @@ ___
 
 **● publicAccess**: *`true`* = true
 
-*Defined in [src/auth/AuthController.ts:505](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L505)*
+*Defined in [src/auth/AuthController.ts:505](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L505)*
 
 ___
 
@@ -1072,7 +1072,7 @@ ___
 
 **verifyEmail**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:329](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L329)*
+*Defined in [src/auth/AuthController.ts:329](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L329)*
 
 <a id="verifyemail.actions-15"></a>
 
@@ -1094,7 +1094,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:333](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L333)*
+*Defined in [src/auth/AuthController.ts:333](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L333)*
 
 ___
 <a id="verifyemail.method-15"></a>
@@ -1103,7 +1103,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:330](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L330)*
+*Defined in [src/auth/AuthController.ts:330](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L330)*
 
 ___
 <a id="verifyemail.publicaccess-15"></a>
@@ -1112,7 +1112,7 @@ ___
 
 **● publicAccess**: *`true`* = true
 
-*Defined in [src/auth/AuthController.ts:331](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L331)*
+*Defined in [src/auth/AuthController.ts:331](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L331)*
 
 ___
 
@@ -1123,7 +1123,7 @@ ___
 
 **verifyMobile**: *`object`*
 
-*Defined in [src/auth/AuthController.ts:297](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L297)*
+*Defined in [src/auth/AuthController.ts:297](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L297)*
 
 <a id="verifymobile.actions-16"></a>
 
@@ -1156,7 +1156,7 @@ ___
       }
     ]
 
-*Defined in [src/auth/AuthController.ts:301](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L301)*
+*Defined in [src/auth/AuthController.ts:301](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L301)*
 
 ___
 <a id="verifymobile.method-16"></a>
@@ -1165,7 +1165,7 @@ ___
 
 **● method**: *`string`* = "post"
 
-*Defined in [src/auth/AuthController.ts:298](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L298)*
+*Defined in [src/auth/AuthController.ts:298](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L298)*
 
 ___
 <a id="verifymobile.publicaccess-16"></a>
@@ -1174,7 +1174,7 @@ ___
 
 **● publicAccess**: *`true`* = true
 
-*Defined in [src/auth/AuthController.ts:299](https://github.com/m-esm/serendip/blob/c44cfd4/src/auth/AuthController.ts#L299)*
+*Defined in [src/auth/AuthController.ts:299](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthController.ts#L299)*
 
 ___
 

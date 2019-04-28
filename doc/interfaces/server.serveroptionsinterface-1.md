@@ -25,7 +25,7 @@
 
 **● clientMode**: *`boolean`*
 
-*Defined in [src/server/ServerOptionsInterface.ts:17](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/ServerOptionsInterface.ts#L17)*
+*Defined in [src/server/ServerOptionsInterface.ts:17](https://github.com/m-esm/serendip/blob/17b0858/src/server/ServerOptionsInterface.ts#L17)*
 
 ___
 <a id="cpucores"></a>
@@ -34,7 +34,7 @@ ___
 
 **● cpuCores**: *`number` \| `string`*
 
-*Defined in [src/server/ServerOptionsInterface.ts:12](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/ServerOptionsInterface.ts#L12)*
+*Defined in [src/server/ServerOptionsInterface.ts:12](https://github.com/m-esm/serendip/blob/17b0858/src/server/ServerOptionsInterface.ts#L12)*
 
 ___
 <a id="logging"></a>
@@ -43,7 +43,7 @@ ___
 
 **● logging**: *"info" \| "warn" \| "error" \| "silent"*
 
-*Defined in [src/server/ServerOptionsInterface.ts:14](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/ServerOptionsInterface.ts#L14)*
+*Defined in [src/server/ServerOptionsInterface.ts:14](https://github.com/m-esm/serendip/blob/17b0858/src/server/ServerOptionsInterface.ts#L14)*
 
 ___
 <a id="services"></a>
@@ -52,7 +52,7 @@ ___
 
 **● services**: *[ServerServiceInterface](server.serverserviceinterface-1.md)[] \| `any`[]*
 
-*Defined in [src/server/ServerOptionsInterface.ts:9](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/ServerOptionsInterface.ts#L9)*
+*Defined in [src/server/ServerOptionsInterface.ts:9](https://github.com/m-esm/serendip/blob/17b0858/src/server/ServerOptionsInterface.ts#L9)*
 
 ___
 

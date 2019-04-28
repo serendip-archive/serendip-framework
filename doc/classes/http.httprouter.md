@@ -33,7 +33,7 @@
 
 ⊕ **new HttpRouter**(): [HttpRouter](http.httprouter.md)
 
-*Defined in [src/http/HttpRouter.ts:21](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpRouter.ts#L21)*
+*Defined in [src/http/HttpRouter.ts:21](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpRouter.ts#L21)*
 
 **Returns:** [HttpRouter](http.httprouter.md)
 
@@ -52,7 +52,7 @@ ___
     end: false
   })
 
-*Defined in [src/http/HttpRouter.ts:24](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpRouter.ts#L24)*
+*Defined in [src/http/HttpRouter.ts:24](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpRouter.ts#L24)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 ▸ **executeActions**(req: *`any`*, res: *[HttpResponseInterface](../interfaces/http.httpresponseinterface.md)*, passedModel: *`any`*, actions: *`any`*, actionIndex: *`any`*): `Promise`<`void` \| `Object`>
 
-*Defined in [src/http/HttpRouter.ts:88](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpRouter.ts#L88)*
+*Defined in [src/http/HttpRouter.ts:88](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpRouter.ts#L88)*
 
 **Parameters:**
 
@@ -85,7 +85,7 @@ ___
 
 ▸ **executeRoute**(srvRoute: *[HttpRouteInterface](../interfaces/http.httprouteinterface.md)*, middlewares: *[HttpMiddlewareInterface](../interfaces/http.httpmiddlewareinterface.md)[]*, req: *[HttpRequestInterface](../interfaces/http.httprequestinterface.md)*, res: *[HttpResponseInterface](../interfaces/http.httpresponseinterface.md)*): `Promise`<`any`>
 
-*Defined in [src/http/HttpRouter.ts:66](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpRouter.ts#L66)*
+*Defined in [src/http/HttpRouter.ts:66](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpRouter.ts#L66)*
 
 **Parameters:**
 
@@ -105,7 +105,7 @@ ___
 
 ▸ **findSrvRoute**(req: *`any`*, routes: *[HttpRouteInterface](../interfaces/http.httprouteinterface.md)[]*, matchMethod: *`boolean`*): [HttpRouteInterface](../interfaces/http.httprouteinterface.md)
 
-*Defined in [src/http/HttpRouter.ts:31](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpRouter.ts#L31)*
+*Defined in [src/http/HttpRouter.ts:31](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpRouter.ts#L31)*
 
 **Parameters:**
 
@@ -124,7 +124,7 @@ ___
 
 ▸ **routeIt**(req: *[HttpRequestInterface](../interfaces/http.httprequestinterface.md)*, res: *[HttpResponseInterface](../interfaces/http.httpresponseinterface.md)*, middlewares: *[HttpMiddlewareInterface](../interfaces/http.httpmiddlewareinterface.md)[]*, srvRoute: *[HttpRouteInterface](../interfaces/http.httprouteinterface.md)*): `Promise`<`any`>
 
-*Defined in [src/http/HttpRouter.ts:152](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpRouter.ts#L152)*
+*Defined in [src/http/HttpRouter.ts:152](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpRouter.ts#L152)*
 
 **Parameters:**
 

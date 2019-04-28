@@ -97,6 +97,7 @@ gulp.task("typedoc", function () {
       excludePrivate: true,
       excludeProtected: true,
       excludeExternals: true,
+      readme: 'doc.md',
       hideGenerator: true,
       exclude: ['./src/debug_ignore.ts', './src/debug.ts'],
       // Output options (see typedoc docs)
@@ -105,8 +106,8 @@ gulp.task("typedoc", function () {
 
       // TypeDoc options (see typedoc docs)
       name: "Serendip Framework",
-     // theme: "minimal",
-       theme: "markdown",
+      // theme: "minimal",
+      theme: "markdown",
       ignoreCompilerErrors: false,
       version: true,
     }))

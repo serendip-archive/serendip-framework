@@ -30,7 +30,7 @@
 
 ▸ **send**(mobileNumbers: *`string`[]*, message: *`any`*): `any`
 
-*Defined in [src/sms/SmsServiceProviderInterface.ts:10](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsServiceProviderInterface.ts#L10)*
+*Defined in [src/sms/SmsServiceProviderInterface.ts:10](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsServiceProviderInterface.ts#L10)*
 
 **Parameters:**
 
@@ -48,7 +48,7 @@ ___
 
 ▸ **sendAuthCode**(mobileNumber: *`string`*, code: *`string`*, useragent?: *`string`*, ip?: *`string`*): `any`
 
-*Defined in [src/sms/SmsServiceProviderInterface.ts:6](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsServiceProviderInterface.ts#L6)*
+*Defined in [src/sms/SmsServiceProviderInterface.ts:6](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsServiceProviderInterface.ts#L6)*
 
 **Parameters:**
 

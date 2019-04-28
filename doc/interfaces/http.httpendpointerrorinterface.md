@@ -26,7 +26,7 @@
 
 **● error**: *`string`*
 
-*Defined in [src/http/interfaces/HttpEndpointErrorInterface.ts:10](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/interfaces/HttpEndpointErrorInterface.ts#L10)*
+*Defined in [src/http/interfaces/HttpEndpointErrorInterface.ts:10](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpEndpointErrorInterface.ts#L10)*
 
 ___
 <a id="error_description"></a>
@@ -35,7 +35,7 @@ ___
 
 **● error_description**: *`string`*
 
-*Defined in [src/http/interfaces/HttpEndpointErrorInterface.ts:11](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/interfaces/HttpEndpointErrorInterface.ts#L11)*
+*Defined in [src/http/interfaces/HttpEndpointErrorInterface.ts:11](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpEndpointErrorInterface.ts#L11)*
 
 ___
 <a id="error_uri"></a>
@@ -44,7 +44,7 @@ ___
 
 **● error_uri**: *`string`*
 
-*Defined in [src/http/interfaces/HttpEndpointErrorInterface.ts:12](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/interfaces/HttpEndpointErrorInterface.ts#L12)*
+*Defined in [src/http/interfaces/HttpEndpointErrorInterface.ts:12](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpEndpointErrorInterface.ts#L12)*
 
 ___
 

@@ -15,7 +15,6 @@ serendip.AuthService.configure({
 });
 
 
-
 serendip.start({
     services: [serendip.AuthService, serendip.EmailService, serendip.ViewEngineService, serendip.DbService],
     controllers: [serendip.AuthController],

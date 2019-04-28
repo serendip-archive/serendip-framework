@@ -26,7 +26,7 @@
 
 ▸ **onRequest**(req: *[HttpRequestInterface](http.httprequestinterface.md)*, res: *[HttpResponseInterface](http.httpresponseinterface.md)*, next?: *`Function`*, done?: *`Function`*, model?: *`any`*): `any`
 
-*Defined in [src/http/interfaces/HttpControllerInterface.ts:11](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/interfaces/HttpControllerInterface.ts#L11)*
+*Defined in [src/http/interfaces/HttpControllerInterface.ts:11](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpControllerInterface.ts#L11)*
 
 **Parameters:**
 

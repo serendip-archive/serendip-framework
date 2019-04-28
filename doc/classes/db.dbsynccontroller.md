@@ -26,7 +26,7 @@
 
 ▸ **onRequest**(req: *[HttpRequestInterface](../interfaces/http.httprequestinterface.md)*, res: *[HttpResponseInterface](../interfaces/http.httpresponseinterface.md)*, next: *`any`*, done: *`any`*): `void`
 
-*Defined in [src/db/DbSyncController.ts:13](https://github.com/m-esm/serendip/blob/c44cfd4/src/db/DbSyncController.ts#L13)*
+*Defined in [src/db/DbSyncController.ts:13](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbSyncController.ts#L13)*
 
 **Parameters:**
 

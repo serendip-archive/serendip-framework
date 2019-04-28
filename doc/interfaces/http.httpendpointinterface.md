@@ -27,7 +27,7 @@
 
 **● actions**: *[HttpEndpointActionInterface](http.httpendpointactioninterface.md)[]*
 
-*Defined in [src/http/interfaces/HttpEndpointInterface.ts:30](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/interfaces/HttpEndpointInterface.ts#L30)*
+*Defined in [src/http/interfaces/HttpEndpointInterface.ts:30](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpEndpointInterface.ts#L30)*
 
 Series of actions to respond any request to this endpoint route
 
@@ -38,7 +38,7 @@ ___
 
 **● description**: *`string`*
 
-*Defined in [src/http/interfaces/HttpEndpointInterface.ts:25](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/interfaces/HttpEndpointInterface.ts#L25)*
+*Defined in [src/http/interfaces/HttpEndpointInterface.ts:25](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpEndpointInterface.ts#L25)*
 
 Action Description
 
@@ -49,7 +49,7 @@ ___
 
 **● isStream**: *`boolean`*
 
-*Defined in [src/http/interfaces/HttpEndpointInterface.ts:19](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/interfaces/HttpEndpointInterface.ts#L19)*
+*Defined in [src/http/interfaces/HttpEndpointInterface.ts:19](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpEndpointInterface.ts#L19)*
 
 ___
 <a id="method"></a>
@@ -58,7 +58,7 @@ ___
 
 **● method**: *`string`*
 
-*Defined in [src/http/interfaces/HttpEndpointInterface.ts:12](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/interfaces/HttpEndpointInterface.ts#L12)*
+*Defined in [src/http/interfaces/HttpEndpointInterface.ts:12](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpEndpointInterface.ts#L12)*
 
 Http Method put,post,get,delete
 
@@ -69,7 +69,7 @@ ___
 
 **● publicAccess**: *`boolean`*
 
-*Defined in [src/http/interfaces/HttpEndpointInterface.ts:35](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/interfaces/HttpEndpointInterface.ts#L35)*
+*Defined in [src/http/interfaces/HttpEndpointInterface.ts:35](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpEndpointInterface.ts#L35)*
 
 is this endpoint publicly accessible by anyone on net
 
@@ -80,7 +80,7 @@ ___
 
 **● route**: *`string`*
 
-*Defined in [src/http/interfaces/HttpEndpointInterface.ts:17](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/interfaces/HttpEndpointInterface.ts#L17)*
+*Defined in [src/http/interfaces/HttpEndpointInterface.ts:17](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpEndpointInterface.ts#L17)*
 
 framework router will use this instead of default route
 

@@ -44,7 +44,7 @@
 
 ⊕ **new SerendipSmsService**(): [SerendipSmsService](sms.serendipsmsservice.md)
 
-*Defined in [src/sms/SerendipSmsService.ts:44](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L44)*
+*Defined in [src/sms/SerendipSmsService.ts:44](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L44)*
 
 **Returns:** [SerendipSmsService](sms.serendipsmsservice.md)
 
@@ -58,7 +58,7 @@ ___
 
 **● dependencies**: *`string`[]* =  ["DbService"]
 
-*Defined in [src/sms/SerendipSmsService.ts:35](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L35)*
+*Defined in [src/sms/SerendipSmsService.ts:35](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L35)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 ▸ **credit**(): `Promise`<`number`>
 
-*Defined in [src/sms/SerendipSmsService.ts:96](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L96)*
+*Defined in [src/sms/SerendipSmsService.ts:96](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L96)*
 
 **Returns:** `Promise`<`number`>
 
@@ -81,7 +81,7 @@ ___
 
 ▸ **getToken**(): `Promise`<[TokenModel](auth.tokenmodel.md)>
 
-*Defined in [src/sms/SerendipSmsService.ts:57](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L57)*
+*Defined in [src/sms/SerendipSmsService.ts:57](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L57)*
 
 **Returns:** `Promise`<[TokenModel](auth.tokenmodel.md)>
 
@@ -92,7 +92,7 @@ ___
 
 ▸ **send**(mobileNumbers: *`string`[]*, message: *`string`*, model?: *`any`*, templateId?: *`string`*): `Promise`<`Object`>
 
-*Defined in [src/sms/SerendipSmsService.ts:129](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L129)*
+*Defined in [src/sms/SerendipSmsService.ts:129](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L129)*
 
 **Parameters:**
 
@@ -112,7 +112,7 @@ ___
 
 ▸ **sendAuthCode**(mobileNumber: *`string`*, code: *`string`*, useragent?: *`string`*, ip?: *`string`*, templateId?: *`string`*): `Promise`<`Object`>
 
-*Defined in [src/sms/SerendipSmsService.ts:117](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L117)*
+*Defined in [src/sms/SerendipSmsService.ts:117](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L117)*
 
 **Parameters:**
 
@@ -135,7 +135,7 @@ ___
 
 *Implementation of [ServerServiceInterface](../interfaces/server.serverserviceinterface-1.md).[start](../interfaces/server.serverserviceinterface-1.md#start)*
 
-*Defined in [src/sms/SerendipSmsService.ts:163](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L163)*
+*Defined in [src/sms/SerendipSmsService.ts:163](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L163)*
 
 **Returns:** `Promise`<`void`>
 
@@ -146,7 +146,7 @@ ___
 
 ▸ **configure**(options: *[SerendipSmsService](sms.serendipsmsservice.md)*): `void`
 
-*Defined in [src/sms/SerendipSmsService.ts:42](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L42)*
+*Defined in [src/sms/SerendipSmsService.ts:42](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L42)*
 
 **Parameters:**
 
@@ -166,7 +166,7 @@ ___
 
 **options**: *`object`*
 
-*Defined in [src/sms/SerendipSmsService.ts:37](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L37)*
+*Defined in [src/sms/SerendipSmsService.ts:37](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L37)*
 
 <a id="options.password"></a>
 
@@ -174,7 +174,7 @@ ___
 
 **● password**: *`string`* = ""
 
-*Defined in [src/sms/SerendipSmsService.ts:39](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L39)*
+*Defined in [src/sms/SerendipSmsService.ts:39](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L39)*
 
 ___
 <a id="options.username"></a>
@@ -183,7 +183,7 @@ ___
 
 **● username**: *`string`* = ""
 
-*Defined in [src/sms/SerendipSmsService.ts:38](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L38)*
+*Defined in [src/sms/SerendipSmsService.ts:38](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L38)*
 
 ___
 

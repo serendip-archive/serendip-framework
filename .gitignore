@@ -11,3 +11,4 @@ dist/debug_ignore.js
 
 npm-debug.log
 .env
+doc/README.md

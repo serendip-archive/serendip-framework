@@ -36,7 +36,7 @@ Will contain everything that we need from server
 
 ⊕ **new Server**(opts: *[ServerOptionsInterface](../interfaces/server.serveroptionsinterface-1.md)*, worker: *`Worker`*, callback?: *`Function`*): [Server](server.server-1.md)
 
-*Defined in [src/server/Server.ts:36](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/Server.ts#L36)*
+*Defined in [src/server/Server.ts:36](https://github.com/m-esm/serendip/blob/17b0858/src/server/Server.ts#L36)*
 
 **Parameters:**
 
@@ -58,7 +58,7 @@ ___
 
 **● dir**: *`string`*
 
-*Defined in [src/server/Server.ts:23](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/Server.ts#L23)*
+*Defined in [src/server/Server.ts:23](https://github.com/m-esm/serendip/blob/17b0858/src/server/Server.ts#L23)*
 
 ___
 <a id="opts"></a>
@@ -67,7 +67,7 @@ ___
 
 **● opts**: *[ServerOptionsInterface](../interfaces/server.serveroptionsinterface-1.md)*
 
-*Defined in [src/server/Server.ts:27](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/Server.ts#L27)*
+*Defined in [src/server/Server.ts:27](https://github.com/m-esm/serendip/blob/17b0858/src/server/Server.ts#L27)*
 
 ___
 <a id="services"></a>
@@ -76,7 +76,7 @@ ___
 
 **● services**: *`any`*
 
-*Defined in [src/server/Server.ts:25](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/Server.ts#L25)*
+*Defined in [src/server/Server.ts:25](https://github.com/m-esm/serendip/blob/17b0858/src/server/Server.ts#L25)*
 
 ___
 <a id="worker"></a>
@@ -85,7 +85,7 @@ ___
 
 **● worker**: *`Worker`*
 
-*Defined in [src/server/Server.ts:21](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/Server.ts#L21)*
+*Defined in [src/server/Server.ts:21](https://github.com/m-esm/serendip/blob/17b0858/src/server/Server.ts#L21)*
 
 instance of process worker
 
@@ -99,7 +99,7 @@ ___
 
 ▸ **startService**(index: *`number`*, serviceObjects: *`object`*, sortedDependencies: *`string`[]*, unsortedDependencies: *`string`[][]*): `any`
 
-*Defined in [src/server/Server.ts:118](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/Server.ts#L118)*
+*Defined in [src/server/Server.ts:118](https://github.com/m-esm/serendip/blob/17b0858/src/server/Server.ts#L118)*
 
 Will start services from Index to length of sortedDependencies
 
@@ -121,7 +121,7 @@ ___
 
 ▸ **bootstrap**(opts: *[ServerOptionsInterface](../interfaces/server.serveroptionsinterface-1.md)*, worker: *`Worker` \| `any`*, serverStartCallback?: *`Function`*): [Server](server.server-1.md)
 
-*Defined in [src/server/Server.ts:30](https://github.com/m-esm/serendip/blob/c44cfd4/src/server/Server.ts#L30)*
+*Defined in [src/server/Server.ts:30](https://github.com/m-esm/serendip/blob/17b0858/src/server/Server.ts#L30)*
 
 **Parameters:**
 

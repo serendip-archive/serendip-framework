@@ -26,7 +26,7 @@
 
 **● apiKey**: *`string`*
 
-*Defined in [src/sms/SmsIrService.ts:12](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L12)*
+*Defined in [src/sms/SmsIrService.ts:12](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L12)*
 
 ___
 <a id="linenumber"></a>
@@ -35,7 +35,7 @@ ___
 
 **● lineNumber**: *`string`*
 
-*Defined in [src/sms/SmsIrService.ts:11](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L11)*
+*Defined in [src/sms/SmsIrService.ts:11](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L11)*
 
 ___
 <a id="secretkey"></a>
@@ -44,7 +44,7 @@ ___
 
 **● secretKey**: *`string`*
 
-*Defined in [src/sms/SmsIrService.ts:13](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L13)*
+*Defined in [src/sms/SmsIrService.ts:13](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L13)*
 
 ___
 <a id="verifytemplate"></a>
@@ -53,7 +53,7 @@ ___
 
 **● verifyTemplate**: *`number`*
 
-*Defined in [src/sms/SmsIrService.ts:16](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L16)*
+*Defined in [src/sms/SmsIrService.ts:16](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L16)*
 
 ___
 <a id="verifytemplatewithipanduseragent"></a>
@@ -62,7 +62,7 @@ ___
 
 **● verifyTemplateWithIpAndUseragent**: *`number`*
 
-*Defined in [src/sms/SmsIrService.ts:15](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SmsIrService.ts#L15)*
+*Defined in [src/sms/SmsIrService.ts:15](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SmsIrService.ts#L15)*
 
 ___
 

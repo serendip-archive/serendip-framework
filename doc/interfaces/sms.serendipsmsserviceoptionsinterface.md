@@ -25,7 +25,7 @@
 
 **● globalLine**: *`string`*
 
-*Defined in [src/sms/SerendipSmsService.ts:30](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L30)*
+*Defined in [src/sms/SerendipSmsService.ts:30](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L30)*
 
 line number used for sending sms to any number in the world other than iran
 
@@ -36,7 +36,7 @@ ___
 
 **● irLine**: *`string`*
 
-*Defined in [src/sms/SerendipSmsService.ts:25](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L25)*
+*Defined in [src/sms/SerendipSmsService.ts:25](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L25)*
 
 line number used for sending sms to +98 numbers.
 
@@ -47,7 +47,7 @@ ___
 
 **● password**: *`string`*
 
-*Defined in [src/sms/SerendipSmsService.ts:20](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L20)*
+*Defined in [src/sms/SerendipSmsService.ts:20](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L20)*
 
 password from serendip.cloud
 
@@ -58,7 +58,7 @@ ___
 
 **● username**: *`string`*
 
-*Defined in [src/sms/SerendipSmsService.ts:15](https://github.com/m-esm/serendip/blob/c44cfd4/src/sms/SerendipSmsService.ts#L15)*
+*Defined in [src/sms/SerendipSmsService.ts:15](https://github.com/m-esm/serendip/blob/17b0858/src/sms/SerendipSmsService.ts#L15)*
 
 username(it's mobile by default) registered in [https://serendip.cloud](https://serendip.cloud)
 

@@ -26,7 +26,7 @@
 
 **● data**: *`any`*
 
-*Defined in [src/email/models/EmailModel.ts:7](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/models/EmailModel.ts#L7)*
+*Defined in [src/email/models/EmailModel.ts:7](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L7)*
 
 ___
 <a id="name"></a>
@@ -35,7 +35,7 @@ ___
 
 **● name**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:6](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/models/EmailModel.ts#L6)*
+*Defined in [src/email/models/EmailModel.ts:6](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L6)*
 
 ___
 <a id="source"></a>
@@ -44,7 +44,7 @@ ___
 
 **● source**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:8](https://github.com/m-esm/serendip/blob/c44cfd4/src/email/models/EmailModel.ts#L8)*
+*Defined in [src/email/models/EmailModel.ts:8](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L8)*
 
 ___
 

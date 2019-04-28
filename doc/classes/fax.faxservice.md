@@ -28,7 +28,7 @@
 
 *Implementation of [ServerServiceInterface](../interfaces/server.serverserviceinterface-1.md).[start](../interfaces/server.serverserviceinterface-1.md#start)*
 
-*Defined in [src/fax/FaxService.ts:8](https://github.com/m-esm/serendip/blob/c44cfd4/src/fax/FaxService.ts#L8)*
+*Defined in [src/fax/FaxService.ts:8](https://github.com/m-esm/serendip/blob/17b0858/src/fax/FaxService.ts#L8)*
 
 **Returns:** `Promise`<`void`>
 

@@ -47,7 +47,7 @@
 
 ⊕ **new HttpService**(): [HttpService](http.httpservice.md)
 
-*Defined in [src/http/HttpService.ts:157](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L157)*
+*Defined in [src/http/HttpService.ts:157](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L157)*
 
 **Returns:** [HttpService](http.httpservice.md)
 
@@ -61,7 +61,7 @@ ___
 
 **● httpServer**: *`Server`*
 
-*Defined in [src/http/HttpService.ts:151](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L151)*
+*Defined in [src/http/HttpService.ts:151](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L151)*
 
 ___
 <a id="httpsserver"></a>
@@ -70,7 +70,7 @@ ___
 
 **● httpsServer**: *`Server`*
 
-*Defined in [src/http/HttpService.ts:152](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L152)*
+*Defined in [src/http/HttpService.ts:152](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L152)*
 
 ___
 <a id="wsserver"></a>
@@ -79,7 +79,7 @@ ___
 
 **● wsServer**: *`any`*
 
-*Defined in [src/http/HttpService.ts:153](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L153)*
+*Defined in [src/http/HttpService.ts:153](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L153)*
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 **get dependencies**(): `string`[]
 
-*Defined in [src/http/HttpService.ts:57](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L57)*
+*Defined in [src/http/HttpService.ts:57](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L57)*
 
 **Returns:** `string`[]
 
@@ -105,7 +105,7 @@ ___
 
 ▸ **addRoutes**(): `void`
 
-*Defined in [src/http/HttpService.ts:76](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L76)*
+*Defined in [src/http/HttpService.ts:76](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L76)*
 
 Notice : all controllers should end with 'Controller' Notice : controller methods should start with requested method ex : get,post,put,delete
 
@@ -120,7 +120,7 @@ ___
 
 *Implementation of [ServerServiceInterface](../interfaces/server.serverserviceinterface-1.md).[start](../interfaces/server.serverserviceinterface-1.md#start)*
 
-*Defined in [src/http/HttpService.ts:171](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L171)*
+*Defined in [src/http/HttpService.ts:171](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L171)*
 
 **Returns:** `Promise`<`void`>
 
@@ -131,7 +131,7 @@ ___
 
 ▸ **configure**(opts: *[HttpServiceOptionsInterface](../interfaces/http.httpserviceoptionsinterface.md)*): `void`
 
-*Defined in [src/http/HttpService.ts:155](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L155)*
+*Defined in [src/http/HttpService.ts:155](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L155)*
 
 **Parameters:**
 
@@ -148,7 +148,7 @@ ___
 
 ▸ **processRequestToStatic**(req: *`IncomingMessage`*, res: *`ServerResponse`*, callback: *`any`*, staticPath?: *`any`*): `Promise`<`void`>
 
-*Defined in [src/http/HttpService.ts:380](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L380)*
+*Defined in [src/http/HttpService.ts:380](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L380)*
 
 **Parameters:**
 
@@ -171,7 +171,7 @@ ___
 
 **options**: *`object`*
 
-*Defined in [src/http/HttpService.ts:145](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L145)*
+*Defined in [src/http/HttpService.ts:145](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L145)*
 
 <a id="options.beforemiddlewares"></a>
 
@@ -179,7 +179,7 @@ ___
 
 **● beforeMiddlewares**: *`undefined`[]* =  []
 
-*Defined in [src/http/HttpService.ts:147](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L147)*
+*Defined in [src/http/HttpService.ts:147](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L147)*
 
 ___
 <a id="options.bodyparserlimit"></a>
@@ -188,7 +188,7 @@ ___
 
 **● bodyParserLimit**: *`string`* = "50mb"
 
-*Defined in [src/http/HttpService.ts:148](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L148)*
+*Defined in [src/http/HttpService.ts:148](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L148)*
 
 ___
 <a id="options.controllers"></a>
@@ -197,7 +197,7 @@ ___
 
 **● controllers**: *`undefined`[]* =  []
 
-*Defined in [src/http/HttpService.ts:149](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L149)*
+*Defined in [src/http/HttpService.ts:149](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L149)*
 
 ___
 <a id="options.middlewares"></a>
@@ -206,7 +206,7 @@ ___
 
 **● middlewares**: *`undefined`[]* =  []
 
-*Defined in [src/http/HttpService.ts:146](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/HttpService.ts#L146)*
+*Defined in [src/http/HttpService.ts:146](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L146)*
 
 ___
 

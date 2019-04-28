@@ -392,7 +392,7 @@ ___
 
 **● path**: *`string`*
 
-*Defined in [src/ws/WebSocketInterface.ts:10](https://github.com/m-esm/serendip/blob/c44cfd4/src/ws/WebSocketInterface.ts#L10)*
+*Defined in [src/ws/WebSocketInterface.ts:10](https://github.com/m-esm/serendip/blob/17b0858/src/ws/WebSocketInterface.ts#L10)*
 
 ___
 <a id="protocol"></a>
@@ -412,7 +412,7 @@ ___
 
 **● query**: *`any`*
 
-*Defined in [src/ws/WebSocketInterface.ts:12](https://github.com/m-esm/serendip/blob/c44cfd4/src/ws/WebSocketInterface.ts#L12)*
+*Defined in [src/ws/WebSocketInterface.ts:12](https://github.com/m-esm/serendip/blob/17b0858/src/ws/WebSocketInterface.ts#L12)*
 
 ___
 <a id="readystate"></a>
@@ -432,7 +432,7 @@ ___
 
 **● token**: *[TokenModel](../classes/auth.tokenmodel.md)*
 
-*Defined in [src/ws/WebSocketInterface.ts:9](https://github.com/m-esm/serendip/blob/c44cfd4/src/ws/WebSocketInterface.ts#L9)*
+*Defined in [src/ws/WebSocketInterface.ts:9](https://github.com/m-esm/serendip/blob/17b0858/src/ws/WebSocketInterface.ts#L9)*
 
 ___
 <a id="url"></a>

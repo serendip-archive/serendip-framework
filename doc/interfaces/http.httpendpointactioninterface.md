@@ -11,7 +11,7 @@
 ## Callable
 ▸ **__call**(req: *[HttpRequestInterface](http.httprequestinterface.md)*, res: *[HttpResponseInterface](http.httpresponseinterface.md)*, next?: *`Function`*, done?: *`Function`*, model?: *`any`*): `any`
 
-*Defined in [src/http/interfaces/HttpEndpointActionInterface.ts:7](https://github.com/m-esm/serendip/blob/c44cfd4/src/http/interfaces/HttpEndpointActionInterface.ts#L7)*
+*Defined in [src/http/interfaces/HttpEndpointActionInterface.ts:7](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpEndpointActionInterface.ts#L7)*
 
 **Parameters:**
 

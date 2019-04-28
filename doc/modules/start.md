@@ -22,7 +22,7 @@
 
 ▸ **start**(opts?: *[ServerOptionsInterface](../interfaces/server.serveroptionsinterface-1.md)*): `Promise`<`Object`>
 
-*Defined in [src/start.ts:25](https://github.com/m-esm/serendip/blob/c44cfd4/src/start.ts#L25)*
+*Defined in [src/start.ts:25](https://github.com/m-esm/serendip/blob/17b0858/src/start.ts#L25)*
 
 **Parameters:**
 

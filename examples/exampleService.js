@@ -1,11 +1,14 @@
 var serendip = require('..');
 
 class exampleService {
+    constructor() {
+
+    }
     configure(options) {
         exampleService.options = options;
     }
     start() {
-        return new Promise(function (resolve, reject) {
+                      return new Promise(function (resolve, reject) {
             // wait 3 seconds then start
             setTimeout(() => {
                 console.info('exampleService just started.');
