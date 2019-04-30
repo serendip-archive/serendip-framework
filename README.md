@@ -14,12 +14,12 @@
 | Services | Description |
 |-|-| 
 | [HttpService](doc/classes/http.httpservice.md) | Http and Https server with routing system based on [path-match package]( https://npmjs.com/package/path-match )
-| [DbService](doc/classes/db.dbservice.md) | it's a provider based, database service which currently works with [MongoDb]( https://npmjs.com/package/serendip-mongodb-provider ) and [Serendip GridDb]( https://npmjs.com/package/serendip-mongodb-provider ). it also use [RFC 6902(JSON Patch)](https://github.com/chbrown/rfc6902) to store changes on documents.
-| [EmailService](doc/classes/email.emailservice.md) | sends emails on SMTP using [Nodemailer]( https://npmjs.com/package/nodemailer ) and it use [Mustache]( https://npmjs.com/package/mustache ) to render models into html emails
-| [AuthService](doc/classes/auth.authservice.md) | authentication and group base authorization service. implemented based on [oAuth2]( https://oauth.net/2/ ) (RFC 6749, RFC 6750, RFC 6819)
-| [Sms Services](doc/modules/sms.md) | services for sending bulk and transactional sms  
-| [Fax Services](doc/modules/fax.md) | services for sending fax (TODO)
-| [ViewEngineService](doc/classes/viewengine.viewengineservice.md) | Renders Mustache
+| [DbService](doc/classes/db.dbservice.md) | It's a provider based, database service which currently works with [MongoDb]( https://npmjs.com/package/serendip-mongodb-provider ) and [Serendip GridDb]( https://npmjs.com/package/serendip-mongodb-provider ). It also use [RFC 6902(JSON Patch)](https://github.com/chbrown/rfc6902) to store changes on documents.
+| [EmailService](doc/classes/email.emailservice.md) | Sends emails on SMTP using [Nodemailer]( https://npmjs.com/package/nodemailer ) and it use [Mustache]( https://npmjs.com/package/mustache ) to render models into html emails
+| [AuthService](doc/classes/auth.authservice.md) | Authentication and group base authorization service. Implemented based on [oAuth2]( https://oauth.net/2/ ) (RFC 6749, RFC 6750, RFC 6819)
+| [Sms Services](doc/modules/sms.md) | Services for sending bulk and transactional sms  
+| [Fax Services](doc/modules/fax.md) | Services for sending fax (TODO)
+| [ViewEngineService](doc/classes/viewengine.viewengineservice.md) | Renders Mustache to HTML
  
 ---
 
@@ -31,8 +31,12 @@ Open your Terminal/Command Prompt(CMD) and write:
 npm install serendip --save
 ```
 
-### Code documentation
-this documentation are auto generated from typescript source and comments using [typedoc](https://github.com/TypeStrong/typedoc)
+### API Documentation
+coming soon ...
+
+### Code Documentation
+This documents are auto generated from typescript source using [typedoc](https://github.com/TypeStrong/typedoc)
+
 * [Auth](doc/modules/auth.md)
 * [Db](doc/modules/db.md)
 * [Email](doc/modules/email.md)
@@ -79,7 +83,7 @@ npm test
 
 ___
 
-#### collaboration, issue reporting kindly accepted.
+#### Collaboration, issue reporting kindly accepted.
 
-![_](https://raw.githubusercontent.com/serendip-agency/serendip-framework/master/readme_footer.png "footer img")
+![_](https://serendip.agency/assets/svg/serendip-architecture.svg "serendip architecture")
  
