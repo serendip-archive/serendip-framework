@@ -115,7 +115,7 @@ ___
 
 **● body**: *`any`*
 
-*Defined in [src/http/interfaces/HttpRequestInterface.ts:13](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpRequestInterface.ts#L13)*
+*Defined in [src/http/interfaces/HttpRequestInterface.ts:13](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpRequestInterface.ts#L13)*
 
 ___
 <a id="connection"></a>
@@ -192,7 +192,7 @@ ___
 
 **● params**: *`any`*
 
-*Defined in [src/http/interfaces/HttpRequestInterface.ts:14](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpRequestInterface.ts#L14)*
+*Defined in [src/http/interfaces/HttpRequestInterface.ts:14](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpRequestInterface.ts#L14)*
 
 ___
 <a id="query"></a>
@@ -201,7 +201,7 @@ ___
 
 **● query**: *`any`*
 
-*Defined in [src/http/interfaces/HttpRequestInterface.ts:12](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpRequestInterface.ts#L12)*
+*Defined in [src/http/interfaces/HttpRequestInterface.ts:12](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpRequestInterface.ts#L12)*
 
 ___
 <a id="rawheaders"></a>
@@ -330,7 +330,7 @@ ___
 
 **● user**: *[UserModel](../classes/auth.usermodel.md)*
 
-*Defined in [src/http/interfaces/HttpRequestInterface.ts:17](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpRequestInterface.ts#L17)*
+*Defined in [src/http/interfaces/HttpRequestInterface.ts:17](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpRequestInterface.ts#L17)*
 
 ___
 <a id="usertoken"></a>
@@ -339,7 +339,7 @@ ___
 
 **● userToken**: *[TokenModel](../classes/auth.tokenmodel.md)*
 
-*Defined in [src/http/interfaces/HttpRequestInterface.ts:18](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpRequestInterface.ts#L18)*
+*Defined in [src/http/interfaces/HttpRequestInterface.ts:18](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpRequestInterface.ts#L18)*
 
 ___
 <a id="defaultmaxlisteners"></a>
@@ -684,7 +684,7 @@ ___
 
 ▸ **ip**(): `string`
 
-*Defined in [src/http/interfaces/HttpRequestInterface.ts:16](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpRequestInterface.ts#L16)*
+*Defined in [src/http/interfaces/HttpRequestInterface.ts:16](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpRequestInterface.ts#L16)*
 
 **Returns:** `string`
 
@@ -1538,7 +1538,7 @@ ___
 
 ▸ **useragent**(): `string`
 
-*Defined in [src/http/interfaces/HttpRequestInterface.ts:15](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpRequestInterface.ts#L15)*
+*Defined in [src/http/interfaces/HttpRequestInterface.ts:15](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpRequestInterface.ts#L15)*
 
 **Returns:** `string`
 

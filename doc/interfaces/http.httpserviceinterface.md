@@ -30,7 +30,7 @@
 
 **● dependencies**: *`string`[]*
 
-*Defined in [src/http/interfaces/HttpServiceInterface.ts:9](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpServiceInterface.ts#L9)*
+*Defined in [src/http/interfaces/HttpServiceInterface.ts:9](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpServiceInterface.ts#L9)*
 
 ___
 <a id="options"></a>
@@ -39,7 +39,7 @@ ___
 
 **● options**: *`any`*
 
-*Defined in [src/http/interfaces/HttpServiceInterface.ts:12](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpServiceInterface.ts#L12)*
+*Defined in [src/http/interfaces/HttpServiceInterface.ts:12](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpServiceInterface.ts#L12)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 ▸ **configure**(options: *`any`*): `void`
 
-*Defined in [src/http/interfaces/HttpServiceInterface.ts:15](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpServiceInterface.ts#L15)*
+*Defined in [src/http/interfaces/HttpServiceInterface.ts:15](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpServiceInterface.ts#L15)*
 
 **Parameters:**
 
@@ -68,7 +68,7 @@ ___
 
 ▸ **start**(): `Promise`<`void`>
 
-*Defined in [src/http/interfaces/HttpServiceInterface.ts:6](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpServiceInterface.ts#L6)*
+*Defined in [src/http/interfaces/HttpServiceInterface.ts:6](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpServiceInterface.ts#L6)*
 
 **Returns:** `Promise`<`void`>
 

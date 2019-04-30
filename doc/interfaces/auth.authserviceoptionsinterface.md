@@ -30,7 +30,7 @@
 
 **● defaultMobileCountryCode**: *`string`*
 
-*Defined in [src/auth/AuthServiceOptionsInterface.ts:17](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthServiceOptionsInterface.ts#L17)*
+*Defined in [src/auth/AuthServiceOptionsInterface.ts:17](https://github.com/m-esm/serendip/blob/570071d/src/auth/AuthServiceOptionsInterface.ts#L17)*
 
 ___
 <a id="emailconfirmationrequired"></a>
@@ -39,7 +39,7 @@ ___
 
 **● emailConfirmationRequired**: *`boolean`*
 
-*Defined in [src/auth/AuthServiceOptionsInterface.ts:14](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthServiceOptionsInterface.ts#L14)*
+*Defined in [src/auth/AuthServiceOptionsInterface.ts:14](https://github.com/m-esm/serendip/blob/570071d/src/auth/AuthServiceOptionsInterface.ts#L14)*
 
 ___
 <a id="emailprovider"></a>
@@ -48,7 +48,7 @@ ___
 
 **● emailProvider**: *`string`*
 
-*Defined in [src/auth/AuthServiceOptionsInterface.ts:16](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthServiceOptionsInterface.ts#L16)*
+*Defined in [src/auth/AuthServiceOptionsInterface.ts:16](https://github.com/m-esm/serendip/blob/570071d/src/auth/AuthServiceOptionsInterface.ts#L16)*
 
 ___
 <a id="maxtokencount"></a>
@@ -57,7 +57,7 @@ ___
 
 **● maxTokenCount**: *`number`*
 
-*Defined in [src/auth/AuthServiceOptionsInterface.ts:12](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthServiceOptionsInterface.ts#L12)*
+*Defined in [src/auth/AuthServiceOptionsInterface.ts:12](https://github.com/m-esm/serendip/blob/570071d/src/auth/AuthServiceOptionsInterface.ts#L12)*
 
 maximum token count per user
 
@@ -68,7 +68,7 @@ ___
 
 **● mobileConfirmationRequired**: *`boolean`*
 
-*Defined in [src/auth/AuthServiceOptionsInterface.ts:13](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthServiceOptionsInterface.ts#L13)*
+*Defined in [src/auth/AuthServiceOptionsInterface.ts:13](https://github.com/m-esm/serendip/blob/570071d/src/auth/AuthServiceOptionsInterface.ts#L13)*
 
 ___
 <a id="smsprovider"></a>
@@ -77,7 +77,7 @@ ___
 
 **● smsProvider**: *`string`*
 
-*Defined in [src/auth/AuthServiceOptionsInterface.ts:15](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthServiceOptionsInterface.ts#L15)*
+*Defined in [src/auth/AuthServiceOptionsInterface.ts:15](https://github.com/m-esm/serendip/blob/570071d/src/auth/AuthServiceOptionsInterface.ts#L15)*
 
 ___
 <a id="tokenexpirein"></a>
@@ -86,7 +86,7 @@ ___
 
 **● tokenExpireIn**: *`number`*
 
-*Defined in [src/auth/AuthServiceOptionsInterface.ts:8](https://github.com/m-esm/serendip/blob/17b0858/src/auth/AuthServiceOptionsInterface.ts#L8)*
+*Defined in [src/auth/AuthServiceOptionsInterface.ts:8](https://github.com/m-esm/serendip/blob/570071d/src/auth/AuthServiceOptionsInterface.ts#L8)*
 
 in milliseconds
 

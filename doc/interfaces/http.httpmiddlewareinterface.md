@@ -11,7 +11,7 @@
 ## Callable
 ▸ **__call**(request: *[HttpRequestInterface](http.httprequestinterface.md)*, response: *[HttpResponseInterface](http.httpresponseinterface.md)*, next: *`Function`*, done: *`Function`*): `any`
 
-*Defined in [src/http/interfaces/HttpMiddlewareInterface.ts:8](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpMiddlewareInterface.ts#L8)*
+*Defined in [src/http/interfaces/HttpMiddlewareInterface.ts:8](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpMiddlewareInterface.ts#L8)*
 
 **Parameters:**
 

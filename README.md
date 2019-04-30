@@ -64,7 +64,15 @@ npm test
 
 ```
 
- 
+### Related
+* [serendip-business-client](https://github.com/serendip-agency/serendip-business-client)
+* [serendip-business-api](https://github.com/serendip-agency/serendip-business-api)
+* [serendip-grridb-provider](https://github.com/serendip-agency/serendip-grridb-provider)
+* [serendip-grridb-node](https://github.com/serendip-agency/serendip-grridb-node)
+* [serendip-grridb-controller](https://github.com/serendip-agency/serendip-grridb-controller)
+* [serendip-mongodb-controller](https://github.com/serendip-agency/serendip-mongodb-controller)
+* [serendip-business-model](https://github.com/serendip-agency/serendip-business-model)
+* [serendip-utility](https://github.com/serendip-agency/utility)
 
 ### License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fm-esm%2Fserendip.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fm-esm%2Fserendip?ref=badge_large)

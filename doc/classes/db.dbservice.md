@@ -46,7 +46,7 @@ Every functionality thats use database should use it trough this service
 
 ⊕ **new DbService**(): [DbService](db.dbservice.md)
 
-*Defined in [src/db/DbService.ts:158](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L158)*
+*Defined in [src/db/DbService.ts:158](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L158)*
 
 **Returns:** [DbService](db.dbservice.md)
 
@@ -60,7 +60,7 @@ ___
 
 **● dependencies**: *`any`[]* =  []
 
-*Defined in [src/db/DbService.ts:28](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L28)*
+*Defined in [src/db/DbService.ts:28](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L28)*
 
 ___
 <a id="options"></a>
@@ -69,7 +69,7 @@ ___
 
 **● options**: *[DbServiceOptions](../interfaces/db.dbserviceoptions.md)*
 
-*Defined in [src/db/DbService.ts:30](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L30)*
+*Defined in [src/db/DbService.ts:30](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L30)*
 
 ___
 
@@ -81,7 +81,7 @@ ___
 
 ▸ **collection**<`T`>(collectionName: *`string`*, track?: *`boolean`*, provider?: *`string`*): `Promise`<[DbCollectionInterface](../interfaces/db.dbcollectioninterface.md)<`T`>>
 
-*Defined in [src/db/DbService.ts:55](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L55)*
+*Defined in [src/db/DbService.ts:55](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L55)*
 
 **Type parameters:**
 
@@ -103,7 +103,7 @@ ___
 
 ▸ **collections**(provider?: *`string`*): `Promise`<`string`[]>
 
-*Defined in [src/db/DbService.ts:120](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L120)*
+*Defined in [src/db/DbService.ts:120](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L120)*
 
 **Parameters:**
 
@@ -120,7 +120,7 @@ ___
 
 ▸ **dropCollection**(name: *`string`*, provider?: *`string`*): `Promise`<`boolean`>
 
-*Defined in [src/db/DbService.ts:79](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L79)*
+*Defined in [src/db/DbService.ts:79](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L79)*
 
 **Parameters:**
 
@@ -138,7 +138,7 @@ ___
 
 ▸ **dropDatabase**(provider?: *`string`*): `Promise`<`void`>
 
-*Defined in [src/db/DbService.ts:67](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L67)*
+*Defined in [src/db/DbService.ts:67](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L67)*
 
 **Parameters:**
 
@@ -155,7 +155,7 @@ ___
 
 ▸ **events**(provider?: *`string`*): `object`
 
-*Defined in [src/db/DbService.ts:149](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L149)*
+*Defined in [src/db/DbService.ts:149](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L149)*
 
 **Parameters:**
 
@@ -172,7 +172,7 @@ ___
 
 ▸ **openDownloadStreamByFilePath**(filePath: *`string`*, opts?: *`object`*, provider?: *`string`*): `Promise`<`any`>
 
-*Defined in [src/db/DbService.ts:105](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L105)*
+*Defined in [src/db/DbService.ts:105](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L105)*
 
 **Parameters:**
 
@@ -197,7 +197,7 @@ ___
 
 ▸ **openUploadStreamByFilePath**(filePath: *`string`*, metadata: *`any`*, provider?: *`string`*): `Promise`<`any`>
 
-*Defined in [src/db/DbService.ts:91](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L91)*
+*Defined in [src/db/DbService.ts:91](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L91)*
 
 **Parameters:**
 
@@ -218,7 +218,7 @@ ___
 
 *Implementation of [ServerServiceInterface](../interfaces/server.serverserviceinterface-1.md).[start](../interfaces/server.serverserviceinterface-1.md#start)*
 
-*Defined in [src/db/DbService.ts:37](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L37)*
+*Defined in [src/db/DbService.ts:37](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L37)*
 
 **Returns:** `Promise`<`void`>
 
@@ -229,7 +229,7 @@ ___
 
 ▸ **stats**(provider?: *`string`*): `Promise`<`object`>
 
-*Defined in [src/db/DbService.ts:137](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L137)*
+*Defined in [src/db/DbService.ts:137](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L137)*
 
 **Parameters:**
 
@@ -246,7 +246,7 @@ ___
 
 ▸ **configure**(options: *[DbServiceOptions](../interfaces/db.dbserviceoptions.md)*): `void`
 
-*Defined in [src/db/DbService.ts:32](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L32)*
+*Defined in [src/db/DbService.ts:32](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L32)*
 
 **Parameters:**
 

@@ -71,7 +71,7 @@ gulp.task("ts", function () {
 
 // whats typescripts , compile and then run
 gulp.watch(paths.tsSources, ["run"]);
-gulp.watch(paths.tsSources, ["typedoc"]);
+// gulp.watch(paths.tsSources, ["typedoc"]);
 
 // clean before build
 gulp.task("preBuild", ["clean"]);
@@ -144,6 +144,6 @@ gulp.task("production", function () {
   });
 });
 // compile and run node process
-gulp.task("run", ["ts", "typedoc"], run);
+gulp.task("run", ["ts"], run);
 
 gulp.task("default", ["build", "run"], function () { });

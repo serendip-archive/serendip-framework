@@ -27,7 +27,7 @@
 
 **● content**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:23](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L23)*
+*Defined in [src/email/models/EmailModel.ts:23](https://github.com/m-esm/serendip/blob/570071d/src/email/models/EmailModel.ts#L23)*
 
 ___
 <a id="contenttype"></a>
@@ -36,7 +36,7 @@ ___
 
 **● contentType**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:21](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L21)*
+*Defined in [src/email/models/EmailModel.ts:21](https://github.com/m-esm/serendip/blob/570071d/src/email/models/EmailModel.ts#L21)*
 
 mime type example : application/zip or image/jpeg
 
@@ -47,7 +47,7 @@ ___
 
 **● encoding**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:25](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L25)*
+*Defined in [src/email/models/EmailModel.ts:25](https://github.com/m-esm/serendip/blob/570071d/src/email/models/EmailModel.ts#L25)*
 
 ___
 <a id="filename"></a>
@@ -56,7 +56,7 @@ ___
 
 **● filename**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:30](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L30)*
+*Defined in [src/email/models/EmailModel.ts:30](https://github.com/m-esm/serendip/blob/570071d/src/email/models/EmailModel.ts#L30)*
 
 file name will renamed to this
 
@@ -67,7 +67,7 @@ ___
 
 **● headers**: *`any`*
 
-*Defined in [src/email/models/EmailModel.ts:32](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L32)*
+*Defined in [src/email/models/EmailModel.ts:32](https://github.com/m-esm/serendip/blob/570071d/src/email/models/EmailModel.ts#L32)*
 
 ___
 <a id="path"></a>
@@ -76,7 +76,7 @@ ___
 
 **● path**: *`string`*
 
-*Defined in [src/email/models/EmailModel.ts:16](https://github.com/m-esm/serendip/blob/17b0858/src/email/models/EmailModel.ts#L16)*
+*Defined in [src/email/models/EmailModel.ts:16](https://github.com/m-esm/serendip/blob/570071d/src/email/models/EmailModel.ts#L16)*
 
 path to read file from
 

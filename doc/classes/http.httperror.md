@@ -38,7 +38,7 @@
 
 ⊕ **new HttpError**(code: *`number`*, message: *`string`*, id?: *`string`*): [HttpError](http.httperror.md)
 
-*Defined in [src/http/HttpErrorHandler.ts:5](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpErrorHandler.ts#L5)*
+*Defined in [src/http/HttpErrorHandler.ts:5](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpErrorHandler.ts#L5)*
 
 **Parameters:**
 
@@ -60,7 +60,7 @@ ___
 
 **● code**: *`number`*
 
-*Defined in [src/http/HttpErrorHandler.ts:20](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpErrorHandler.ts#L20)*
+*Defined in [src/http/HttpErrorHandler.ts:20](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpErrorHandler.ts#L20)*
 
 ___
 <a id="description"></a>
@@ -69,7 +69,7 @@ ___
 
 **● description**: *`string`*
 
-*Defined in [src/http/HttpErrorHandler.ts:21](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpErrorHandler.ts#L21)*
+*Defined in [src/http/HttpErrorHandler.ts:21](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpErrorHandler.ts#L21)*
 
 ___
 <a id="id"></a>
@@ -78,7 +78,7 @@ ___
 
 **● id**: *`string`*
 
-*Defined in [src/http/HttpErrorHandler.ts:23](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpErrorHandler.ts#L23)*
+*Defined in [src/http/HttpErrorHandler.ts:23](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpErrorHandler.ts#L23)*
 
 ___
 <a id="message"></a>
@@ -98,7 +98,7 @@ ___
 
 **● more_info**: *`string`*
 
-*Defined in [src/http/HttpErrorHandler.ts:24](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpErrorHandler.ts#L24)*
+*Defined in [src/http/HttpErrorHandler.ts:24](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpErrorHandler.ts#L24)*
 
 ___
 <a id="name"></a>
@@ -131,7 +131,7 @@ ___
 
 **● stacktrace**: *`string`*
 
-*Defined in [src/http/HttpErrorHandler.ts:22](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpErrorHandler.ts#L22)*
+*Defined in [src/http/HttpErrorHandler.ts:22](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpErrorHandler.ts#L22)*
 
 ___
 <a id="error"></a>

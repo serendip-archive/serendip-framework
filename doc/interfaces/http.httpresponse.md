@@ -853,7 +853,7 @@ ___
 
 ▸ **json**(data: *`any`*): `void`
 
-*Defined in [src/http/HttpResponseHelpers.ts:16](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpResponseHelpers.ts#L16)*
+*Defined in [src/http/HttpResponseHelpers.ts:16](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpResponseHelpers.ts#L16)*
 
 **Parameters:**
 
@@ -1641,7 +1641,7 @@ ___
 
 ▸ **send**(data: *`any`*): `void`
 
-*Defined in [src/http/HttpResponseHelpers.ts:15](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpResponseHelpers.ts#L15)*
+*Defined in [src/http/HttpResponseHelpers.ts:15](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpResponseHelpers.ts#L15)*
 
 **Parameters:**
 

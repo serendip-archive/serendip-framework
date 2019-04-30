@@ -26,7 +26,7 @@
 
 **● host**: *`string`*
 
-*Defined in [src/email/EmailService.ts:18](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L18)*
+*Defined in [src/email/EmailService.ts:18](https://github.com/m-esm/serendip/blob/570071d/src/email/EmailService.ts#L18)*
 
 ___
 <a id="password"></a>
@@ -35,7 +35,7 @@ ___
 
 **● password**: *`string`*
 
-*Defined in [src/email/EmailService.ts:17](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L17)*
+*Defined in [src/email/EmailService.ts:17](https://github.com/m-esm/serendip/blob/570071d/src/email/EmailService.ts#L17)*
 
 ___
 <a id="port"></a>
@@ -44,7 +44,7 @@ ___
 
 **● port**: *`number`*
 
-*Defined in [src/email/EmailService.ts:19](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L19)*
+*Defined in [src/email/EmailService.ts:19](https://github.com/m-esm/serendip/blob/570071d/src/email/EmailService.ts#L19)*
 
 ___
 <a id="ssl"></a>
@@ -53,7 +53,7 @@ ___
 
 **● ssl**: *`boolean`*
 
-*Defined in [src/email/EmailService.ts:20](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L20)*
+*Defined in [src/email/EmailService.ts:20](https://github.com/m-esm/serendip/blob/570071d/src/email/EmailService.ts#L20)*
 
 ___
 <a id="username"></a>
@@ -62,7 +62,7 @@ ___
 
 **● username**: *`string`*
 
-*Defined in [src/email/EmailService.ts:16](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L16)*
+*Defined in [src/email/EmailService.ts:16](https://github.com/m-esm/serendip/blob/570071d/src/email/EmailService.ts#L16)*
 
 ___
 

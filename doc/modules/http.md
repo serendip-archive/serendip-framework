@@ -39,7 +39,7 @@
 
 ▸ **HttpRequestHelpers**(req: *`IncomingMessage` \| `any`*): `any`
 
-*Defined in [src/http/HttpRequestHelpers.ts:11](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpRequestHelpers.ts#L11)*
+*Defined in [src/http/HttpRequestHelpers.ts:11](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpRequestHelpers.ts#L11)*
 
 **Parameters:**
 
@@ -56,7 +56,7 @@ ___
 
 ▸ **HttpResponseHelpers**(res: *`ServerResponse` \| `any`*): `any`
 
-*Defined in [src/http/HttpResponseHelpers.ts:24](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpResponseHelpers.ts#L24)*
+*Defined in [src/http/HttpResponseHelpers.ts:24](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpResponseHelpers.ts#L24)*
 
 **Parameters:**
 

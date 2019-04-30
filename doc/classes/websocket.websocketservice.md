@@ -41,7 +41,7 @@
 
 ⊕ **new WebSocketService**(authService: *[AuthService](auth.authservice.md)*): [WebSocketService](websocket.websocketservice.md)
 
-*Defined in [src/ws/WebSocketService.ts:34](https://github.com/m-esm/serendip/blob/17b0858/src/ws/WebSocketService.ts#L34)*
+*Defined in [src/ws/WebSocketService.ts:34](https://github.com/m-esm/serendip/blob/570071d/src/ws/WebSocketService.ts#L34)*
 
 **Parameters:**
 
@@ -61,7 +61,7 @@ ___
 
 **● connectionEmitter**: *`EventEmitter`* =  new EventEmitter()
 
-*Defined in [src/ws/WebSocketService.ts:26](https://github.com/m-esm/serendip/blob/17b0858/src/ws/WebSocketService.ts#L26)*
+*Defined in [src/ws/WebSocketService.ts:26](https://github.com/m-esm/serendip/blob/570071d/src/ws/WebSocketService.ts#L26)*
 
 ___
 <a id="messageemitter"></a>
@@ -70,7 +70,7 @@ ___
 
 **● messageEmitter**: *`EventEmitter`* =  new EventEmitter()
 
-*Defined in [src/ws/WebSocketService.ts:27](https://github.com/m-esm/serendip/blob/17b0858/src/ws/WebSocketService.ts#L27)*
+*Defined in [src/ws/WebSocketService.ts:27](https://github.com/m-esm/serendip/blob/570071d/src/ws/WebSocketService.ts#L27)*
 
 ___
 <a id="bypasstokenonroutes"></a>
@@ -79,7 +79,7 @@ ___
 
 **● bypassTokenOnRoutes**: *`string`[]* =  []
 
-*Defined in [src/ws/WebSocketService.ts:30](https://github.com/m-esm/serendip/blob/17b0858/src/ws/WebSocketService.ts#L30)*
+*Defined in [src/ws/WebSocketService.ts:30](https://github.com/m-esm/serendip/blob/570071d/src/ws/WebSocketService.ts#L30)*
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 **get httpService**(): [HttpService](http.httpservice.md)
 
-*Defined in [src/ws/WebSocketService.ts:32](https://github.com/m-esm/serendip/blob/17b0858/src/ws/WebSocketService.ts#L32)*
+*Defined in [src/ws/WebSocketService.ts:32](https://github.com/m-esm/serendip/blob/570071d/src/ws/WebSocketService.ts#L32)*
 
 **Returns:** [HttpService](http.httpservice.md)
 
@@ -105,7 +105,7 @@ ___
 
 ▸ **sendToUser**(userId: *`string`*, path: *`string`*, model: *`string`*): `Promise`<`void`>
 
-*Defined in [src/ws/WebSocketService.ts:44](https://github.com/m-esm/serendip/blob/17b0858/src/ws/WebSocketService.ts#L44)*
+*Defined in [src/ws/WebSocketService.ts:44](https://github.com/m-esm/serendip/blob/570071d/src/ws/WebSocketService.ts#L44)*
 
 **Parameters:**
 
@@ -126,7 +126,7 @@ ___
 
 *Implementation of [ServerServiceInterface](../interfaces/server.serverserviceinterface-1.md).[start](../interfaces/server.serverserviceinterface-1.md#start)*
 
-*Defined in [src/ws/WebSocketService.ts:53](https://github.com/m-esm/serendip/blob/17b0858/src/ws/WebSocketService.ts#L53)*
+*Defined in [src/ws/WebSocketService.ts:53](https://github.com/m-esm/serendip/blob/570071d/src/ws/WebSocketService.ts#L53)*
 
 **Returns:** `Promise`<`void`>
 

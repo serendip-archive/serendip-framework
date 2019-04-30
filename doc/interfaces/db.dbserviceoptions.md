@@ -23,7 +23,7 @@
 
 **● defaultProvider**: *`string`*
 
-*Defined in [src/db/DbService.ts:14](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L14)*
+*Defined in [src/db/DbService.ts:14](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L14)*
 
 name of default provider. will be used in case of executing collection without provider argument set
 
@@ -34,7 +34,7 @@ ___
 
 **● providers**: *`object`*
 
-*Defined in [src/db/DbService.ts:16](https://github.com/m-esm/serendip/blob/17b0858/src/db/DbService.ts#L16)*
+*Defined in [src/db/DbService.ts:16](https://github.com/m-esm/serendip/blob/570071d/src/db/DbService.ts#L16)*
 
 #### Type declaration
 

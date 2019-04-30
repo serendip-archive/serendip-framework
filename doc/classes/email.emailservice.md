@@ -37,7 +37,7 @@
 
 ⊕ **new EmailService**(dbService: *[DbService](db.dbservice.md)*, viewEngineService: *[ViewEngineService](viewengine.viewengineservice.md)*): [EmailService](email.emailservice.md)
 
-*Defined in [src/email/EmailService.ts:33](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L33)*
+*Defined in [src/email/EmailService.ts:33](https://github.com/m-esm/serendip/blob/570071d/src/email/EmailService.ts#L33)*
 
 **Parameters:**
 
@@ -58,7 +58,7 @@ ___
 
 **● emailTemplates**: *`any`[]* =  []
 
-*Defined in [src/email/EmailService.ts:33](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L33)*
+*Defined in [src/email/EmailService.ts:33](https://github.com/m-esm/serendip/blob/570071d/src/email/EmailService.ts#L33)*
 
 ___
 <a id="options"></a>
@@ -67,7 +67,7 @@ ___
 
 **● options**: *[EmailServiceOptionsInterface](../interfaces/email.emailserviceoptionsinterface.md)*
 
-*Defined in [src/email/EmailService.ts:31](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L31)*
+*Defined in [src/email/EmailService.ts:31](https://github.com/m-esm/serendip/blob/570071d/src/email/EmailService.ts#L31)*
 
 ___
 
@@ -79,7 +79,7 @@ ___
 
 ▸ **send**(emailModel: *[EmailModel](email.emailmodel.md)*): `Promise`<`void`>
 
-*Defined in [src/email/EmailService.ts:70](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L70)*
+*Defined in [src/email/EmailService.ts:70](https://github.com/m-esm/serendip/blob/570071d/src/email/EmailService.ts#L70)*
 
 **Parameters:**
 
@@ -98,7 +98,7 @@ ___
 
 *Implementation of [ServerServiceInterface](../interfaces/server.serverserviceinterface-1.md).[start](../interfaces/server.serverserviceinterface-1.md#start)*
 
-*Defined in [src/email/EmailService.ts:62](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L62)*
+*Defined in [src/email/EmailService.ts:62](https://github.com/m-esm/serendip/blob/570071d/src/email/EmailService.ts#L62)*
 
 **Returns:** `Promise`<`void`>
 
@@ -109,7 +109,7 @@ ___
 
 ▸ **configure**(options: *[EmailServiceOptionsInterface](../interfaces/email.emailserviceoptionsinterface.md)*): `void`
 
-*Defined in [src/email/EmailService.ts:40](https://github.com/m-esm/serendip/blob/17b0858/src/email/EmailService.ts#L40)*
+*Defined in [src/email/EmailService.ts:40](https://github.com/m-esm/serendip/blob/570071d/src/email/EmailService.ts#L40)*
 
 **Parameters:**
 

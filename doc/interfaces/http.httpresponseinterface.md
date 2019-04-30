@@ -854,7 +854,7 @@ ___
 
 ▸ **json**(data: *`any`*): `void`
 
-*Defined in [src/http/interfaces/HttpResponseInterface.ts:12](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpResponseInterface.ts#L12)*
+*Defined in [src/http/interfaces/HttpResponseInterface.ts:12](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpResponseInterface.ts#L12)*
 
 **Parameters:**
 
@@ -1642,7 +1642,7 @@ ___
 
 ▸ **send**(data: *`any`*): `void`
 
-*Defined in [src/http/interfaces/HttpResponseInterface.ts:11](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpResponseInterface.ts#L11)*
+*Defined in [src/http/interfaces/HttpResponseInterface.ts:11](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpResponseInterface.ts#L11)*
 
 **Parameters:**
 
@@ -1659,7 +1659,7 @@ ___
 
 ▸ **sendFile**(path: *`string`*): `void`
 
-*Defined in [src/http/interfaces/HttpResponseInterface.ts:13](https://github.com/m-esm/serendip/blob/17b0858/src/http/interfaces/HttpResponseInterface.ts#L13)*
+*Defined in [src/http/interfaces/HttpResponseInterface.ts:13](https://github.com/m-esm/serendip/blob/570071d/src/http/interfaces/HttpResponseInterface.ts#L13)*
 
 **Parameters:**
 

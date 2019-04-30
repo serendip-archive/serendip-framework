@@ -32,7 +32,7 @@
 
 **● beforeMiddlewares**: *[HttpMiddlewareInterface](http.httpmiddlewareinterface.md)[]*
 
-*Defined in [src/http/HttpService.ts:28](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L28)*
+*Defined in [src/http/HttpService.ts:28](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpService.ts#L28)*
 
 ___
 <a id="bodyparserlimit"></a>
@@ -41,7 +41,7 @@ ___
 
 **● bodyParserLimit**: *`string`*
 
-*Defined in [src/http/HttpService.ts:39](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L39)*
+*Defined in [src/http/HttpService.ts:39](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpService.ts#L39)*
 
 ___
 <a id="cert"></a>
@@ -50,7 +50,7 @@ ___
 
 **● cert**: *`string`*
 
-*Defined in [src/http/HttpService.ts:45](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L45)*
+*Defined in [src/http/HttpService.ts:45](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpService.ts#L45)*
 
 ___
 <a id="controllers"></a>
@@ -59,7 +59,7 @@ ___
 
 **● controllers**: *`any`[]*
 
-*Defined in [src/http/HttpService.ts:26](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L26)*
+*Defined in [src/http/HttpService.ts:26](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpService.ts#L26)*
 
 ___
 <a id="cors"></a>
@@ -68,7 +68,7 @@ ___
 
 **● cors**: *`string`*
 
-*Defined in [src/http/HttpService.ts:54](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L54)*
+*Defined in [src/http/HttpService.ts:54](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpService.ts#L54)*
 
 ___
 <a id="httpport"></a>
@@ -77,7 +77,7 @@ ___
 
 **● httpPort**: *`number`*
 
-*Defined in [src/http/HttpService.ts:34](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L34)*
+*Defined in [src/http/HttpService.ts:34](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpService.ts#L34)*
 
 ___
 <a id="httpsonly"></a>
@@ -86,7 +86,7 @@ ___
 
 **● httpsOnly**: *`boolean`*
 
-*Defined in [src/http/HttpService.ts:51](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L51)*
+*Defined in [src/http/HttpService.ts:51](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpService.ts#L51)*
 
 ___
 <a id="httpsport"></a>
@@ -95,7 +95,7 @@ ___
 
 **● httpsPort**: *`number`*
 
-*Defined in [src/http/HttpService.ts:37](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L37)*
+*Defined in [src/http/HttpService.ts:37](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpService.ts#L37)*
 
 ___
 <a id="key"></a>
@@ -104,7 +104,7 @@ ___
 
 **● key**: *`string`*
 
-*Defined in [src/http/HttpService.ts:48](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L48)*
+*Defined in [src/http/HttpService.ts:48](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpService.ts#L48)*
 
 ___
 <a id="middlewares"></a>
@@ -113,7 +113,7 @@ ___
 
 **● middlewares**: *[HttpMiddlewareInterface](http.httpmiddlewareinterface.md)[]*
 
-*Defined in [src/http/HttpService.ts:31](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L31)*
+*Defined in [src/http/HttpService.ts:31](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpService.ts#L31)*
 
 ___
 <a id="staticpath"></a>
@@ -122,7 +122,7 @@ ___
 
 **● staticPath**: *`string`*
 
-*Defined in [src/http/HttpService.ts:42](https://github.com/m-esm/serendip/blob/17b0858/src/http/HttpService.ts#L42)*
+*Defined in [src/http/HttpService.ts:42](https://github.com/m-esm/serendip/blob/570071d/src/http/HttpService.ts#L42)*
 
 ___
 

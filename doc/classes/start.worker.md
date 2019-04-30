@@ -27,7 +27,7 @@ Worker class is used to store static properties about worker and it's cluster.
 
 **● id**: *`number`* =  cluster.worker ? cluster.worker.id : null
 
-*Defined in [src/start.ts:18](https://github.com/m-esm/serendip/blob/17b0858/src/start.ts#L18)*
+*Defined in [src/start.ts:18](https://github.com/m-esm/serendip/blob/570071d/src/start.ts#L18)*
 
 ___
 <a id="ismaster"></a>
@@ -36,7 +36,7 @@ ___
 
 **● isMaster**: *`boolean`* =  cluster.isMaster
 
-*Defined in [src/start.ts:16](https://github.com/m-esm/serendip/blob/17b0858/src/start.ts#L16)*
+*Defined in [src/start.ts:16](https://github.com/m-esm/serendip/blob/570071d/src/start.ts#L16)*
 
 ___
 <a id="isworker"></a>
@@ -45,7 +45,7 @@ ___
 
 **● isWorker**: *`boolean`* =  cluster.isWorker
 
-*Defined in [src/start.ts:17](https://github.com/m-esm/serendip/blob/17b0858/src/start.ts#L17)*
+*Defined in [src/start.ts:17](https://github.com/m-esm/serendip/blob/570071d/src/start.ts#L17)*
 
 ___
 <a id="others"></a>
@@ -54,7 +54,7 @@ ___
 
 **● others**: *`number`[]* =  []
 
-*Defined in [src/start.ts:14](https://github.com/m-esm/serendip/blob/17b0858/src/start.ts#L14)*
+*Defined in [src/start.ts:14](https://github.com/m-esm/serendip/blob/570071d/src/start.ts#L14)*
 
 ___
 
