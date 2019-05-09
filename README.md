@@ -7,7 +7,7 @@
 
 
 ![SF](https://raw.githubusercontent.com/serendip-agency/serendip-framework/master/readme_icon.png " ")
-# Serendip framework
+## Serendip framework
 
   It's a Node.js web service framework written in typescript. The main goal for creating this framework was to have a shared package that could provide all frequently used services in a specific setting which was needed for speeding up developing the rest of the Serendip platform [repositories](https://github.com/serendip-agency).
 

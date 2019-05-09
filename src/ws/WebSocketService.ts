@@ -1,26 +1,17 @@
 /**
  *  @module WebSocket
  */
+import chalk from 'chalk';
+import { EventEmitter } from 'events';
+import { IncomingMessage } from 'http';
+import * as reqIp from 'request-ip';
+import { querystring as qs } from 'serendip-utility';
+import * as url from 'url';
 
- import {
-  ServerServiceInterface,
-  EmailService,
-  Server,
-  EmailModel,
-  SmsIrService,
-  DbService,
-  AuthService
-} from "..";
+import { AuthService, Server, ServerServiceInterface } from '..';
+import { HttpService } from '../http';
+import { WebSocketInterface } from './WebSocketInterface';
 
-import * as WS from "ws";
-import { EventEmitter } from "events";
-import { IncomingMessage } from "http";
-import { WebSocketInterface } from "./WebSocketInterface";
-import * as url from "url";
-import chalk from "chalk";
-import * as qs from "qs";
-import * as reqIp from "request-ip";
-import { HttpService } from "../http";
 
 export class WebSocketService implements ServerServiceInterface {
   connectionEmitter = new EventEmitter();
@@ -32,7 +23,7 @@ export class WebSocketService implements ServerServiceInterface {
   get httpService(): HttpService {
     return Server.services["HttpService"] as HttpService;
   }
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   /**
    *
@@ -46,7 +37,7 @@ export class WebSocketService implements ServerServiceInterface {
       if (client.token && client.token.userId != userId) return;
 
       if (path) if (client.path != path) return;
-      client.send(model, (err?) => {});
+      client.send(model, (err?) => { });
     });
   }
 
@@ -55,14 +46,9 @@ export class WebSocketService implements ServerServiceInterface {
       "connection",
       (ws: WebSocketInterface, req: IncomingMessage) => {
         ws.on("message", async msg => {
-          // Server.wsServer.clients.forEach((client: WebSocketInterface) => {
-          //   console.log(client.path, client.token);
-          // });
+          ws.path = req.url.split('?')[0];
 
-          var parsedUrl = url.parse(req.url);
-          ws.path = parsedUrl.pathname;
-
-          ws.query = qs.parse(parsedUrl.query);
+          ws.query = qs.toObject(req.url.split('#')[0]);
 
           if (
             !ws.token &&
@@ -76,9 +62,9 @@ export class WebSocketService implements ServerServiceInterface {
               console.log(
                 chalk.blue(
                   `\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
-                    `new socket at ${req.url} user:${
-                      ws.token.username
-                    } ip:${reqIp.getClientIp(req)}\n`
+                  `new socket at ${req.url} user:${
+                  ws.token.username
+                  } ip:${reqIp.getClientIp(req)}\n`
                 )
               );
 
@@ -89,22 +75,27 @@ export class WebSocketService implements ServerServiceInterface {
               console.log(
                 chalk.redBright(
                   `\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
-                    `unauthenticated socket closed ip:${
-                      req.connection.remoteAddress
-                    }\n`
+                  `unauthenticated socket closed ip:${
+                  req.connection.remoteAddress
+                  }\n`
                 )
               );
             }
-          else this.messageEmitter.emit(ws.path, msg, ws);
+          else 
+          {
+            this.messageEmitter.emit(ws.path, msg, ws);
+            console.log('emitted', ws.path, ws.token ? 'has token' : '', msg);
+
+          }
         });
 
         ws.on("close", (code, reason) => {
           console.log(
             chalk.redBright(
               `\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
-                `socket close user:${
-                  ws.token ? ws.token.username : "N/A"
-                } code:${code} reason:${reason} \n`
+              `socket close user:${
+              ws.token ? ws.token.username : "N/A"
+              } code:${code} reason:${reason} \n`
             )
           );
         });

@@ -37,6 +37,7 @@
     "gulp-typedoc": "^2.2.2",
     "gulp-typescript": "^4.0.2",
     "pump": "^3.0.0",
+    "@types/mocha": "^5.2.6",
     "serendip-mongodb-provider": "^1.0.12",
     "typedoc": "^0.14.2",
     "typedoc-plugin-external-module-name": "^2.0.0",
@@ -44,13 +45,11 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "@types/mocha": "^5.2.6",
     "@types/ws": "^6.0.1",
     "async": "^2.6.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "chalk": "^2.4.1",
-    "deep-diff": "^1.0.2",
     "glob": "^7.1.2",
     "mime-types": "^2.1.19",
     "moment": "^2.22.2",

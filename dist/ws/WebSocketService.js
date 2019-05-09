@@ -1,7 +1,4 @@
 "use strict";
-/**
- *  @module WebSocket
- */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -11,12 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const __1 = require("..");
-const events_1 = require("events");
-const url = require("url");
+/**
+ *  @module WebSocket
+ */
 const chalk_1 = require("chalk");
-const qs = require("qs");
+const events_1 = require("events");
 const reqIp = require("request-ip");
+const serendip_utility_1 = require("serendip-utility");
+const __1 = require("..");
 class WebSocketService {
     constructor(authService) {
         this.authService = authService;
@@ -52,9 +51,8 @@ class WebSocketService {
                     // Server.wsServer.clients.forEach((client: WebSocketInterface) => {
                     //   console.log(client.path, client.token);
                     // });
-                    var parsedUrl = url.parse(req.url);
-                    ws.path = parsedUrl.pathname;
-                    ws.query = qs.parse(parsedUrl.query);
+                    ws.path = req.url.split('?')[0];
+                    ws.query = serendip_utility_1.querystring.toObject(req.url.split('#')[0]);
                     if (!ws.token &&
                         WebSocketService.bypassTokenOnRoutes.indexOf(ws.path) === -1)
                         try {
@@ -68,8 +66,10 @@ class WebSocketService {
                             console.log(chalk_1.default.redBright(`\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
                                 `unauthenticated socket closed ip:${req.connection.remoteAddress}\n`));
                         }
-                    else
+                    else {
                         this.messageEmitter.emit(ws.path, msg, ws);
+                        console.log('emitted', ws.path, ws.token ? 'has token' : '', msg);
+                    }
                 }));
                 ws.on("close", (code, reason) => {
                     console.log(chalk_1.default.redBright(`\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()} | ` +
