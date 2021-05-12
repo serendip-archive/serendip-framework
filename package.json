@@ -55,7 +55,7 @@
     "moment": "^2.22.2",
     "mustache": "^2.3.0",
     "node-cron": "^1.2.1",
-    "nodemailer": "^4.6.7",
+    "nodemailer": "^6.4.16",
     "path-match": "^1.2.4",
     "promise-serial": "^0.1.5",
     "request": "^2.87.0",
